@@ -83,8 +83,8 @@ export default function Home() {
                 </button>
               </div>
             </div>
-            <div className="bg-[var(--neutral-10)] w-full rounded-md p-2">
-              <table className="w-full">
+            <div className="bg-[var(--neutral-10)] w-full rounded-md overflow-x-auto">
+              <table className="w-full whitespace-no-wrap">
                 <thead>
                   <tr
                     className={`bg-[var(--gray-100)]  text-[var(--gray-500)] font-[500] h-12 ${roboto.className} border-b-2 uppercase`}

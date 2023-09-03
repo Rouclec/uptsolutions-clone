@@ -24,7 +24,7 @@ const SideBar: FC<Props> = ({ children }) => {
   console.log("path: ", router.pathname);
   return (
     <div>
-      <div className="w-screen fixed left-0 top-0 right-0 h-20 bg-[var(--neutral-10)] z-10 border-2 flex p-4 items-center gap-16">
+      <div className="fixed left-0 top-0 right-0 h-20 bg-[var(--neutral-10)] z-10 border-2 flex p-4 items-center gap-16">
         <div className="flex gap-2 items-center w-24 md:w-[300px]">
           <Image src={"/assets/logo.png"} alt="logo" width={28} height={28} />
           <p className="font-[dm-sans] text-[var(--primary-600)] font-semibold text-xl hidden md:block">
@@ -57,7 +57,7 @@ const SideBar: FC<Props> = ({ children }) => {
           </div>
         </div>
       </div>
-      <div className="flex flex-col h-screen bg-[var(--neutral-10)] fixed left-0 top-20 bottom-0 w-24 md:w-[300px] p-4 items-center">
+      <div className="flex flex-col bg-[var(--neutral-10)] fixed left-0 top-20 bottom-0 w-24 md:w-[300px] p-4 items-center">
         <div className="flex flex-col items-center gap-1">
           <div className="w-12 md:w-24 h-12 md:h-24 bg-[var(--gray-400)] rounded-full flex items-center justify-center">
             <Image

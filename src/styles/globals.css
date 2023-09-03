@@ -72,14 +72,14 @@ body {
 
 @layer components {
   .btn-primary {
-    @apply items-center bg-[var(--primary-600)] rounded-md px-4 py-2 text-[var(--neutral-10)]  font-[500] text-lg w-auto font-[roboto];
+    @apply items-center bg-[var(--primary-600)] rounded-md md:px-4 md:py-2 text-[var(--neutral-10)]  font-[500] p-1 text-xs md:text-lg w-auto font-[roboto];
   }
   .btn-secondary {
-    @apply items-center bg-[var(--neutral-10)] rounded-md px-4 py-2 text-[var(--gray-800)] font-[500] text-lg w-auto font-[roboto];
+    @apply items-center bg-[var(--neutral-10)] rounded-md md:px-4 md:py-2 text-[var(--gray-800)] font-[500] w-auto font-[roboto] p-1 text-xs md:text-lg;
   }
 
   .btn-tetiary {
-    @apply bg-transparent underline text-[var(--gray-800)] text-lg;
+    @apply bg-transparent underline text-[var(--gray-800)] text-xs md:text-lg;
   }
 
   .card {

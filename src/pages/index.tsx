@@ -83,7 +83,7 @@ export default function Home() {
                 </button>
               </div>
             </div>
-            <div className="bg-[var(--neutral-10)] w-full rounded-md">
+            <div className="bg-[var(--neutral-10)] w-full rounded-md p-2">
               <table className="w-full">
                 <thead>
                   <tr

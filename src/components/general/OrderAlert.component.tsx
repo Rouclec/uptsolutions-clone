@@ -11,7 +11,7 @@ type Props = {
 const OrderAlert: React.FC<Props> = ({ onClose, onView, number }) => {
   return (
     <div className="w-full p-2 rounded-md flex items-center justify-between bg-[var(--primary-600)]">
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-2 md:gap-4">
         <div className="hover:cursor-pointer card bg-[var(--primary-500)]">
           <HiOutlineSpeakerphone
             size={24}
@@ -19,13 +19,13 @@ const OrderAlert: React.FC<Props> = ({ onClose, onView, number }) => {
           />
         </div>
         <p
-          className={`${roboto.className} text-[var(--neutral-10)] font[500] text-lg`}
+          className={`${roboto.className} text-[var(--neutral-10)] font[500] text-xs md:text-md`}
         >
           {`You have ${number} new order${number > 1 ? "s" : ""}`}
         </p>
       </div>
-      <div className="flex items-center gap-4">
-        <button className="btn-secondary py-1" onClick={onView}>
+      <div className="flex items-center gap-1 md:gap-4">
+        <button className="btn-secondary" onClick={onView}>
           {`View order${number > 1 ? "s" : ""}`}
         </button>
         <div className="hover:cursor-pointer" onClick={onClose}>

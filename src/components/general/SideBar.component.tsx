@@ -119,7 +119,7 @@ const SideBar: FC<Props> = ({ children }) => {
           ))}
         </div>
       </div>
-      <main className="md:ml-[300px] mt-20 p-10">{children}</main>
+      <main className="md:ml-[300px] mt-20 p-4 md:p-10">{children}</main>
     </div>
   );
 };

@@ -37,7 +37,7 @@ export default function Home() {
           )}
         </Header>
 
-        <div className={`${showAlert ? "mt-36" : "mt-16"}`}>
+        <div className={`${showAlert ? "mt-36" : "mt-20"}`}>
           <Stats />
           <div className="my-10 grid gap-2">
             <div className="grid gap-1">

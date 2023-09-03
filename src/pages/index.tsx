@@ -161,11 +161,11 @@ export default function Home() {
                         </td>
                         <td className="px-4 text-[var(--primary-100)] p-3">
                           {index % 2 === 0 ? (
-                            <div className="p-[2px] rounded-full card-primary items-center justify-center flex">
+                            <div className="p-[2px] rounded-full card-primary items-center justify-center flex truncate">
                               Printed
                             </div>
                           ) : (
-                            <div className="p-[2px] rounded-full card-secondary items-center justify-center flex">
+                            <div className="p-[2px] rounded-full card-secondary items-center justify-center flex truncate">
                               In Progress
                             </div>
                           )}

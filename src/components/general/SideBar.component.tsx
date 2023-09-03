@@ -44,7 +44,7 @@ const SideBar: FC<Props> = ({ children }) => {
             Universal Print Tech
           </p>
         </div>
-        <div className="flex w-[100vw] md:w-[calc(100vw-16rem)] justify-evenly md:justify-between items-center">
+        <div className="flex w-[100vw] md:w-[calc(100vw-16rem)] justify-between items-center">
           <div className="flex gap-2 items-center md:w-[80%] ">
             <HiMagnifyingGlass
               className="text-[var(--gray-700)] hover:cursor-pointer"

@@ -55,18 +55,9 @@ const SideBar: FC<Props> = ({ children }) => {
             </p>
           </div>
           <div className="md:w-[20%] flex items-center gap-2 justify-evenly">
-            <HiOutlineRefresh
-              className="text-[var(--gray-700)] font-extralight hover:cursor-pointer"
-              size={32}
-            />
-            <RiMessage2Line
-              className="text-[var(--gray-700)] hover:cursor-pointer"
-              size={32}
-            />
-            <HiOutlineBell
-              className="text-[var(--gray-700)] hover:cursor-pointer"
-              size={32}
-            />
+            <HiOutlineRefresh className="text-[var(--gray-700)] font-extralight hover:cursor-pointer text-lg md:text-3xl" />
+            <RiMessage2Line className="text-[var(--gray-700)] hover:cursor-pointer text-lg md:text-3xl" />
+            <HiOutlineBell className="text-[var(--gray-700)] hover:cursor-pointer text-lg md:text-3xl" />
           </div>
         </div>
       </div>

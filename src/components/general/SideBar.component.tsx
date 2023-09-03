@@ -32,7 +32,7 @@ const SideBar: FC<Props> = ({ children }) => {
   }, [ref]);
   return (
     <div>
-      <div className="fixed left-0 top-0 right-0 h-20 bg-[var(--neutral-10)] z-10 border-2 flex p-4 items-center gap-16">
+      <div className="fixed left-0 top-0 right-0 h-20 bg-[var(--neutral-10)] z-10 border-2 flex p-4 items-center gap-2 md:gap-16">
         <div className="flex gap-2 items-center w-24 md:w-[300px]">
           <HiOutlineMenu
             className="text-[var(--gray-700)] mr-4 hover:cursor-pointer md:hidden"
@@ -44,8 +44,8 @@ const SideBar: FC<Props> = ({ children }) => {
             Universal Print Tech
           </p>
         </div>
-        <div className="flex w-[calc(100vw-6rem)] md:w-[calc(100vw-16rem)] justify-between items-center">
-          <div className="flex gap-2 items-center w-[80%] ">
+        <div className="flex w-[100vw] md:w-[calc(100vw-16rem)] justify-evenly md:justify-between items-center">
+          <div className="flex gap-2 items-center md:w-[80%] ">
             <HiMagnifyingGlass
               className="text-[var(--gray-700)] hover:cursor-pointer"
               size={18}
@@ -54,7 +54,7 @@ const SideBar: FC<Props> = ({ children }) => {
               Search
             </p>
           </div>
-          <div className="w-[20%] flex items-center gap-2 justify-evenly">
+          <div className="md:w-[20%] flex items-center gap-2 justify-evenly">
             <HiOutlineRefresh
               className="text-[var(--gray-700)] font-extralight hover:cursor-pointer"
               size={32}

@@ -1,5 +1,6 @@
 import { Header, OrderAlert, SideBar, Stats } from "@/components";
 import { roboto, roboto_slab } from "./_app";
+import { useRouter } from "next/router";
 import { useState } from "react";
 import {
   HiOutlineChevronDown,
@@ -9,10 +10,13 @@ import {
 } from "react-icons/hi2";
 import { HiOutlineCloudDownload } from "react-icons/hi";
 import Image from "next/image";
+import Link from "next/link";
 
 export default function Home() {
   const [newOrder, setNewOrder] = useState(1);
   const [showAlert, setShowAlert] = useState(true);
+
+  const router = useRouter();
   return (
     <SideBar>
       <div className="">
@@ -23,10 +27,12 @@ export default function Home() {
             Dashboard
           </p>
           <div className="flex w-full items-center justify-end mb-2">
-            <button className={`btn-primary flex gap-2 text-lg`}>
+        <Link href="/file_upload">
+        <button className={`btn-primary flex gap-2 text-lg`}>
               <HiOutlinePlus />
               <p className={`${roboto.className} font-normal`}>Order Print</p>
             </button>
+        </Link>
           </div>
           {showAlert && newOrder > 0 && (
             <OrderAlert

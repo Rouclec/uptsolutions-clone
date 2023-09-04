@@ -49,7 +49,7 @@ export default function Home() {
               <p
                 className={`text-[var(--gray-800)] ${roboto.className} text-sm`}
               >
-                An overview of all print orders and tdeir details
+                An overview of all print orders and their details
               </p>
             </div>
             <div className="flex items-center justify-end md:justify-between">
@@ -172,12 +172,34 @@ export default function Home() {
                         </td>
                         <td className="px-4 p-3  rounded-r-lg">
                           <div className="flex gap-20 items-center">
-                            <p className={`text-[var(--primary-500)] text-lg`}>Edit</p>
-                            <HiOutlineTrash size={24} className="text-[var(--warning-600)]"/>
+                            <p className={`text-[var(--primary-500)] text-lg`}>
+                              Edit
+                            </p>
+                            <HiOutlineTrash
+                              size={24}
+                              className="text-[var(--warning-600)]"
+                            />
                           </div>
                         </td>
                       </tr>
                     ))}
+                  <tr
+                    className={`bg-[var(--gray-100)]  text-[var(--gray-500)] font-[500] h-12 ${roboto.className} border-b-2 uppercase`}
+                  >
+                    <th className=" border-[var(--gray-100)] px-4"></th>
+                    <th className="text-left border-[var(--gray-100)] px-4">
+                      Showing 1 of 10
+                    </th>
+                    <th className=" px-4 text-left" />
+                    <th className=" px-4 text-left" />
+                    <th className=" px-4 text-left" />
+                    <th className=" border-[var(--gray-100)] px-4 text-left">
+                      <div className="flex gap-20 items-center">
+                        <button>Prev</button>
+                        <button>Next</button>
+                      </div>
+                    </th>
+                  </tr>
                 </tbody>
               </table>
             </div>

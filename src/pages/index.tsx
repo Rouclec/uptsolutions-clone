@@ -177,11 +177,15 @@ export default function Home() {
                             </div>
                           )}
                         </td>
-                        <td className="px-4 p-3  rounded-r-lg">
+                        <td className=" pl-4 rounded-r-lg">
                           <div className="flex gap-20 items-center">
-                            <p className={`text-[var(--primary-500)] text-lg`}>
-                              Edit
-                            </p>
+                            <Link href={`/${"Jane cooper"}`}>
+                              <p
+                                className={`text-[var(--primary-500)] text-lg`}
+                              >
+                                Edit
+                              </p>
+                            </Link>
                             <HiOutlineTrash
                               size={24}
                               className="text-[var(--warning-600)]"
@@ -200,10 +204,10 @@ export default function Home() {
                     <th className=" px-4 text-left" />
                     <th className=" px-4 text-left" />
                     <th className=" px-4 text-left" />
-                    <th className=" border-[var(--gray-100)] px-4 text-left">
+                    <th className=" border-[var(--gray-100)] pl-4 text-left">
                       <div className="flex gap-20 items-center py-2">
-                        <button className="btn-outline">Prev</button>
-                        <button className="btn-outline">Next</button>
+                        <button className="btn-tetiary">Prev</button>
+                        <button className="btn-tetiary">Next</button>
                       </div>
                     </th>
                   </tr>

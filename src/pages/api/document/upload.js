@@ -5,7 +5,7 @@ import { getSession } from 'next-auth/react'
 import aws from 'aws-sdk'
 import catchAsync from '../../../lib/catchAsync';
 const s3 = new aws.S3({
-    accessKeyId: process.env.AWS_ACCESS_KEY,
+    accessKeyId: process.env.AWS_ACCESS_TOKEN,
     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
 });
 

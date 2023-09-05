@@ -218,8 +218,8 @@ export default function Create() {
             <div className="w-full">
               <div className=" py-5 lg:rounded md:flex gap-4 ">
                 <div className="mb-4 md:w-2/3 rounded-lg  rounded pt-6 pb-8">
-                  <div className="mb-4 md:flex md:justify-between">
-                    <div className="md:flex mb-4 md:mb-0 w-full gap-2">
+                  <div className="mb-4 flex md:justify-between">
+                    <div className="flex mb-4 md:mb-0 w-full gap-2">
                       <div className="w-full">
                         <label className="mb-2 block text-sm font-bold text-gray-700">
                           File Name
@@ -235,26 +235,26 @@ export default function Create() {
                   </div>
 
                   <div className="bg-white p-4 rounded-md">
-                    <div className="md:flex justify-between my-3 border-b-2 py-2 border-gray-300">
+                    <div className=" flex justify-between my-3 border-b-2 py-2 border-gray-300">
                       <label className="text-gray-700 text-lg font-medium leading-normal">
                         Number of Copies
                       </label>
                       <input
-                        className="my-auto bg-gray-50 border border-gray-300 px-2 rounded-md py-2"
+                        className="my-auto bg-gray-50 border w-10 border-gray-300 px-2 rounded-md py-2"
                         type="number"
                         onChange={(e: any) => setNumberOfCopies(e.target.value)}
                       />
                     </div>
-                    <div className="md:flex justify-between my-3 border-b-2 py-2 border-gray-300">
+                    <div className="flex justify-between my-3 border-b-2 py-2 border-gray-300">
                       <label className="text-gray-700 text-lg font-medium leading-normal">
-                        Pages{" "}
+                        Pages
                       </label>
                       <select className="my-auto bg-gray-50 border border-gray-300 px-2 rounded-md py-2">
                         <option value="All">All</option>
                         <option value="Some Pages">Some Pages</option>
                       </select>
                     </div>
-                    <div className="md:flex justify-between my-3 py-2">
+                    <div className="flex justify-between my-3 py-2">
                       <label className="text-gray-700 text-lg font-medium leading-normal">
                         Paper Type
                       </label>
@@ -266,7 +266,7 @@ export default function Create() {
                         <option value="Hard page">Hard Page</option>
                       </select>
                     </div>
-                    <div className="md:flex justify-between border-b-2 border-gray-300 my-3 py-2">
+                    <div className="flex justify-between border-b-2 border-gray-300 my-3 py-2">
                       <label className="text-gray-700 text-lg font-medium leading-normal">
                         Paper color
                       </label>
@@ -281,7 +281,7 @@ export default function Create() {
                       </select>
                     </div>
 
-                    <div className="md:flex justify-between my-3 border-b-2 py-2 border-gray-300">
+                    <div className="flex justify-between my-3 border-b-2 py-2 border-gray-300">
                       <label className="text-gray-700 text-lg font-medium leading-normal">
                         Paper Size
                       </label>
@@ -295,11 +295,11 @@ export default function Create() {
                       </select>
                     </div>
 
-                    <div className="md:flex justify-between my-3 border-b-2 py-2 border-gray-300">
+                    <div className="flex justify-between my-3 border-b-2 py-2 border-gray-300">
                       <label className="text-gray-700 text-lg font-medium leading-normal">
                         Orientation
                       </label>
-                      <div className="md:flex flex-row justify-between">
+                      <div className="flex flex-row justify-between">
                         <label className="inline-flex items-center">
                           <input
                             type="radio"

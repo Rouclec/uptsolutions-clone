@@ -235,8 +235,9 @@ export default function Create() {
                         Number of Copies
                       </label>
                       <input
-                        className="my-auto bg-gray-50 border w-10 border-gray-300 px-2 rounded-md py-2"
+                        className="my-auto bg-gray-50 border w-[80px] border-gray-300 px-2 rounded-md py-2"
                         type="number"
+                        min={1}
                         onChange={(e: any) => setNumberOfCopies(e.target.value)}
                       />
                     </div>

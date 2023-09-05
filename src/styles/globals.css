@@ -78,6 +78,10 @@ body {
     @apply items-center bg-[var(--neutral-10)] rounded-md px-4 py-2 text-[var(--gray-800)] font-[500] w-auto font-[roboto] p-1 text-lg;
   }
 
+  .btn-outline {
+    @apply items-center bg-[var(--neutral-10)] rounded-md p-2 text-[var(--gray-800)] font-[500] w-auto font-[roboto] text-lg border-2;
+  }
+
   .btn-tetiary {
     @apply bg-transparent underline text-[var(--gray-800)] text-lg;
   }

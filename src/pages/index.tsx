@@ -201,9 +201,9 @@ export default function Home() {
                     <th className=" px-4 text-left" />
                     <th className=" px-4 text-left" />
                     <th className=" border-[var(--gray-100)] px-4 text-left">
-                      <div className="flex gap-20 items-center">
-                        <button>Prev</button>
-                        <button>Next</button>
+                      <div className="flex gap-20 items-center py-2">
+                        <button className="btn-outline">Prev</button>
+                        <button className="btn-outline">Next</button>
                       </div>
                     </th>
                   </tr>

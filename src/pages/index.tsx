@@ -27,23 +27,24 @@ export default function Home() {
             Dashboard
           </p>
           <div className="flex w-full items-center justify-end mb-2">
-        <Link href="/order-print">
-        <button className={`btn-primary flex gap-2 text-lg`}>
-              <HiOutlinePlus />
-              <p className={`${roboto.className} font-normal`}>Order Print</p>
-            </button>
-        </Link>
+            <Link href="/order-print">
+              <button className={`btn-primary flex gap-2 text-lg`}>
+                <HiOutlinePlus />
+                <p className={`${roboto.className} font-normal`}>Order Print</p>
+              </button>
+            </Link>
           </div>
           {showAlert && newOrder > 0 && (
             <OrderAlert
-              number={newOrder}
+              message={`You have ${newOrder} pending order`}
+              viewTxt={"View order"}
               onClose={() => setShowAlert(false)}
-              onView={() => setNewOrder(0)}
+              link={"/checkout"}
             />
           )}
         </Header>
 
-        <div className={`${showAlert ? "mt-40" : "mt-20"}`}>
+        <div className={`${showAlert ? "mt-44" : "mt-28"}`}>
           <Stats />
           <div className="my-10 grid gap-2">
             <div className="grid gap-1">

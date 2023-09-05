@@ -187,7 +187,7 @@ export default function Create() {
           >
             Order Print
           </p>
-          <div className="container w-full mt-5 flex justify-end">
+          <div className="container w-full py-5 flex justify-end">
             <button
               onClick={addFile}
               className={`btn-primary flex gap-2 text-lg`}
@@ -197,7 +197,7 @@ export default function Create() {
             </button>
           </div>
         </Header>
-        <div className="container mx-auto mt-[65px] gap-1  md:p-2">
+        <div className="container mx-auto mt-32 gap-1  md:p-2">
           <div className="flex">
             <div className="w-full">
               <div className=" py-5 lg:rounded md:flex gap-4 ">

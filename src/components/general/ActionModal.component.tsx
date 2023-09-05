@@ -33,7 +33,7 @@ const ActionModal: React.FC<Props> = ({
   const router = useRouter();
   return (
     <div className="modal">
-      <div className="bg-[var(--neutral-10)] rounded-lg p-4 grid w-[80vw] max-w-[500px]">
+      <div className="bg-[var(--neutral-10)] rounded-lg p-4 grid w-[80vw] max-w-[500px] max-h-fit">
         <div className="p-4 items-center justify-center border-b-2">
           <p
             className={`text-center text-[var(--gray-800)] text-xl md:text-2xl font-bold ${roboto_slab.className}`}

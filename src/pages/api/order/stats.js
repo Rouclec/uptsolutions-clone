@@ -1,6 +1,6 @@
-import catchAsync from "../../../lib/catchAsync";
-import DB from "../../../lib/db";
-import Order from "../../../models/Order";
+import catchAsync from "lib/catchAsync";
+import DB from "lib/db";
+import Order from "models/Order";
 
 const getStats = catchAsync(async (_, res) => {
     await DB()

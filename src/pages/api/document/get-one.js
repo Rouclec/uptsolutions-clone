@@ -1,5 +1,5 @@
-import { getOne } from "../../../lib/helper";
-import Document from "../../../models/Document";
+import Document from 'models/Document';
+import { getOne } from 'lib/helper';
 
 
 const getOneDoc = getOne(Document);

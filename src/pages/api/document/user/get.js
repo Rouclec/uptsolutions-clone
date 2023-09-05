@@ -1,7 +1,6 @@
-import DB from "../../../../lib/db";
-import Document from "../../../../models/Document";
-
-const catchAsync = require("../../../../lib/catchAsync");
+import DB from "lib/db";
+import Document from "models/Document";
+import catchAsync from 'lib/catchAsync';
 
 const getUserDocs = catchAsync(async (req, res) => {
     await DB()

@@ -1,7 +1,7 @@
-import DB from "../../../../lib/db";
+import DB from "lib/db";
 import mongoose from 'mongoose';
-import catchAsync from "../../../../lib/catchAsync";
-import Document from "../../../../models/Document";
+import catchAsync from "lib/catchAsync";
+import Document from "models/Document";
 const getStats = catchAsync(async (req, res) => {
     await DB()
     let userId = req.query?.userId;

@@ -1,9 +1,8 @@
 import DB from 'lib/db'
 import User from "models/User";
 import Document from 'models/Document';
-import { getSession } from 'next-auth/react'
 import aws from 'aws-sdk'
-import catchAsync from '../../../lib/catchAsync';
+import catchAsync from 'lib/catchAsync';
 const s3 = new aws.S3({
     accessKeyId: process.env.AWS_ACCESS_TOKEN,
     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
@@ -11,7 +10,6 @@ const s3 = new aws.S3({
 
 const upload = catchAsync(async (req, res, next) => {
     await DB()
-    const session = await getSession({ req })
 
     const { name, pages, paperType, paperSize, orientation, printSides, color, pagesPerSheet, printingType, bindingType, description, file, createdBy } = req.body
 

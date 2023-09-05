@@ -3,9 +3,18 @@ import React, { useState } from "react";
 import { roboto, roboto_slab } from "../_app";
 import Image from "next/image";
 
+export const validatePhoneNumber = (phoneNumber: string) => {
+  const mtnRegexp = new RegExp(/^6(((7|8)[0-9]{7}$)|(5[0-4][0-9]{6}$))/);
+  const orangeRegexp = new RegExp(/^6(((9)[0-9]{7}$)|(5[5-9][0-9]{6}$))/);
+  if (mtnRegexp.test(phoneNumber)) return "mtn";
+  else if (orangeRegexp.test(phoneNumber)) return "orange";
+  return "";
+};
+
 export default function Index() {
   const [showModal, setShowModal] = useState(false);
   const [phoneNumber, setPhoneNumber] = useState("");
+  const [provider, setProvider] = useState("");
 
   const payNow = async () => {
     if (phoneNumber) {
@@ -112,16 +121,24 @@ export default function Index() {
               className="w-80 border-2 rounded-lg p-4 text-lg md:text-2xl text-[var(--gray-800)]"
               placeholder="Enter your mobile money number"
               type="tel"
-              onChange={(e) => setPhoneNumber(e.target?.value)}
+              onChange={(e) => {
+                setPhoneNumber(e.target?.value);
+                setProvider(validatePhoneNumber(e.target.value));
+              }}
             />
           </div>
           <div className="flex items-center justify-between w-full">
             <Image
-              src={"/assets/momo.png"}
+              src={
+                provider === "orange"
+                  ? "/assets/orange-money.png"
+                  : "/assets/momo.png"
+              }
               alt="mtn-momo"
               width={52}
               height={52}
             />
+
             <button
               className={`btn-primary ${
                 !phoneNumber && "opacity-20 hover:cursor-not-allowed"

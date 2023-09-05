@@ -20,7 +20,6 @@ const SideBar: FC<Props> = ({ children }) => {
 
   useEffect(() => {
     const handleOutSideClick = (event: any) => {
-      console.log("event.tagert.id", event.target.id);
       if (!ref.current?.contains(event.target) && event.target.id !== "menu") {
         setShowSideBar(false);
       }

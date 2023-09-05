@@ -20,7 +20,17 @@ export default function Signup() {
         </div>
         <div className="grid row-span-3 bg-[var(--neutral-10)] px-10 md:px-32 py-8 pb-24 md:py-32 w-full overflow-x-auto">
           <div className="gap-6 flex flex-col">
-            <Image src={"/assets/logo.png"} alt="logo" width={56} height={56} />
+            <div className="flex flex-row gap-2 md:gap-8 items-center">
+              <Image
+                src={"/assets/logo.png"}
+                alt="logo"
+                width={56}
+                height={56}
+              />
+              <p className="font-[dm-sans] text-[var(--primary-600)] font-semibold text-2xl md:text-4xl block">
+                Universal Print Tech
+              </p>
+            </div>
             <div className="flex flex-col gap-2">
               <p
                 className={`${roboto_slab.className} text-[var(--gray-900)] font-bold text-3xl md:text-5xl`}

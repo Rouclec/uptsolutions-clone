@@ -12,6 +12,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { roboto, roboto_slab } from "./_app";
 import PrintSummary from "@/components/dashboard/PrintSummary";
+import OrderSummary from "@/components/dashboard/OrderSummary";
 
 export default function Home() {
   const [newOrder, setNewOrder] = useState(1);
@@ -44,11 +45,10 @@ export default function Home() {
             />
           )}
         </Header>
-{/* order sumary */}
+        {/* order sumary */}
         <PrintSummary />
 
-
-
+        <OrderSummary />
       </div>
     </SideBar>
   );

@@ -18,7 +18,7 @@ export default function Login() {
             style={{ width: "100%", height: "100%" }}
           />
         </div>
-        <div className="grid row-span-3 bg-[var(--neutral-10)] px-10 md:px-32 py-8 pb-24 md:py-32 w-full overflow-x-auto">
+        <div className="grid row-span-3 bg-[var(--neutral-10)] px-10 md:px-32 py-8 pb-24 md:py-32 w-full overflow-x-hidden">
           <div className="gap-6 flex flex-col">
             <div className="flex flex-row gap-2 md:gap-8 items-center">
               <Image
@@ -118,19 +118,19 @@ export default function Login() {
                 </p>
               </div>
             </div>
-            <div className="flex fixed bottom-0 right-0 left-0 justify-evenly px-10 md:ml-[50vw] bg-[var(--neutral-10)] py-8">
+            <div className="flex fixed bottom-0 right-0 left-0 justify-evenly px-10 md:ml-[50vw] bg-[var(--neutral-10)] py-4 md:py-8">
               <p
-                className={`${roboto.className} text-[var(--primary-600)] text-lg font-normal`}
+                className={`${roboto.className} text-[var(--primary-600)] text-sm md:text-lg font-normal`}
               >
                 Privacy &amp; Terms
               </p>
               <p
-                className={`${roboto.className} text-[var(--primary-600)] text-lg font-normal`}
+                className={`${roboto.className} text-[var(--primary-600)] text-sm md:text-lg font-normal`}
               >
                 Contact us
               </p>
               <p
-                className={`${roboto.className} text-[var(--primary-600)] text-lg font-normal`}
+                className={`${roboto.className} text-[var(--primary-600)] text-sm md:text-lg font-normal`}
               >
                 English US
               </p>

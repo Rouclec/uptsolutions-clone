@@ -18,7 +18,7 @@ export default function Login() {
             style={{ width: "100%", height: "100%" }}
           />
         </div>
-        <div className="grid row-span-3 bg-[var(--neutral-10)] px-10 md:px-32 py-8 pb-24 md:py-32 w-full overflow-x-hidden">
+        <div className="grid row-span-3 bg-[var(--neutral-10)] px-8 md:px-32 py-8 pb-24 md:py-32 w-full overflow-x-hidden">
           <div className="gap-6 flex flex-col">
             <div className="flex flex-row gap-2 md:gap-8 items-center">
               <Image

@@ -75,7 +75,7 @@ export default function OrderItem() {
       </td>
       <td className="px-4 p-3  rounded-r-lg">
         <div className="flex gap-20 items-center">
-          <Link href="#" className={`text-[var(--primary-500)] text-lg`}>View </Link>
+          <Link href="/order/xxId" className={`text-[var(--primary-500)] text-lg`}>View </Link>
           {/* <HiOutlineTrash size={24} className="text-[var(--warning-600)]" /> */}
         </div>
       </td>

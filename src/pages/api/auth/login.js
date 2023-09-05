@@ -3,7 +3,7 @@ import User from "models/User";
 
 export default async function login(req, res, next) {
     await DB()
-    const { email, password } = JSON.parse(req.body);
+    const { email, password } = req.body;
 
     if (!(email && password)) {
         return next(

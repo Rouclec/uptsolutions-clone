@@ -6,14 +6,19 @@ import Link from "next/link";
 import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/router";
+import { toaster } from "@/components";
+import { Squares } from "react-activity";
 
+const emailFormat = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
 export default function Login() {
   const router = useRouter();
 
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-
+  const [show, setShow] = useState(false);
+  const [emailValid, setEmailValid] = useState(false);
+  const [check, setCheck] = useState(false);
   const handleGoogleSignin = async () => {
     signIn("google", {
       callbackUrl: "/",
@@ -30,9 +35,10 @@ export default function Login() {
         callbackUrl: "/",
       });
 
+      if (!status?.ok) toaster(status?.error as string, "error");
       if (status?.ok) router.push(status?.url as any);
     } catch (error) {
-      console.log("Error logging in: ", error);
+      toaster(error as string, "error");
     } finally {
       setLoading(false);
     }
@@ -113,7 +119,21 @@ export default function Login() {
                 >
                   Email
                 </p>
-                <input className="border-2 rounded-md w-full h-12" />
+                <input
+                  className={`border-2 rounded-md w-full h-12 px-4 md:px-6 ${
+                    !emailValid && check && "border-[var(--warning-500)]"
+                  }`}
+                  onChange={(e) => {
+                    setEmailValid(emailFormat.test(e.target.value));
+                    setCheck(true);
+                    setEmail(e.target.value);
+                  }}
+                />
+                {!emailValid && check && (
+                  <p className="text-[var(--warning-500)]">
+                    Please enter a valid email
+                  </p>
+                )}
               </div>
               <div className="grid gap-1">
                 <p
@@ -121,7 +141,21 @@ export default function Login() {
                 >
                   Password
                 </p>
-                <input className="border-2 rounded-md w-full h-12" />
+                <div className="flex flex-col gap-2 items-center">
+                  <input
+                    className="border-2 rounded-md w-full h-12 px-4 md:px-6"
+                    type={show ? "text" : "password"}
+                    onChange={(e) => setPassword(e.target.value)}
+                  />
+                  <div className="flex gap-2 items-center self-end">
+                    <input type="checkbox" onChange={(e) => setShow(!show)} />
+                    <p
+                      className={`${roboto.className} text-[var(--gray-900)] text-lg font-normal`}
+                    >
+                      Show password
+                    </p>
+                  </div>
+                </div>
               </div>
               <div className="flex items-center justify-between">
                 <div className="flex gap-2 items-center">
@@ -141,7 +175,31 @@ export default function Login() {
                 </Link>
               </div>
               <div>
-                <button className="btn-primary w-full">Sign in</button>
+                <button
+                  className={`btn-primary w-full ${
+                    // isLoading ||
+                    (!emailValid || !password || loading) && "opacity-20"
+                  }`}
+                  disabled={
+                    // isLoading ||
+                    !emailValid || !password || loading
+                  }
+                  onClick={handleLogin}
+                >
+                  {loading ? (
+                    <div className="flex gap-4 items-center justify-center">
+                      <p className="text-center">Please wait</p>
+                      <Squares
+                        size={16}
+                        color={"var(--primary-300)"}
+                        speed={0.6}
+                        className="self-center"
+                      />
+                    </div>
+                  ) : (
+                    <p className="text-center">Sign in</p>
+                  )}
+                </button>
               </div>
               <div>
                 <p

@@ -6,37 +6,67 @@ import Link from "next/link";
 import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/router";
+import { useLogin } from "@/hooks/auth/authHooks";
+import { toaster } from "@/components";
+import { Squares } from "react-activity";
 
 export default function Signup() {
   const router = useRouter();
 
-  const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [fullName, setFullName] = useState("");
+  const [passwordConfirm, setPasswordConfirm] = useState("");
+  const [emailValid, setEmailValid] = useState(true);
+  const [passwordValid, setPasswordValid] = useState(true);
+  const [check, setCheck] = useState(false);
+  const [show, setShow] = useState(false);
+  const [isLoginIn, setIsLogingIn] = useState(false);
+
+  const emailFormat = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
+  const passwordFormat =
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d#$@!%&*?]{6,30}$/;
 
   const handleGoogleSignin = async () => {
     signIn("google", {
       callbackUrl: "/",
     });
   };
-
-  const handleLogin = async () => {
-    try {
-      setLoading(true);
-      const status = await signIn("credentials", {
-        redirect: false,
-        email: email,
-        password: password,
-        callbackUrl: "/",
-      });
-
-      if (status?.ok) router.push(status?.url as any);
-    } catch (error) {
-      console.log("Error logging in: ", error);
-    } finally {
-      setLoading(false);
-    }
+  const onError = (error: any) => {
+    toaster(
+      error?.response
+        ? error.response.data.message
+        : error?.message
+        ? error.message
+        : "An unknown error occured",
+      "error"
+    );
   };
+
+  const onSuccess = async (data: any) => {
+    setIsLogingIn(true);
+    const status = await signIn("credentials", {
+      redirect: false,
+      email: data?.data?.data?.user?.email,
+      password: password,
+      callbackUrl: "/",
+    });
+
+    if (status?.ok) router.push(status?.url as any);
+    setIsLogingIn(false);
+  };
+
+  const handleSignUp = () => {
+    const data = {
+      fullName: fullName.trim(),
+      email,
+      password,
+      passwordConfirm,
+    };
+    mutate(data);
+  };
+
+  const { mutate, isLoading } = useLogin(onSuccess, onError);
   return (
     <div className="grid">
       <div className="grid grid-rows-5 md:grid-cols-2 w-screen h-screen md:flex">
@@ -112,7 +142,22 @@ export default function Signup() {
                 >
                   Full name
                 </p>
-                <input className="border-2 rounded-md w-full h-12" />
+                <input
+                  className={`border-2 rounded-md w-full h-12 px-4 md:px-6 ${
+                    fullName.length < 3 &&
+                    check &&
+                    "border-[var(--warning-500)]"
+                  }`}
+                  onChange={(e) => {
+                    setFullName(e.target.value);
+                    setCheck(true);
+                  }}
+                />
+                {fullName.length < 3 && check && (
+                  <p className="text-[var(--warning-500)]">
+                    {"Please enter your full name"}
+                  </p>
+                )}
               </div>
               <div className="grid gap-1">
                 <p
@@ -120,7 +165,21 @@ export default function Signup() {
                 >
                   Email
                 </p>
-                <input className="border-2 rounded-md w-full h-12" />
+                <input
+                  className={`border-2 rounded-md w-full h-12 px-4 md:px-6 ${
+                    !emailValid && "border-[var(--warning-500)]"
+                  }`}
+                  onChange={(e) => {
+                    setEmailValid(emailFormat.test(e.target.value));
+                    setEmail(e.target.value);
+                    setCheck(true);
+                  }}
+                />
+                {!emailValid && check && (
+                  <p className="text-[var(--warning-500)]">
+                    Please enter a valid email
+                  </p>
+                )}
               </div>
               <div className="grid gap-1">
                 <p
@@ -128,7 +187,55 @@ export default function Signup() {
                 >
                   Password
                 </p>
-                <input className="border-2 rounded-md w-full h-12" />
+                <input
+                  className={`border-2 rounded-md w-full h-12 px-4 md:px-6 ${
+                    !passwordValid && "border-[var(--warning-500)]"
+                  }`}
+                  type={show ? "text" : "password"}
+                  onChange={(e) => {
+                    setPassword(e.target.value);
+                    setPasswordValid(passwordFormat.test(e.target.value));
+                    setCheck(true);
+                  }}
+                />
+                {!passwordValid && check && (
+                  <p className="text-[var(--warning-500)]">
+                    {"Password doesn't meet required strength"}
+                  </p>
+                )}
+              </div>
+              <div className="grid gap-1">
+                <p
+                  className={`${roboto.className} text-[var(--gray-800)] text-lg font-normal`}
+                >
+                  Confirm Password
+                </p>
+                <div className="flex flex-col gap-2">
+                  <input
+                    className={`border-2 rounded-md w-full h-12 px-4 md:px-6 ${
+                      passwordConfirm !== password &&
+                      passwordConfirm.length > 0 &&
+                      "border-[var(--warning-500)]"
+                    }`}
+                    type={show ? "text" : "password"}
+                    onChange={(e) => setPasswordConfirm(e.target.value)}
+                  />
+                  {passwordConfirm !== password &&
+                    passwordConfirm.length > 0 &&
+                    check && (
+                      <p className="text-[var(--warning-500)] text-left">
+                        {"Passwords do not match"}
+                      </p>
+                    )}
+                  <div className="flex gap-2 items-center self-end">
+                    <input type="checkbox" onChange={(e) => setShow(!show)} />
+                    <p
+                      className={`${roboto.className} text-[var(--gray-900)] text-lg font-normal`}
+                    >
+                      Show password
+                    </p>
+                  </div>
+                </div>
               </div>
               <div>
                 <ul
@@ -140,7 +247,40 @@ export default function Signup() {
                 </ul>
               </div>
               <div>
-                <button className="btn-primary w-full">Create account</button>
+                <button
+                  className={`btn-primary w-full ${
+                    (isLoading ||
+                      !emailValid ||
+                      !passwordValid ||
+                      password !== passwordConfirm ||
+                      !fullName ||
+                      isLoginIn) &&
+                    "opacity-20"
+                  }`}
+                  disabled={
+                    isLoading ||
+                    !emailValid ||
+                    !passwordValid ||
+                    password !== passwordConfirm ||
+                    !fullName ||
+                    isLoginIn
+                  }
+                  onClick={handleSignUp}
+                >
+                  {isLoading || isLoginIn ? (
+                    <div className="flex gap-4 items-center justify-center">
+                      <p className="text-center">Please wait</p>
+                      <Squares
+                        size={16}
+                        color={"var(--primary-300)"}
+                        speed={0.6}
+                        className="self-center"
+                      />
+                    </div>
+                  ) : (
+                    <p className="text-center">Create account</p>
+                  )}
+                </button>
               </div>
               <div>
                 <p

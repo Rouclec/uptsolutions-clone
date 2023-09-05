@@ -5,7 +5,7 @@ import Role from "models/Role";
 export default async function signup(req, res, next) {
     await DB()
 
-    const { fullName, email, password, passwordConfirm } = JSON.parse(req.body);
+    const { fullName, email, password, passwordConfirm } = req.body;
 
     const userRole = await Role.findOne({ code: 'user' });
 

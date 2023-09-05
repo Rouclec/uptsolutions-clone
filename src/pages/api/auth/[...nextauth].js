@@ -27,7 +27,7 @@ export default NextAuth({
                 const correct = await user.comparePassword(credentials.password)
 
                 if (!correct) {
-                    throw new Error("Email or password doesn't match")
+                    throw new Error("Email and password doesn't match")
                 }
 
                 console.log('user returned from sign in: ', user)

@@ -13,7 +13,7 @@ const upload = catchAsync(async (req, res, next) => {
     await DB()
     const session = await getSession({ req })
 
-    const { name, pages, paperType, paperSize, orientation, printSides, color, pagesPerSheet, printingType, bindingType, description, file, createdBy } = JSON.parse(req.body)
+    const { name, pages, paperType, paperSize, orientation, printSides, color, pagesPerSheet, printingType, bindingType, description, file, createdBy } = req.body
 
     const document = {
         name,

@@ -17,7 +17,7 @@ import { S3 } from "aws-sdk";
 import { Header, OrderAlert, SideBar } from "@/components";
 import { HiOutlinePlus } from "react-icons/hi2";
 import { roboto, roboto_slab } from "./_app";
-// import FileUpload from "@/components/file/FileUpload";
+import FileUpload from "@/components/orderprint/FileUpload";
 
 export default function Create() {
   const [docName, setDocName] = useState("");
@@ -587,9 +587,9 @@ export default function Create() {
                 <div className="mb-4 md:w-1/3 rounded-lg pt-6 pb-8">
                   <br />
                   <div className="w-full h-[450px] rounded-md">
-                    <div>
+                  <div>
                       {url ? (
-                        <div>{/* <FileUpload url={url} /> */}</div>
+                        <div  className="rounded-md"><FileUpload url={url} /> </div>
                       ) : (
                         <div className="h-full">
                           <div className="flex items-center justify-center w-full">
@@ -635,7 +635,7 @@ export default function Create() {
                       )}
                     </div>
                   </div>
-                  <div className="flex justify-between px-3">
+                  <div className="flex mt-20 justify-between px-3">
                     <button
                       className="my-3 hover:text-blue-500"
                       onClick={handleUpload}

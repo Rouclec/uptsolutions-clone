@@ -3,8 +3,41 @@ import { AiFillApple, AiOutlineApple, AiOutlineGoogle } from "react-icons/ai";
 import { BiLogoFacebook } from "react-icons/bi";
 import { roboto, roboto_slab } from "../_app";
 import Link from "next/link";
+import { useState } from "react";
+import { signIn } from "next-auth/react";
+import { useRouter } from "next/router";
 
 export default function Login() {
+  const router = useRouter();
+
+  const [loading, setLoading] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const handleGoogleSignin = async () => {
+    signIn("google", {
+      callbackUrl: "/",
+    });
+  };
+
+  const handleLogin = async () => {
+    try {
+      setLoading(true);
+      const status = await signIn("credentials", {
+        redirect: false,
+        email: email,
+        password: password,
+        callbackUrl: "/",
+      });
+
+      if (status?.ok) router.push(status?.url as any);
+    } catch (error) {
+      console.log("Error logging in: ", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="grid">
       <div className="grid grid-rows-5 md:grid-cols-2 w-screen h-screen md:flex">
@@ -53,7 +86,10 @@ export default function Login() {
                 <button className="btn-outline px-10">
                   <AiFillApple size={24} className={"text-[var(--gray-700)]"} />
                 </button>
-                <button className="btn-outline px-10">
+                <button
+                  className="btn-outline px-10"
+                  onClick={handleGoogleSignin}
+                >
                   <AiOutlineGoogle size={24} className={"text-[#DB4437]"} />
                 </button>
                 <button className="btn-outline px-10">

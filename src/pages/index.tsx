@@ -11,12 +11,14 @@ import {
 import { HiOutlineCloudDownload } from "react-icons/hi";
 import Image from "next/image";
 import Link from "next/link";
+import { getSession, useSession } from "next-auth/react";
 
 export default function Home() {
   const [newOrder, setNewOrder] = useState(1);
   const [showAlert, setShowAlert] = useState(true);
 
   const router = useRouter();
+  
   return (
     <SideBar>
       <div className="">
@@ -205,7 +207,7 @@ export default function Home() {
                     <th className=" px-4 text-left" />
                     <th className=" px-4 text-left" />
                     <th className=" border-[var(--gray-100)] pl-4 text-left">
-                      <div className="flex gap-20 items-center p-2">
+                      <div className="flex gap-20 items-center p-2 px-4 rounded-r-lg">
                         <button className="btn-tetiary">Prev</button>
                         <button className="btn-tetiary">Next</button>
                       </div>
@@ -219,4 +221,19 @@ export default function Home() {
       </div>
     </SideBar>
   );
+}
+
+export async function getServerSideProps({ req }: any) {
+  const session = await getSession({ req });
+  if (!session) {
+    return {
+      redirect: {
+        destination: "/signin",
+        permanent: false,
+      },
+    };
+  }
+  return {
+    props: { session },
+  };
 }

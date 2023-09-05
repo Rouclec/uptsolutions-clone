@@ -7,6 +7,7 @@ import { RiMessage2Line } from "react-icons/ri";
 import { navItems, adminNavItems } from "@/utils";
 import { useRouter } from "next/router";
 import Link from "next/link";
+import { signOut, useSession } from "next-auth/react";
 
 type Props = {
   children?: any;
@@ -15,6 +16,9 @@ const SideBar: FC<Props> = ({ children }) => {
   const router = useRouter();
   const [showSideBar, setShowSideBar] = useState(false);
   const [active, setActive] = useState();
+  const session = useSession() as any;
+
+  console.log("session user: ", session?.data?.user);
 
   const ref = useRef(null) as any;
 
@@ -31,6 +35,10 @@ const SideBar: FC<Props> = ({ children }) => {
       window.removeEventListener("mousedown", handleOutSideClick);
     };
   }, [ref]);
+
+  const handleClick = (item: { name: String; path: String; icon: any }) => {
+    item.name === "Logout" && signOut();
+  };
   return (
     <div>
       <div className="fixed left-0 top-0 right-0 h-20 bg-[var(--neutral-10)] z-10 border-2 flex p-4 items-center gap-2 md:gap-16">
@@ -71,27 +79,34 @@ const SideBar: FC<Props> = ({ children }) => {
         <div className="flex flex-col items-center gap-1">
           <div className="w-24 h-24 bg-[var(--gray-400)] rounded-full flex items-center justify-center">
             <Image
-              src={"/assets/avatar.png"}
+              src={
+                session?.data?.user?.image
+                  ? session?.data?.user?.image
+                  : session?.data?.user?.picture
+                  ? session?.data?.user?.picture
+                  : "/assets/default-avatar.png"
+              }
               alt="avatar"
               width={96}
               height={96}
+              className="rounded-full"
             />
           </div>
           <div className="flex flex-col gap-2 items-center justify-center w-full">
             <p
               className={`${roboto.className} text-center text-[var(--gray-800)] text-[16px] font-[500]`}
             >
-              Asonganyi Rouclec Forsamp Anyah
+              {session?.data?.user?.name}
             </p>
             <p
               className={`${roboto.className} text-center text-[var(--gray-700)] text-sm font-[500]`}
             >
-              (+237) 650 184 172
+              {session?.data?.user?.phoneNumber || "No phone number"}
             </p>
             <p
               className={`${roboto.className} text-center text-[var(--gray-700)] text-sm font-[500]`}
             >
-              senatorasonganyi97@gmail.com
+              {session?.data?.user?.email}
             </p>
           </div>
         </div>
@@ -112,6 +127,7 @@ const SideBar: FC<Props> = ({ children }) => {
                     ? "card-primary"
                     : "text-[var(--gray-700)]"
                 } justify-start text-[16px] hover:cursor-pointer hover:card-primary`}
+                onClick={() => handleClick(item)}
               >
                 {item.icon}
                 <p className="text-center">{item.name}</p>

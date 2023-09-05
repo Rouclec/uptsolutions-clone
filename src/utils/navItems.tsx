@@ -17,27 +17,27 @@ export const navItems = [
   },
   {
     name: "Profile",
-    path: "/profile",
+    path: "#",
     icon: <HiOutlineUser size={24} />,
   },
   {
     name: "Billing",
-    path: "/billing",
+    path: "#",
     icon: <HiOutlineCreditCard size={24} />,
   },
   {
     name: "Setting",
-    path: "/setting",
+    path: "#",
     icon: <AiOutlineSetting size={24} />,
   },
   {
     name: "Help",
-    path: "/help",
+    path: "#",
     icon: <MdHelpOutline size={24} />,
   },
   {
     name: "Logout",
-    path: "/login",
+    path: "#",
     icon: <TbLogout size={24} />,
   },
 ];
@@ -46,7 +46,7 @@ export const adminNavItems = navItems.map((item: any) =>
   item.name === "Billing"
     ? {
         name: "Customers",
-        path: "/customers",
+        path: "#",
         icon: <HiOutlineUserGroup />,
       }
     : item

@@ -14,7 +14,9 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/store";
 import { useSession } from "next-auth/react";
 import { S3 } from "aws-sdk";
-import { SideBar } from "@/components";
+import { Header, SideBar } from "@/components";
+import { HiOutlinePlus } from "react-icons/hi2";
+import { roboto, roboto_slab } from "./_app";
 // import FileUpload from "@/components/file/FileUpload";
 
 export default function Create() {
@@ -179,41 +181,23 @@ export default function Create() {
   return (
     <SideBar>
       <div>
-        <div className="container mx-auto mt-[65px] gap-1  md:p-2">
-          {/* {saveState == false ? (
-          <nav className="flex px-5 py-3 text-gray-700 border border-gray-200  rounded-lg bg-green-100">
-            <p className="mx-auto">
-              Tell us how you want your document to be printed by filling the
-              form
-            </p>
-          </nav>
-        ) : (
-          <nav className="flex px-5 py-3 text-gray-700 border border-gray-200  rounded-lg bg-green-100">
-            <p className="mx-auto">
-              {commandList?.length}{" "}
-              {commandList?.length == 1 ? "file" : "files"} uploaded
-              Successfully, You can Add to add another file or{" "}
-              <button
-                onClick={handlePrint}
-                className="p-2 border rounded-md bg-violet-600 text-white my-auto "
-              >
-                Proceed to Payment
-              </button>
-            </p>
-          </nav>
-        )} */}
-
-          <div className="container w-full mt-5 flex justify-end">
+        <Header>
+          <p
+            className={`text-[var(--gray-800)] ${roboto_slab.className} text-2xl font-semibold`}
+          >
+            Order Print
+          </p>
+          <div className="container w-full py-5 flex justify-end">
             <button
               onClick={addFile}
-              className="px-[17px] py-[9px] bg-violet-700 rounded-md shadow justify-center items-center flex"
+              className={`btn-primary flex gap-2 text-lg`}
             >
-              <div className="text-white text-lg font-medium leading-tight">
-                + Add Document
-              </div>
+              <HiOutlinePlus />
+              <p className={`${roboto.className} font-normal`}>Add document</p>
             </button>
           </div>
-
+        </Header>
+        <div className="container mx-auto mt-32 gap-1  md:p-2">
           <div className="flex">
             <div className="w-full">
               <div className=" py-5 lg:rounded md:flex gap-4 ">
@@ -565,10 +549,6 @@ export default function Create() {
                       )}
                     </div>
                   </div>
-
-                  {/* <div className="bg-gray-400 h-10 p-2  w- z-20">
-        <input type="file" onChange={onChange} />
-      </div> */}
                   <div className="flex justify-between px-3">
                     <button
                       className="my-3 hover:text-blue-500"
@@ -626,15 +606,8 @@ export default function Create() {
                         </div>
                       </div>
                       <div className="self-stretch justify-between items-start gap-6 inline-flex">
-                        <div className="h-10 py-2 opacity-80 rounded-lg justify-start items-center gap-2 flex">
-                          <div className="grow shrink basis-0 text-gray-700 text-base font-medium underline leading-normal">
-                            Move to Trash
-                          </div>
-                        </div>
-                        <button
-                          onClick={handlePrint}
-                          className="px-[17px] py-[9px] bg-violet-700 rounded-md shadow justify-center items-center flex"
-                        >
+                        <button className="btn-tetiary">Move to Trash</button>
+                        <button onClick={handlePrint} className="btn-primary">
                           <div className="text-white text-sm font-medium leading-tight">
                             Proceed To Pay
                           </div>

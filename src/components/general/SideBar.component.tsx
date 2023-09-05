@@ -6,6 +6,7 @@ import { HiOutlineMenu, HiOutlineRefresh } from "react-icons/hi";
 import { RiMessage2Line } from "react-icons/ri";
 import { navItems, adminNavItems } from "@/utils";
 import { useRouter } from "next/router";
+import Link from "next/link";
 
 type Props = {
   children?: any;
@@ -13,12 +14,12 @@ type Props = {
 const SideBar: FC<Props> = ({ children }) => {
   const router = useRouter();
   const [showSideBar, setShowSideBar] = useState(false);
+  const [active, setActive] = useState();
 
   const ref = useRef(null) as any;
 
   useEffect(() => {
     const handleOutSideClick = (event: any) => {
-      console.log("event.tagert.id", event.target.id);
       if (!ref.current?.contains(event.target) && event.target.id !== "menu") {
         setShowSideBar(false);
       }
@@ -96,17 +97,26 @@ const SideBar: FC<Props> = ({ children }) => {
         </div>
         <div className="card flex flex-col items-center w-full gap-1">
           {navItems.map((item: any, index) => (
-            <div
+            <Link
+              href={item.path}
               key={index}
-              className={`w-full flex gap-2 text-xl items-center card ${
-                router.pathname === item.path
-                  ? "card-primary"
-                  : "text-[var(--gray-700)]"
-              } justify-start text-[16px] hover:cursor-pointer hover:card-primary`}
+              className={`w-full ${
+                item.path !== "/" && "hover:cursor-not-allowed"
+              }`}
             >
-              {item.icon}
-              <p className="text-center">{item.name}</p>
-            </div>
+              <div
+                className={`flex gap-2 text-xl items-center card ${
+                  item.path === "/" ||
+                  item.path === "/checkout" ||
+                  item.path === "/order"
+                    ? "card-primary"
+                    : "text-[var(--gray-700)]"
+                } justify-start text-[16px] hover:cursor-pointer hover:card-primary`}
+              >
+                {item.icon}
+                <p className="text-center">{item.name}</p>
+              </div>
+            </Link>
           ))}
         </div>
       </div>

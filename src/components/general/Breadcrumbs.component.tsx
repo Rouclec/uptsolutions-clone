@@ -29,7 +29,7 @@ const BreadCrumbs: React.FC = () => {
     <div>
       <div
         arial-aria-label="breadcrumbs"
-        className="h3 text-[var(--primary-50)]"
+        className="text-sm text-[var(--primary-50)] mt-5"
       >
         {crumbs.map((crumb: any, i: number) => {
           return (
@@ -46,7 +46,7 @@ const BreadCrumbs: React.FC = () => {
                 router.push(`/${path}`);
               }}
               key={i}
-              className={`text-[var(--primary-400)] ${dm_sans.className} text-2xl no-underline hover:cursor-pointer`}
+              className={`text-[var(--primary-400)] ${dm_sans.className} text-sm no-underline hover:cursor-pointer`}
             >
               {crumb.name}
               {">"}{" "}
@@ -55,7 +55,7 @@ const BreadCrumbs: React.FC = () => {
         })}
         <span
           key={"last"}
-          className={`no-underline text-[var(--primary-600)] ${dm_sans.className} text-2xl  hover:cursor-not-allowed`}
+          className={`no-underline text-[var(--primary-600)] ${dm_sans.className} text-sm  hover:cursor-not-allowed`}
         >
           {last.name}
         </span>

@@ -205,7 +205,7 @@ export default function Home() {
                     <th className=" px-4 text-left" />
                     <th className=" px-4 text-left" />
                     <th className=" border-[var(--gray-100)] pl-4 text-left">
-                      <div className="flex gap-20 items-center py-2">
+                      <div className="flex gap-20 items-center p-2">
                         <button className="btn-tetiary">Prev</button>
                         <button className="btn-tetiary">Next</button>
                       </div>

@@ -13,12 +13,14 @@ import Link from "next/link";
 import { roboto, roboto_slab } from "./_app";
 import PrintSummary from "@/components/dashboard/PrintSummary";
 import OrderSummary from "@/components/dashboard/OrderSummary";
+import { getSession, useSession } from "next-auth/react";
 
 export default function Home() {
   const [newOrder, setNewOrder] = useState(1);
   const [showAlert, setShowAlert] = useState(true);
 
   const router = useRouter();
+  
   return (
     <SideBar>
       <div className="">
@@ -52,4 +54,19 @@ export default function Home() {
       </div>
     </SideBar>
   );
+}
+
+export async function getServerSideProps({ req }: any) {
+  const session = await getSession({ req });
+  if (!session) {
+    return {
+      redirect: {
+        destination: "/signin",
+        permanent: false,
+      },
+    };
+  }
+  return {
+    props: { session },
+  };
 }

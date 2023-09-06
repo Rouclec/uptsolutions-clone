@@ -52,7 +52,7 @@ export default function Create() {
   const [upload, setUpload] = useState<S3.ManagedUpload | null>(null);
   const [progress, setProgress] = useState(0);
   const s3 = new S3({
-    accessKeyId: process.env.NEXT_PUBLIC_AWS_ACCESS_KEY,
+    accessKeyId: process.env.NEXT_PUBLIC_AWS_ACCESS_TOKEN,
     secretAccessKey: process.env.NEXT_PUBLIC_AWS_SECRET_ACCESS_KEY,
   });
 

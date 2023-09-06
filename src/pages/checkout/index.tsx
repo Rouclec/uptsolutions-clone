@@ -134,7 +134,7 @@ export default function Index() {
                   ? "/assets/orange-money.png"
                   : "/assets/momo.png"
               }
-              alt="mtn-momo"
+              alt="mobile money"
               width={52}
               height={52}
             />

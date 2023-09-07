@@ -15,16 +15,41 @@ import PrintItem from "./PrintItem";
 import OrderItem from "./OrderItem";
 function OrderSummary() {
   const [showAlert, setShowAlert] = useState(true);
+  const [newOrder, setNewOrder] = useState(1);
 
+  const router = useRouter();
   return (
     <div className={`${showAlert ? "mt-44" : "mt-28"}`}>
+      <Header>
+          <p
+            className={`text-[var(--gray-800)] ${roboto_slab.className} text-2xl font-semibold`}
+          >
+            Dashboard
+          </p>
+          <div className="flex w-full items-center justify-end mb-2">
+            <Link href="/order-print">
+              <button className={`btn-primary flex gap-2 text-lg`}>
+                <HiOutlinePlus />
+                <p className={`${roboto.className} font-normal`}>Order Print</p>
+              </button>
+            </Link>
+          </div>
+          {showAlert && newOrder > 0 && (
+            <OrderAlert
+              message={`You have ${newOrder} pending order`}
+              viewTxt={"View order"}
+              onClose={() => setShowAlert(false)}
+              link={"/checkout"}
+            />
+          )}
+        </Header>
       <Stats />
       <div className="my-10 grid gap-2">
         <div className="grid gap-1">
           <p
             className={`text-[var(--gray-800)] ${roboto_slab.className} text-xl font-bold`}
           >
-            Printing Summary
+            Order Summary
           </p>
           <p className={`text-[var(--gray-800)] ${roboto.className} text-sm`}>
             An overview of all print orders and their details

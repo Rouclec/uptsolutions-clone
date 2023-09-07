@@ -14,43 +14,21 @@ import { roboto, roboto_slab } from "./_app";
 import PrintSummary from "@/components/dashboard/PrintSummary";
 import OrderSummary from "@/components/dashboard/OrderSummary";
 import { getSession, useSession } from "next-auth/react";
+import { User } from "@/types";
 
 export default function Home() {
+  const [isAdmin, setIsAdmin] = useState(false);
+  const session = useSession();
   const [newOrder, setNewOrder] = useState(1);
-  const [showAlert, setShowAlert] = useState(true);
-
+  const [showAlert, setShowAlert] = useState(true); 
+  const user = session?.data?.user as User;
   const router = useRouter();
-  
+
+
   return (
     <SideBar>
       <div className="">
-        <Header>
-          <p
-            className={`text-[var(--gray-800)] ${roboto_slab.className} text-2xl font-semibold`}
-          >
-            Dashboard
-          </p>
-          <div className="flex w-full items-center justify-end mb-2">
-            <Link href="/order-print">
-              <button className={`btn-primary flex gap-2 text-lg`}>
-                <HiOutlinePlus />
-                <p className={`${roboto.className} font-normal`}>Order Print</p>
-              </button>
-            </Link>
-          </div>
-          {showAlert && newOrder > 0 && (
-            <OrderAlert
-              message={`You have ${newOrder} pending order`}
-              viewTxt={"View order"}
-              onClose={() => setShowAlert(false)}
-              link={"/checkout"}
-            />
-          )}
-        </Header>
-        {/* order sumary */}
-        <PrintSummary />
-
-        <OrderSummary />
+        {(user?.role?.code != "admin" ? <PrintSummary /> : <OrderSummary />)}
       </div>
     </SideBar>
   );

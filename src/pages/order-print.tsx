@@ -587,9 +587,11 @@ export default function Create() {
                 <div className="mb-4 md:w-1/3 rounded-lg pt-6 pb-8">
                   <br />
                   <div className="w-full h-[450px] rounded-md">
-                  <div>
+                    <div>
                       {url ? (
-                        <div  className="rounded-md"><FileUpload url={url} /> </div>
+                        <div className="rounded-md">
+                          <FileUpload url={url} />{" "}
+                        </div>
                       ) : (
                         <div className="h-full">
                           <div className="flex items-center justify-center w-full">
@@ -627,6 +629,7 @@ export default function Create() {
                                 id="dropzone-file"
                                 type="file"
                                 className="hidden"
+                                accept=".pdf"
                                 onChange={handleFileChange}
                               />
                             </label>

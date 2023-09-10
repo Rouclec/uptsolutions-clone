@@ -20,7 +20,7 @@ export default function Home() {
   const [showAlert, setShowAlert] = useState(true);
 
   const router = useRouter();
-  
+  console.log('I am on the client side')
   return (
     <SideBar>
       <div className="">

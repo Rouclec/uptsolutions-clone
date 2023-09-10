@@ -44,6 +44,8 @@ export default function Login() {
     }
   };
 
+  console.log("I am on the client side");
+
   return (
     <div className="grid">
       <div className="grid grid-rows-5 md:grid-cols-2 w-screen h-screen md:flex">

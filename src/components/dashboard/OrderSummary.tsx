@@ -13,29 +13,41 @@ import Link from "next/link";
 import { roboto, roboto_slab } from "@/pages/_app";
 import PrintItem from "./PrintItem";
 import OrderItem from "./OrderItem";
+import { useGetOrder } from "@/hooks/order/useGetOrder";
 function OrderSummary() {
   const [showAlert, setShowAlert] = useState(true);
   const [newOrder, setNewOrder] = useState(1);
 
   const router = useRouter();
+
+  const { isLoading, data, error, isError } = useGetOrder();
+
+  if (isLoading) {
+    return <h2>Loading...</h2>;
+  }
+
+  if (isError) {
+    return <h2>Server Error try refreshing</h2>;
+  }
+
   return (
     <div className={`${showAlert ? "mt-44" : "mt-28"}`}>
       <Header>
-          <p
-            className={`text-[var(--gray-800)] ${roboto_slab.className} text-2xl font-semibold`}
-          >
-            Dashboard
-          </p>
-          
-          {showAlert && newOrder > 0 && (
-            <OrderAlert
-              message={`You have ${newOrder} pending order`}
-              viewTxt={"View order"}
-              onClose={() => setShowAlert(false)}
-              link={"/checkout"}
-            />
-          )}
-        </Header>
+        <p
+          className={`text-[var(--gray-800)] ${roboto_slab.className} text-2xl font-semibold`}
+        >
+          Dashboard
+        </p>
+
+        {showAlert && newOrder > 0 && (
+          <OrderAlert
+            message={`You have ${newOrder} pending order`}
+            viewTxt={"View order"}
+            onClose={() => setShowAlert(false)}
+            link={"/checkout"}
+          />
+        )}
+      </Header>
       <Stats />
       <div className="my-10 grid gap-2">
         <div className="grid gap-1">

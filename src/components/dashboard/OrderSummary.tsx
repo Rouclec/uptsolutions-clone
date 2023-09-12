@@ -26,14 +26,7 @@ function OrderSummary() {
           >
             Dashboard
           </p>
-          <div className="flex w-full items-center justify-end mb-2">
-            <Link href="/order-print">
-              <button className={`btn-primary flex gap-2 text-lg`}>
-                <HiOutlinePlus />
-                <p className={`${roboto.className} font-normal`}>Order Print</p>
-              </button>
-            </Link>
-          </div>
+          
           {showAlert && newOrder > 0 && (
             <OrderAlert
               message={`You have ${newOrder} pending order`}

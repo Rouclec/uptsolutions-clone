@@ -36,7 +36,7 @@ function PrintSummary() {
           </div>
           {showAlert && newOrder > 0 && (
             <OrderAlert
-              message={`You have ${newOrder} pending order`}
+              message={`You have ${newOrder} pending order pending payment`}
               viewTxt={"View order"}
               onClose={() => setShowAlert(false)}
               link={"/checkout"}

@@ -114,7 +114,14 @@ function OrderSummary() {
           />
         )}
       </Header>
-      <Stats />
+      <Stats
+        stats={{
+          amount: 0,
+          pending: 0,
+          completed: 0,
+          refunded: 0,
+        }}
+      />
       <div className="my-10 grid gap-2">
         <div className="grid gap-1">
           <p

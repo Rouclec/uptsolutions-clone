@@ -1,7 +1,13 @@
-import { ActionModal, Header, SideBar } from "@/components";
-import React, { useState } from "react";
+import { ActionModal, Header, SideBar, toaster } from "@/components";
+import React, { useEffect, useState } from "react";
 import { roboto, roboto_slab } from "../_app";
 import Image from "next/image";
+import { useGetUserPendingDocuments } from "@/hooks/document/useDocument";
+import { Command, User } from "@/types";
+import { useQueryClient } from "@tanstack/react-query";
+import { useSession } from "next-auth/react";
+import moment from "moment";
+import { data } from "autoprefixer";
 
 export const validatePhoneNumber = (phoneNumber: string) => {
   const mtnRegexp = new RegExp(/^6(((7|8)[0-9]{7}$)|(5[0-4][0-9]{6}$))/);
@@ -14,13 +20,54 @@ export const validatePhoneNumber = (phoneNumber: string) => {
 export default function Index() {
   const [showModal, setShowModal] = useState(false);
   const [phoneNumber, setPhoneNumber] = useState("");
+  const [pendingDocuments, setPendingDocuments] = useState() as any;
   const [provider, setProvider] = useState("");
+
+  const session = useSession();
+
+  const queryClient = useQueryClient();
+
+  const user = session.data?.user as User;
+
+  useEffect(() => {
+    const originalData = queryClient.getQueryData([
+      "documents",
+      user?._id,
+      "pending",
+    ]) as any;
+    console.log({ originalData });
+    originalData?.data?.data && setPendingDocuments(originalData?.data?.data);
+  }, [queryClient, user?._id]);
 
   const payNow = async () => {
     if (phoneNumber) {
       setShowModal(true);
     }
   };
+
+  const onError = (error: any) => {
+    console.log("error creating: ", error);
+    toaster(
+      error?.response
+        ? error.response.data.message
+        : error?.message
+        ? error.message
+        : "An unknown error occured",
+      "error"
+    );
+  };
+
+  const onSuccess = (data: any) => {
+    console.log("successfully fetched: ", data);
+    setPendingDocuments(data?.data?.data);
+  };
+
+  const { isLoading } = useGetUserPendingDocuments(
+    user?._id as string,
+    onSuccess,
+    onError,
+    !!pendingDocuments
+  );
 
   return (
     <SideBar>
@@ -40,37 +87,37 @@ export default function Index() {
               Select Documents
             </p>
           </div>
-          {Array(4)
-            .fill("a")
-            .map((_, index) => (
-              <div className="grid gap-1 py-2 border-b-2" key={index}>
-                <div className="flex items-center justify-between">
-                  <p
-                    className={`${roboto.className} font-normal text-lg md:text-2xl text-[var(--gray-800)]`}
-                  >
-                    Doc name
-                  </p>
-                  <input
-                    type="checkbox"
-                    className="text-[var(--primary-700)] rounded-full checked:bg-[var(--primary-700)]"
-                  />
-                </div>
-                <div className="flex items-center justify-between">
-                  <p
-                    className={`${roboto.className} font-bold text-lg md:text-2xl text-[var(--gray-800)] truncate`}
-                  >
-                    10,000 XAF
-                  </p>
-                </div>
-                <div className="flex items-center justify-between">
-                  <p
-                    className={`${roboto.className} font-normal text-sm md:text-lg text-[var(--gray-700)]`}
-                  >
-                    10 pages | August 23rd, 2023
-                  </p>
-                </div>
+          {pendingDocuments?.map((document: Command, index: number) => (
+            <div className="grid gap-1 py-2 border-b-2" key={index}>
+              <div className="flex items-center justify-between">
+                <p
+                  className={`${roboto.className} font-normal text-lg md:text-2xl text-[var(--gray-800)]`}
+                >
+                  {document?.name}
+                </p>
+                <input
+                  type="checkbox"
+                  className="text-[var(--primary-700)] rounded-full checked:bg-[var(--primary-700)]"
+                />
               </div>
-            ))}
+              <div className="flex items-center justify-between">
+                <p
+                  className={`${roboto.className} font-bold text-lg md:text-2xl text-[var(--gray-800)] truncate`}
+                >
+                  10,000 XAF
+                </p>
+              </div>
+              <div className="flex items-center justify-between">
+                <p
+                  className={`${roboto.className} font-normal text-sm md:text-lg text-[var(--gray-700)]`}
+                >
+                  {`10 pages - ${moment(document?.createdAt).format(
+                    "MMMM, DD, YYYY"
+                  )}`}
+                </p>
+              </div>
+            </div>
+          ))}
           <div className="flex items-center justify-between py-2 border-b-2 mt-5">
             <p
               className={`${roboto.className} font-bold text-xl md:text-3xl text-[var(--gray-800)]`}
@@ -82,7 +129,7 @@ export default function Index() {
             <p
               className={`${roboto.className} font-normal text-ld md:text-2xl text-[var(--gray-800)]`}
             >
-              2 x documents
+              {`${pendingDocuments?.length || 0} x documents`}
             </p>
             <p
               className={`${roboto.className} font-bold text-lg md:text-2xl text-[var(--gray-800)] truncate`}

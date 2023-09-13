@@ -20,21 +20,9 @@ const orderSchema = new Schema({
         enum: ['pending', 'completed', 'rejected'],
         default: 'pending'
     },
-    paymentMethod: {
-        type: String,
-        enum: ['mtn-momo', 'orange-money'],
-        default: 'mtn-momo'
-    },
-    deliverAddress: String,
-    email: {
-        type: String,
-        require: [true, 'Please provide a contact email for this order'],
-        validate: [validator.isEmail, 'Please enter a valid email']
-    },
-    phoneNumber: {
-        type: String,
-        required: [true, 'Please provide a valid phone number for this order'],
-        validate: [validator.isMobilePhone, 'Please enter a valid phone number']
+    user: {
+        type: Schema.ObjectId,
+        ref: "User"
     },
     active: {
         type: Boolean,

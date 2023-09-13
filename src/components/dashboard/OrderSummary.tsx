@@ -4,23 +4,21 @@ import { useState } from "react";
 import {
   HiOutlineChevronDown,
   HiOutlineMagnifyingGlass,
-  HiOutlinePlus,
-  HiOutlineTrash,
 } from "react-icons/hi2";
 import { HiOutlineCloudDownload } from "react-icons/hi";
-import Image from "next/image";
-import Link from "next/link";
 import { roboto, roboto_slab } from "@/pages/_app";
-import PrintItem from "./PrintItem";
 import OrderItem from "./OrderItem";
-import { useGetOrder } from "@/hooks/order/useGetOrder";
+import { useGetOrders } from "@/hooks/order/useOrder";
 function OrderSummary() {
   const [showAlert, setShowAlert] = useState(true);
   const [newOrder, setNewOrder] = useState(1);
 
   const router = useRouter();
 
-  const { isLoading, data, error, isError } = useGetOrder();
+  const { isLoading, isError } = useGetOrders(
+    () => {},
+    () => {}
+  );
 
   if (isLoading) {
     return <h2>Loading...</h2>;

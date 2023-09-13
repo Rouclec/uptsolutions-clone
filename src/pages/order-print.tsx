@@ -1,23 +1,28 @@
-import { addfile } from "@/slice/fileSlice";
-import { Command } from "@/types";
+import { User } from "@/types";
 import { PDFDocument } from "pdf-lib";
 import { useRouter } from "next/router";
 import React, {
   ChangeEventHandler,
   MouseEventHandler,
   useEffect,
-  useRef,
   useState,
 } from "react";
 import { BiTrash } from "react-icons/bi";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { RootState } from "@/store";
 import { useSession } from "next-auth/react";
 import { S3 } from "aws-sdk";
-import { Header, OrderAlert, SideBar } from "@/components";
+import { Header, OrderAlert, SideBar, toaster } from "@/components";
 import { HiOutlinePlus } from "react-icons/hi2";
 import { roboto, roboto_slab } from "./_app";
 import FileUpload from "@/components/orderprint/FileUpload";
+import {
+  useGetUserPendingDocuments,
+  useUploadDocument,
+} from "@/hooks/document/useDocument";
+import { useQueryClient } from "@tanstack/react-query";
+import { Squares } from "react-activity";
+import Link from "next/link";
 
 export default function Create() {
   const [docName, setDocName] = useState("");
@@ -37,20 +42,23 @@ export default function Create() {
   const [biding, setBiding] = useState("No binding");
   const [bidingType, setBidingType] = useState("No binding");
   const [extraDetails, setExtraDetails] = useState("");
-  const [filePath, setFilePath] = useState("");
   const [cost, setCost] = useState();
-  // const [file, setFile] = useState("");
-  const [saveState, setSaveState] = useState(true);
   const [file, setFile] = useState<File | null>(null);
   const [numberOfPages, setNumberOfPages] = useState<number>();
+  const [upload, setUpload] = useState<S3.ManagedUpload | null>(null);
+  const [progress, setProgress] = useState(0);
+
+  const [loading, setLoading] = useState(false);
   // Show file
 
   const [url, setUrl] = React.useState("");
 
   const session = useSession();
 
-  const [upload, setUpload] = useState<S3.ManagedUpload | null>(null);
-  const [progress, setProgress] = useState(0);
+  const queryClient = useQueryClient();
+
+  const user = session.data?.user as User;
+
   const s3 = new S3({
     accessKeyId: process.env.NEXT_PUBLIC_AWS_ACCESS_TOKEN,
     secretAccessKey: process.env.NEXT_PUBLIC_AWS_SECRET_ACCESS_KEY,
@@ -71,7 +79,6 @@ export default function Create() {
     const arrayBuffer = await e.target.files![0].arrayBuffer();
     const pdfDoc = await PDFDocument.load(arrayBuffer);
     const totalPages = pdfDoc.getPages().length;
-    // console.log(`Total pages in the PDF: ${await totalPages.length}`);
     setNumberOfPages(totalPages);
     console.log({ numberOfPages });
   };
@@ -79,6 +86,7 @@ export default function Create() {
   const handleUpload: MouseEventHandler<HTMLButtonElement> = async (e) => {
     e.preventDefault();
     if (!file) return;
+    setLoading(true);
     const BUCKET = process.env.NEXT_PUBLIC_AWS_BUCKET as string;
     const params = {
       Bucket: BUCKET,
@@ -94,7 +102,6 @@ export default function Create() {
         setProgress(p.loaded / p.total);
       });
       const result = await upload.promise();
-      setFilePath(result?.Location);
       const doc = {
         name: docName,
         paperType,
@@ -103,82 +110,79 @@ export default function Create() {
         printSides,
         color: printColor,
         pagesPerSheet,
+        amount: cost,
         printingType: printType,
         bindingType: bidingType,
         description: extraDetails,
-        file: filePath,
-        createdBy: session?.data?.user?.name,
+        file: result.Location,
+        createdBy: user?._id,
       };
-
-      const res = await fetch("/api/document/upload", {
-        method: "POST",
-        mode: "no-cors",
-        headers: {
-          "Content-type": "application/json;charset=UTF-8",
-        },
-        body: JSON.stringify(doc),
-      });
-
-      if (!res.ok) {
-        throw new Error("Error placing command, try again");
-      }
-      const docResult = await res.json();
-
-      console.log("doc result: ", docResult);
+      mutate(doc);
     } catch (err) {
       console.error(err);
     }
   };
 
+  const onError = (error: any) => {
+    setLoading(false);
+    console.log("error creating: ", error);
+    toaster(
+      error?.response
+        ? error.response.data.message
+        : error?.message
+        ? error.message
+        : "An unknown error occured",
+      "error"
+    );
+  };
+
+  const onSuccess = (data: any) => {
+    setLoading(false);
+    console.log("data uploaded: ", data);
+
+    const oldQueryData = queryClient.getQueryData([
+      "documents",
+      user?._id,
+      "pending",
+    ]);
+
+    console.log("old query data: ", oldQueryData);
+
+    oldQueryData
+      ? queryClient.setQueryData(
+          ["documents", user?._id, "pending"],
+          (oldQueryData: any) => {
+            return {
+              ...oldQueryData,
+              data: {
+                ...oldQueryData?.data,
+                data: [data?.data?.data, ...oldQueryData?.data?.data],
+              },
+            };
+          }
+        )
+      : queryClient.setQueryData(
+          ["documents", user?._id, "pending"],
+          () => data
+        );
+    //TODO: clear input fields
+  };
+
+  const { mutate } = useUploadDocument(onSuccess, onError);
+  const { isLoading: isGetLoading, data: pendingDocuments } =
+    useGetUserPendingDocuments(user?._id as string, () => {}, onError);
+
   const handleCancel: MouseEventHandler<HTMLButtonElement> = (e) => {
     e.preventDefault();
     if (!upload) return;
+    () => {};
     upload.abort();
-    // progress.set(0);
     setProgress(0);
     setUpload(null);
   };
-
-  const dispatch = useDispatch();
   const router = useRouter();
-  const fileObj: Command = {
-    docName,
-    numberOfCopies,
-    paperType,
-    paperSize,
-    orientation,
-    printSides,
-    printColor,
-    paperColor,
-    pagesPerSheet,
-    printType,
-    biding,
-    bidingType,
-    extraDetails,
-    cost,
-  };
-  const addFile = () => {
-    dispatch(addfile(fileObj));
-    setSaveState(true);
-  };
-  const handlePrint = () => {
-    router.push("/checkout");
-    console.log("print commant: ", {
-      name: docName,
-      paperType,
-      paperSize,
-      orientation,
-      printSides,
-      paperColor,
-      pagesPerSheet,
-      printingType: printType,
-      bindingType: bidingType,
-      description: extraDetails,
-      file: filePath,
-      createdBy: session?.data?.user?.name,
-    });
-  };
 
+  console.log({ pendingDocuments });
   return (
     <SideBar>
       <div>
@@ -188,19 +192,42 @@ export default function Create() {
           >
             Order Print
           </p>
-          <OrderAlert
-            onClose=""
-            viewTxt="Proceed To Pay"
-            link=""
-            message={`You have ${5} file pending payment`}
-          />
+          {pendingDocuments?.data?.data?.length > 0 && (
+            <OrderAlert
+              onClose={() => {}}
+              viewTxt="Proceed To Pay"
+              link="/checkout"
+              message={`You have ${pendingDocuments?.data?.data?.length} file${
+                pendingDocuments?.data?.data?.length > 1 && "s"
+              } pending payment`}
+            />
+          )}
           <div className="container w-full py-5 flex justify-end">
             <button
-              onClick={addFile}
-              className={`btn-primary flex gap-2 text-lg`}
+              onClick={handleUpload}
+              className={`btn-primary flex gap-2 text-lg ${
+                loading && "opacity-20"
+              }`}
+              disabled={loading}
             >
-              <HiOutlinePlus />
-              <p className={`${roboto.className} font-normal`}>Add document</p>
+              {loading ? (
+                <>
+                  <p className="text-center">Please wait</p>
+                  <Squares
+                    size={16}
+                    color={"var(--primary-300)"}
+                    speed={0.6}
+                    className="self-center"
+                  />
+                </>
+              ) : (
+                <>
+                  <HiOutlinePlus />
+                  <p className={`${roboto.className} font-normal`}>
+                    Add document
+                  </p>
+                </>
+              )}
             </button>
           </div>
         </Header>
@@ -208,7 +235,7 @@ export default function Create() {
           <div className="flex">
             <div className="w-full">
               <div className=" py-5 lg:rounded md:flex gap-4 ">
-                <div className="mb-4 md:w-2/3 rounded-lg rounded pt-6 pb-8">
+                <div className="mb-4 md:w-2/3 rounded pt-6 pb-8">
                   <div className="mb-4 flex md:justify-between">
                     <div className="flex mb-4 md:mb-0 w-full gap-2">
                       <div className="w-full">
@@ -696,10 +723,12 @@ export default function Create() {
                       </div>
                       <div className="self-stretch justify-between items-start gap-6 inline-flex">
                         <button className="btn-tetiary">Move to Trash</button>
-                        <button onClick={handlePrint} className="btn-primary">
-                          <div className="text-white text-sm font-medium leading-tight">
-                            Proceed To Pay
-                          </div>
+                        <button className="btn-primary">
+                          <Link href={"/checkout"}>
+                            <div className="text-white text-sm font-medium leading-tight">
+                              Proceed To Pay
+                            </div>
+                          </Link>
                         </button>
                       </div>
                     </div>

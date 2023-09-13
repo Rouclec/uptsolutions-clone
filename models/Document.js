@@ -36,10 +36,11 @@ const documentSchema = new Schema({
         deafult: 'Recto',
         enum: ['', 'Recto', 'Recto Veso']
     },
-    color: {
+    printColor: {
         type: Boolean,
         default: false
     },
+    amount: Number,
     pagesPerSheet: {
         type: Number,
         default: 1,

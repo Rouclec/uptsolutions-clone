@@ -13,7 +13,7 @@ export interface User {
 }
 
 export interface Command {
-  docName?: string;
+  name?: string;
   numberOfCopies?: string;
   paperType?: string;
   paperSize?: string;
@@ -26,5 +26,13 @@ export interface Command {
   biding?: string;
   bidingType?: string;
   extraDetails?: string;
-  cost?: number;
+  amount?: number;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface Order {
+  documents: Commands[];
+  amount: string | number;
+  user: string;
 }

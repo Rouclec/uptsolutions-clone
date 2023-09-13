@@ -1,12 +1,6 @@
 import React from "react";
-import { roboto, roboto_slab } from "@/pages/_app";
+import { roboto } from "@/pages/_app";
 import Image from "next/image";
-import {
-  HiOutlineChevronDown,
-  HiOutlineMagnifyingGlass,
-  HiOutlinePlus,
-  HiOutlineTrash,
-} from "react-icons/hi2";
 import Link from "next/link";
 export default function OrderItem() {
   return (
@@ -75,7 +69,12 @@ export default function OrderItem() {
       </td>
       <td className="px-4 p-3  rounded-r-lg">
         <div className="flex gap-20 items-center">
-          <Link href="/order/xxId" className={`text-[var(--primary-500)] text-lg`}>View </Link>
+          <Link
+            href="/order/xxId"
+            className={`text-[var(--primary-500)] text-lg`}
+          >
+            View{" "}
+          </Link>
           {/* <HiOutlineTrash size={24} className="text-[var(--warning-600)]" /> */}
         </div>
       </td>

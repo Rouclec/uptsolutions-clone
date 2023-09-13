@@ -1,49 +1,174 @@
-import { Header, OrderAlert, SideBar, Stats } from "@/components";
+import { Header, OrderAlert, SideBar, Stats, toaster } from "@/components";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import {
   HiOutlineChevronDown,
   HiOutlineMagnifyingGlass,
   HiOutlinePlus,
-  HiOutlineTrash,
 } from "react-icons/hi2";
 import { HiOutlineCloudDownload } from "react-icons/hi";
-import Image from "next/image";
 import Link from "next/link";
 import { roboto, roboto_slab } from "@/pages/_app";
 import PrintItem from "./PrintItem";
+import { Sentry } from "react-activity";
+import {
+  useGetUserDocuments,
+  useGetUserPendingDocuments,
+} from "@/hooks/document/useDocument";
+import { Command, User } from "@/types";
+import { useQueryClient } from "@tanstack/react-query";
+import { useSession } from "next-auth/react";
+import { useGetUserOrderStats } from "@/hooks/order/useOrder";
 
 function PrintSummary() {
   const [showAlert, setShowAlert] = useState(true);
-  const [newOrder, setNewOrder] = useState(1);
+  const [documents, setDocuments] = useState() as any;
+  const [pendingDocuments, setPendingDocuments] = useState() as any;
+  const [items, setItems] = useState(1);
+  const [page, setPage] = useState(1);
+  const [selected, setSelected] = useState<Command[]>([]);
 
+  const router = useRouter();
 
-  return (
-    <div className={`${showAlert ? "mt-44" : "mt-28"}`}>
-          <Header>
+  const session = useSession();
+
+  const queryClient = useQueryClient();
+
+  const user = session.data?.user as User;
+
+  useEffect(() => {
+    const originalData = queryClient.getQueryData([
+      "documents",
+      user?._id,
+    ]) as any;
+    setItems(originalData?.data?.results);
+    if (originalData?.data?.data) {
+      const pending = originalData?.data?.data?.filter(
+        (data: any) => data?.status === "pending"
+      );
+      setPendingDocuments(pending);
+      setDocuments(originalData?.data?.data);
+    }
+  }, [queryClient, user?._id]);
+
+  const onError = (error: any) => {
+    console.log("error creating: ", error);
+    toaster(
+      error?.response
+        ? error.response.data.message
+        : error?.message
+        ? error.message
+        : "An unknown error occured",
+      "error"
+    );
+  };
+
+  const onSuccess = (data: any) => {
+    setItems(data?.data?.results);
+    setDocuments(data?.data?.data);
+  };
+
+  const { isLoading: isStatsLoading, data: stats } = useGetUserOrderStats(
+    user?._id as string,
+    () => {},
+    onError,
+    !user?._id
+  );
+
+  const { isLoading, isError } = useGetUserDocuments(
+    user?._id as string,
+    onSuccess,
+    onError
+  );
+
+  useEffect(() => {
+    const originalData = queryClient.getQueryData([
+      "documents",
+      user?._id,
+      "pending",
+    ]) as any;
+    console.log({ originalData });
+    originalData?.data?.data && setPendingDocuments(originalData?.data?.data);
+  }, [queryClient, user?._id]);
+
+  const { isLoading: isPendingDocumentsLoading } = useGetUserPendingDocuments(
+    user?._id as string,
+    (data: any) => {
+      setPendingDocuments(data?.data?.data);
+    },
+    onError,
+    !!pendingDocuments
+  );
+
+  const handleSelect = (document: Command) => {
+    const isSelected = selected.find(
+      (item: Command) => item?._id === document?._id
+    );
+
+    console.log("is selected: ", isSelected);
+    if (!!isSelected) {
+      setSelected(
+        selected.filter((item: Command) => item?._id !== isSelected?._id)
+      );
+    } else {
+      setSelected([...selected, document]);
+    }
+  };
+
+  if (isLoading || isStatsLoading) {
+    return (
+      <div
+        className={`flex h-[calc(100vh-10rem)] items-center justify-center overflow-y-hidden`}
+      >
+        <Header>
           <p
             className={`text-[var(--gray-800)] ${roboto_slab.className} text-2xl font-semibold`}
           >
             Dashboard
           </p>
           <div className="flex w-full items-center justify-end mb-2">
-            <Link href="/order-print">
-              <button className={`btn-primary flex gap-2 text-lg`}>
-                <HiOutlinePlus />
-                <p className={`${roboto.className} font-normal`}>Order Print</p>
-              </button>
-            </Link>
+            <button
+              className={`btn-primary flex gap-2 text-lg opacity-20`}
+              disabled
+            >
+              <HiOutlinePlus />
+              <p className={`${roboto.className} font-normal`}>Order Print</p>
+            </button>
           </div>
-          {showAlert && newOrder > 0 && (
-            <OrderAlert
-              message={`You have ${newOrder} pending order pending payment`}
-              viewTxt={"View order"}
-              onClose={() => setShowAlert(false)}
-              link={"/checkout"}
-            />
-          )}
         </Header>
-      <Stats />
+        <div className="self-center">
+          <Sentry size={120} speed={0.2} color="var(--primary-600)" />
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className={`${showAlert ? "mt-44" : "mt-28"}`}>
+      <Header>
+        <p
+          className={`text-[var(--gray-800)] ${roboto_slab.className} text-2xl font-semibold`}
+        >
+          Dashboard
+        </p>
+        <div className="flex w-full items-center justify-end mb-2">
+          <Link href="/order-print">
+            <button className={`btn-primary flex gap-2 text-lg`}>
+              <HiOutlinePlus />
+              <p className={`${roboto.className} font-normal`}>Order Print</p>
+            </button>
+          </Link>
+        </div>
+        {showAlert && pendingDocuments?.length > 0 && (
+          <OrderAlert
+            message={`You have ${pendingDocuments?.length} pending order pending payment`}
+            viewTxt={"View order"}
+            onClose={() => setShowAlert(false)}
+            link={"/checkout"}
+          />
+        )}
+      </Header>
+      <Stats stats={stats?.data?.data} />
       <div className="my-10 grid gap-2">
         <div className="grid gap-1">
           <p
@@ -101,17 +226,17 @@ function PrintSummary() {
               </tr>
             </thead>
             <tbody>
-              {Array(10)
-                .fill("a")
-                ?.map((_: any, index) => (
-                  <PrintItem key={index} />
-                ))}
+              {documents?.map((document: Command, index: number) => (
+                <PrintItem key={index} document={document} />
+              ))}
               <tr
                 className={`bg-[var(--gray-100)]  text-[var(--gray-500)] font-[500] h-12 ${roboto.className} border-b-2 uppercase`}
               >
                 <th className=" border-[var(--gray-100)] px-4"></th>
                 <th className="text-left border-[var(--gray-100)] px-4">
-                  Showing 1 of 10
+                  {`Showing ${page} of ${
+                    items > 0 ? Math.ceil(items / 10) : 1
+                  }`}
                 </th>
                 <th className=" px-4 text-left" />
                 <th className=" px-4 text-left" />

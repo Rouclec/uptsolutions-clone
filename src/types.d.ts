@@ -13,6 +13,7 @@ export interface User {
 }
 
 export interface Command {
+  _id?: string;
   name?: string;
   numberOfCopies?: string;
   paperType?: string;
@@ -26,8 +27,10 @@ export interface Command {
   biding?: string;
   bidingType?: string;
   extraDetails?: string;
-  amount?: number;
+  amount: number;
   createdAt?: string;
+  status?: string;
+  file?: string;
   updatedAt?: string;
 }
 

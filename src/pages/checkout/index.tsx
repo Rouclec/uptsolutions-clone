@@ -8,6 +8,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useSession } from "next-auth/react";
 import moment from "moment";
 import { data } from "autoprefixer";
+import { addCommas } from "@/utils/addCommas";
 
 export const validatePhoneNumber = (phoneNumber: string) => {
   const mtnRegexp = new RegExp(/^6(((7|8)[0-9]{7}$)|(5[0-4][0-9]{6}$))/);
@@ -21,6 +22,7 @@ export default function Index() {
   const [showModal, setShowModal] = useState(false);
   const [phoneNumber, setPhoneNumber] = useState("");
   const [pendingDocuments, setPendingDocuments] = useState() as any;
+  const [selected, setSelected] = useState<Command[]>([]);
   const [provider, setProvider] = useState("");
 
   const session = useSession();
@@ -69,6 +71,20 @@ export default function Index() {
     !!pendingDocuments
   );
 
+  const handleSelect = (document: Command) => {
+    const isSelected = selected.find(
+      (item: Command) => item?._id === document?._id
+    );
+
+    console.log("is selected: ", isSelected);
+    if (!!isSelected) {
+      setSelected(
+        selected.filter((item: Command) => item?._id !== isSelected?._id)
+      );
+    } else {
+      setSelected([...selected, document]);
+    }
+  };
   return (
     <SideBar>
       <div>
@@ -98,22 +114,21 @@ export default function Index() {
                 <input
                   type="checkbox"
                   className="text-[var(--primary-700)] rounded-full checked:bg-[var(--primary-700)]"
+                  onChange={() => handleSelect(document)}
                 />
               </div>
               <div className="flex items-center justify-between">
                 <p
                   className={`${roboto.className} font-bold text-lg md:text-2xl text-[var(--gray-800)] truncate`}
                 >
-                  10,000 XAF
+                  {`${addCommas(document?.amount)}XAF`}
                 </p>
               </div>
               <div className="flex items-center justify-between">
                 <p
                   className={`${roboto.className} font-normal text-sm md:text-lg text-[var(--gray-700)]`}
                 >
-                  {`10 pages - ${moment(document?.createdAt).format(
-                    "MMMM, DD, YYYY"
-                  )}`}
+                  {`${moment(document?.createdAt).format("MMMM, DD, YYYY")}`}
                 </p>
               </div>
             </div>
@@ -129,12 +144,18 @@ export default function Index() {
             <p
               className={`${roboto.className} font-normal text-ld md:text-2xl text-[var(--gray-800)]`}
             >
-              {`${pendingDocuments?.length || 0} x documents`}
+              {`${selected?.length || 0} x document${
+                selected?.length > 1 ? "s" : ""
+              }`}
             </p>
             <p
               className={`${roboto.className} font-bold text-lg md:text-2xl text-[var(--gray-800)] truncate`}
             >
-              10,000 XAF
+              {`${addCommas(
+                selected.reduce(function (prev: any, curr: any) {
+                  return prev * 1 + curr.amount * 1;
+                }, 0)
+              )}XAF`}
             </p>
           </div>
           <div className="flex items-center justify-between py-4 border-b-2">
@@ -146,7 +167,7 @@ export default function Index() {
             <p
               className={`${roboto.className} font-bold text-lg md:text-2xl text-[var(--gray-800)] truncate`}
             >
-              10,000 XAF
+              0 XAF
             </p>
           </div>
           <div className="flex items-center justify-between py-4">
@@ -158,7 +179,11 @@ export default function Index() {
             <p
               className={`${roboto.className} font-bold text-lg md:text-2xl text-[var(--gray-800)] truncate`}
             >
-              20,000 XAF
+              {`${addCommas(
+                selected.reduce(function (prev: any, curr: any) {
+                  return prev * 1 + curr.amount * 1;
+                }, 0)
+              )}XAF`}
             </p>
           </div>
         </div>

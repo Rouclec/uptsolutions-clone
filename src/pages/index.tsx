@@ -11,7 +11,7 @@ export default function Home() {
   return (
     <SideBar>
       <div className="">
-        {user?.role?.code != "admin" ? <PrintSummary /> : <OrderSummary />}
+        {user?.role?.code !== "admin" ? <PrintSummary /> : <OrderSummary />}
       </div>
     </SideBar>
   );

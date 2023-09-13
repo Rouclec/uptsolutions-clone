@@ -5,6 +5,7 @@ import React, {
   ChangeEventHandler,
   MouseEventHandler,
   useEffect,
+  useMemo,
   useState,
 } from "react";
 import { BiTrash } from "react-icons/bi";
@@ -23,28 +24,27 @@ import {
 import { useQueryClient } from "@tanstack/react-query";
 import { Squares } from "react-activity";
 import Link from "next/link";
+import moment from "moment";
+import { addCommas } from "@/utils/addCommas";
 
 export default function Create() {
   const [docName, setDocName] = useState("");
-  const [numberOfCopies, setNumberOfCopies] = useState("");
+  const [numberOfCopies, setNumberOfCopies] = useState(1);
   const [paperType, setPaperType] = useState("Normal");
   const [paperSize, setPaperSize] = useState("A4");
   const [orientation, setOrientation] = useState("Potrait");
   const [printSides, setprintSides] = useState("Recto");
-  const [printColor, setPrintColor] = useState("");
+  const [printColor, setPrintColor] = useState("false");
   const [paperColor, setPaperColor] = useState("");
-  const [pagesToPrint, setPagesToPrint] = useState("");
-  const commandList = useSelector((state: RootState) => state.file).commands;
+  // const [pagesToPrint, setPagesToPrint] = useState("");
   // Layout properties
-  const [pagesPerSheet, setPagesPerSheet] = useState("");
-  const [layoutDirection, setLayoutDirection] = useState("");
+  const [pagesPerSheet, setPagesPerSheet] = useState("1");
   const [printType, setPrintType] = useState("Plain");
-  const [biding, setBiding] = useState("No binding");
   const [bidingType, setBidingType] = useState("No binding");
   const [extraDetails, setExtraDetails] = useState("");
-  const [cost, setCost] = useState();
+  const [cost, setCost] = useState<number>(0);
   const [file, setFile] = useState<File | null>(null);
-  const [numberOfPages, setNumberOfPages] = useState<number>();
+  const [numberOfPages, setNumberOfPages] = useState<number>(0);
   const [upload, setUpload] = useState<S3.ManagedUpload | null>(null);
   const [progress, setProgress] = useState(0);
 
@@ -136,6 +136,28 @@ export default function Create() {
     );
   };
 
+  const calculateAmount = useMemo(() => {
+    let unitPrice = 0;
+    let numberOfSheets =
+      printSides === "Recto"
+        ? Math.ceil(numberOfPages / parseInt(pagesPerSheet))
+        : Math.ceil(Math.ceil(numberOfPages / 2) / parseInt(pagesPerSheet));
+    if (numberOfSheets < 10) {
+      unitPrice = printColor === "true" ? 200 : 50;
+    } else if (numberOfSheets < 50) {
+      unitPrice = printColor === "true" ? 100 : 25;
+    } else {
+      unitPrice = printColor === "true" ? 100 : 20;
+    }
+    return numberOfSheets * unitPrice * numberOfCopies;
+  }, [printSides, numberOfPages, pagesPerSheet, numberOfCopies, printColor]);
+
+  useEffect(() => {
+    const amount = calculateAmount;
+    console.log("amount: ", amount);
+    setCost(amount);
+  }, [calculateAmount]);
+
   const onSuccess = (data: any) => {
     setLoading(false);
     console.log("data uploaded: ", data);
@@ -145,8 +167,6 @@ export default function Create() {
       user?._id,
       "pending",
     ]);
-
-    console.log("old query data: ", oldQueryData);
 
     oldQueryData
       ? queryClient.setQueryData(
@@ -181,8 +201,48 @@ export default function Create() {
     setUpload(null);
   };
   const router = useRouter();
-
-  console.log({ pendingDocuments });
+  const handleProceed: MouseEventHandler<HTMLButtonElement> = async (e) => {
+    e.preventDefault();
+    if (docName && file) {
+      if (!file) return;
+      setLoading(true);
+      const BUCKET = process.env.NEXT_PUBLIC_AWS_BUCKET as string;
+      const params = {
+        Bucket: BUCKET,
+        Key: file?.name,
+        Body: file,
+      };
+      console.log(params);
+      try {
+        const upload = s3.upload(params);
+        setUpload(upload);
+        upload.on("httpUploadProgress", (p) => {
+          console.log(p.loaded / p.total);
+          setProgress(p.loaded / p.total);
+        });
+        const result = await upload.promise();
+        const doc = {
+          name: docName,
+          paperType,
+          paperSize,
+          orientation,
+          printSides,
+          color: printColor,
+          pagesPerSheet,
+          amount: cost,
+          printingType: printType,
+          bindingType: bidingType,
+          description: extraDetails,
+          file: result.Location,
+          createdBy: user?._id,
+        };
+        mutate(doc);
+      } catch (err) {
+        console.error(err);
+      }
+      router.push("/checkout");
+    }
+  };
   return (
     <SideBar>
       <div>
@@ -265,6 +325,7 @@ export default function Create() {
                         className="my-auto bg-gray-50 border w-[80px] border-gray-300 px-2 rounded-md py-2"
                         type="number"
                         min={1}
+                        value={numberOfCopies}
                         onChange={(e: any) => setNumberOfCopies(e.target.value)}
                       />
                     </div>
@@ -354,6 +415,7 @@ export default function Create() {
                             type="radio"
                             className="form-radio h-4 w-4 text-blue-600"
                             value="Potrait"
+                            defaultChecked={true}
                             onChange={(e: any) =>
                               setOrientation(e.target.value)
                             }
@@ -382,6 +444,7 @@ export default function Create() {
                             value="Recto"
                             name="printSides"
                             onChange={(e) => setprintSides(e.target.value)}
+                            defaultChecked={true}
                           />
                           <span
                             className={`text-gray-700 ${roboto_slab.className} font-semibold px-2`}
@@ -433,6 +496,7 @@ export default function Create() {
                             className="form-radio h-4 w-4 text-blue-600"
                             value="black-and-white"
                             name="printColor"
+                            defaultChecked={true}
                             onChange={(e) => setPrintColor("false")}
                           />
                           <span
@@ -531,52 +595,13 @@ export default function Create() {
                             className="form-radio h-4 w-4 text-blue-600"
                             value="Plain"
                             name="printColor"
-                            // checked={value === 'false'}
+                            defaultChecked={true}
                             onChange={(e) => setPrintType(e.target.value)}
                           />
                           <span
                             className={`text-gray-700 ${roboto_slab.className} font-semibold px-2`}
                           >
                             Plain
-                          </span>
-                        </label>
-                      </div>
-                    </div>
-
-                    <div className="flex justify-between my-3 border-b-2 py-2 border-gray-300">
-                      <label
-                        className={`text-gray-700 ${roboto_slab.className} font-semibold`}
-                      >
-                        Binding
-                      </label>
-                      <div className="flex flex-row justify-between">
-                        <label className="inline-flex items-center">
-                          <input
-                            type="radio"
-                            className="form-radio h-4 w-4 text-blue-600"
-                            value="Yes"
-                            name="binding"
-                            // checked={value === 'true'}
-                            onChange={(e) => setBiding(e.target.value)}
-                          />
-                          <span
-                            className={`text-gray-700 ${roboto_slab.className} font-semibold px-2`}
-                          >
-                            Yes
-                          </span>
-                        </label>
-                        <label className="inline-flex items-center">
-                          <input
-                            type="radio"
-                            className="form-radio h-4 w-4 text-blue-600"
-                            value="false"
-                            name="binding"
-                            onChange={(e) => setBiding(e.target.value)}
-                          />
-                          <span
-                            className={`text-gray-700 ${roboto_slab.className} font-semibold px-2`}
-                          >
-                            No
                           </span>
                         </label>
                       </div>
@@ -693,7 +718,7 @@ export default function Create() {
                             Document name
                           </div>
                           <div className="text-gray-700 text-base font-normal leading-normal">
-                            Bio Paper2{" "}
+                            {docName || ""}
                           </div>
                         </div>
                         <div className="self-stretch justify-between items-center  inline-flex md:block lg:inline-flex">
@@ -701,7 +726,7 @@ export default function Create() {
                             Uploaded date
                           </div>
                           <div className="text-gray-700 text-base font-normal leading-normal">
-                            13/06/2023
+                            {moment().format("DD/MM/YYY")}
                           </div>
                         </div>
                         <div className="self-stretch justify-between items-center  inline-flex md:block lg:inline-flex">
@@ -717,18 +742,32 @@ export default function Create() {
                             Total Cost
                           </div>
                           <div className="text-gray-700 text-base font-normal leading-normal">
-                            2500frs
+                            {`${addCommas(cost)}frs`}
                           </div>
                         </div>
                       </div>
                       <div className="self-stretch justify-between items-start gap-6 inline-flex">
                         <button className="btn-tetiary">Move to Trash</button>
-                        <button className="btn-primary">
-                          <Link href={"/checkout"}>
+                        <button
+                          className={`btn-primary ${loading && "opacity-20"}`}
+                          onClick={handleProceed}
+                          disabled={loading}
+                        >
+                          {loading ? (
+                            <>
+                              <p className="text-center text-sm">Please wait</p>
+                              <Squares
+                                size={12}
+                                color={"var(--primary-300)"}
+                                speed={0.6}
+                                className="self-center"
+                              />
+                            </>
+                          ) : (
                             <div className="text-white text-sm font-medium leading-tight">
                               Proceed To Pay
                             </div>
-                          </Link>
+                          )}
                         </button>
                       </div>
                     </div>

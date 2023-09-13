@@ -11,7 +11,7 @@ const fetchDocuments = () => {
 };
 
 const fetchDocument = (id: string) => {
-  return axios.get(`/api/document/get-one/${id}`);
+  return axios.get(`/api/document/get-one?id=${id}`);
 };
 
 const fetchUserDocuments = (userId: string) => {
@@ -20,6 +20,10 @@ const fetchUserDocuments = (userId: string) => {
 
 const fetchPendingUserDocuments = (userId: string) => {
   return axios.get(`/api/document/get?createdBy=${userId}&status=pending`);
+};
+
+const deleteUserDocument = (doc: { name: string; id: string }) => {
+  return axios.get(`/api/document/delete?name=${doc?.name}&id=${doc?.id}`);
 };
 
 export const useGetDocuments = (onSuccess: any, onError: any) => {
@@ -70,6 +74,13 @@ export const useGetUserPendingDocuments = (
 
 export const useUploadDocument = (onSuccess: any, onError: any) => {
   return useMutation(uploadDocument, {
+    onSuccess,
+    onError,
+  });
+};
+
+export const useDeleteDocument = (onSuccess: any, onError: any) => {
+  return useMutation(deleteUserDocument, {
     onSuccess,
     onError,
   });

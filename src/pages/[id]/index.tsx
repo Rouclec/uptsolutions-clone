@@ -1,12 +1,10 @@
-import { addfile } from "@/slice/fileSlice";
-import { Command } from "@/types";
 import { PDFDocument } from "pdf-lib";
 import { useRouter } from "next/router";
 import React, {
   ChangeEventHandler,
   MouseEventHandler,
   useEffect,
-  useRef,
+  useMemo,
   useState,
 } from "react";
 import { BiTrash } from "react-icons/bi";
@@ -14,43 +12,57 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/store";
 import { useSession } from "next-auth/react";
 import { S3 } from "aws-sdk";
-import { Header, SideBar } from "@/components";
+import { Header, OrderAlert, SideBar, toaster } from "@/components";
 import { HiOutlinePlus } from "react-icons/hi2";
 import { roboto, roboto_slab } from "../_app";
+import {
+  useGetDocument,
+  useGetUserPendingDocuments,
+  useUploadDocument,
+} from "@/hooks/document/useDocument";
+import { Sentry, Squares } from "react-activity";
+import FileUpload from "@/components/orderprint/FileUpload";
+import moment from "moment";
+import { useQueryClient } from "@tanstack/react-query";
+import { User } from "@/types";
+import { addCommas } from "@/utils/addCommas";
 // import FileUpload from "@/components/file/FileUpload";
 
 export default function Create() {
+  const router = useRouter();
+  const id = router.query?.docId;
+
   const [docName, setDocName] = useState("");
-  const [numberOfCopies, setNumberOfCopies] = useState("");
+  const [numberOfCopies, setNumberOfCopies] = useState(1);
   const [paperType, setPaperType] = useState("Normal");
   const [paperSize, setPaperSize] = useState("A4");
   const [orientation, setOrientation] = useState("Potrait");
   const [printSides, setprintSides] = useState("Recto");
-  const [printColor, setPrintColor] = useState("");
+  const [printColor, setPrintColor] = useState("false");
   const [paperColor, setPaperColor] = useState("");
-  const [pagesToPrint, setPagesToPrint] = useState("");
-  const commandList = useSelector((state: RootState) => state.file).commands;
+  // const [pagesToPrint, setPagesToPrint] = useState("");
   // Layout properties
-  const [pagesPerSheet, setPagesPerSheet] = useState("");
-  const [layoutDirection, setLayoutDirection] = useState("");
+  const [pagesPerSheet, setPagesPerSheet] = useState("1");
   const [printType, setPrintType] = useState("Plain");
-  const [biding, setBiding] = useState("No binding");
   const [bidingType, setBidingType] = useState("No binding");
   const [extraDetails, setExtraDetails] = useState("");
-  const [filePath, setFilePath] = useState("");
-  const [cost, setCost] = useState();
-  // const [file, setFile] = useState("");
-  const [saveState, setSaveState] = useState(true);
+  const [cost, setCost] = useState<number>(0);
   const [file, setFile] = useState<File | null>(null);
-  const [numberOfPages, setNumberOfPages] = useState<number>();
+  const [numberOfPages, setNumberOfPages] = useState<number>(0);
+  const [upload, setUpload] = useState<S3.ManagedUpload | null>(null);
+  const [progress, setProgress] = useState(0);
+
+  const [loading, setLoading] = useState(false);
   // Show file
 
   const [url, setUrl] = React.useState("");
 
   const session = useSession();
 
-  const [upload, setUpload] = useState<S3.ManagedUpload | null>(null);
-  const [progress, setProgress] = useState(0);
+  const queryClient = useQueryClient();
+
+  const user = session.data?.user as User;
+
   const s3 = new S3({
     accessKeyId: process.env.NEXT_PUBLIC_AWS_ACCESS_TOKEN,
     secretAccessKey: process.env.NEXT_PUBLIC_AWS_SECRET_ACCESS_KEY,
@@ -71,13 +83,14 @@ export default function Create() {
     const arrayBuffer = await e.target.files![0].arrayBuffer();
     const pdfDoc = await PDFDocument.load(arrayBuffer);
     const totalPages = pdfDoc.getPages().length;
-    // console.log(`Total pages in the PDF: ${await totalPages.length}`);
     setNumberOfPages(totalPages);
+    console.log({ numberOfPages });
   };
 
   const handleUpload: MouseEventHandler<HTMLButtonElement> = async (e) => {
     e.preventDefault();
     if (!file) return;
+    setLoading(true);
     const BUCKET = process.env.NEXT_PUBLIC_AWS_BUCKET as string;
     const params = {
       Bucket: BUCKET,
@@ -93,7 +106,6 @@ export default function Create() {
         setProgress(p.loaded / p.total);
       });
       const result = await upload.promise();
-      setFilePath(result?.Location);
       const doc = {
         name: docName,
         paperType,
@@ -102,81 +114,157 @@ export default function Create() {
         printSides,
         color: printColor,
         pagesPerSheet,
+        amount: cost,
         printingType: printType,
         bindingType: bidingType,
         description: extraDetails,
-        file: filePath,
-        createdBy: session?.data?.user?.name,
+        file: result.Location,
+        createdBy: user?._id,
       };
-
-      const res = await fetch("/api/document/upload", {
-        method: "POST",
-        mode: "no-cors",
-        headers: {
-          "Content-type": "application/json;charset=UTF-8",
-        },
-        body: JSON.stringify(doc),
-      });
-
-      if (!res.ok) {
-        throw new Error("Error placing command, try again");
-      }
-      const docResult = await res.json();
-
-      console.log("doc result: ", docResult);
+      mutate(doc);
     } catch (err) {
       console.error(err);
     }
   };
 
+  const onError = (error: any) => {
+    setLoading(false);
+    console.log("error creating: ", error);
+    toaster(
+      error?.response
+        ? error.response.data.message
+        : error?.message
+        ? error.message
+        : "An unknown error occured",
+      "error"
+    );
+  };
+
+  const calculateAmount = useMemo(() => {
+    let unitPrice = 0;
+    let numberOfSheets =
+      printSides === "Recto"
+        ? Math.ceil(numberOfPages / parseInt(pagesPerSheet))
+        : Math.ceil(Math.ceil(numberOfPages / 2) / parseInt(pagesPerSheet));
+    if (numberOfSheets < 10) {
+      unitPrice = printColor === "true" ? 200 : 50;
+    } else if (numberOfSheets < 50) {
+      unitPrice = printColor === "true" ? 100 : 25;
+    } else {
+      unitPrice = printColor === "true" ? 100 : 20;
+    }
+    return numberOfSheets * unitPrice * numberOfCopies;
+  }, [printSides, numberOfPages, pagesPerSheet, numberOfCopies, printColor]);
+
+  useEffect(() => {
+    const amount = calculateAmount;
+    console.log("amount: ", amount);
+    setCost(amount);
+  }, [calculateAmount]);
+
+  const onSuccess = (data: any) => {
+    setLoading(false);
+    console.log("data uploaded: ", data);
+
+    const oldQueryData = queryClient.getQueryData([
+      "documents",
+      user?._id,
+      "pending",
+    ]);
+
+    oldQueryData
+      ? queryClient.setQueryData(
+          ["documents", user?._id, "pending"],
+          (oldQueryData: any) => {
+            return {
+              ...oldQueryData,
+              data: {
+                ...oldQueryData?.data,
+                data: [data?.data?.data, ...oldQueryData?.data?.data],
+              },
+            };
+          }
+        )
+      : queryClient.setQueryData(
+          ["documents", user?._id, "pending"],
+          () => data
+        );
+    //TODO: clear input fields
+  };
+
+  const { mutate } = useUploadDocument(onSuccess, onError);
+  const { isLoading: isGetLoading, data: pendingDocuments } =
+    useGetUserPendingDocuments(user?._id as string, () => {}, onError);
+
   const handleCancel: MouseEventHandler<HTMLButtonElement> = (e) => {
     e.preventDefault();
     if (!upload) return;
+    () => {};
     upload.abort();
-    // progress.set(0);
     setProgress(0);
     setUpload(null);
   };
+  const handleProceed: MouseEventHandler<HTMLButtonElement> = async (e) => {
+    e.preventDefault();
+    if (docName && file) {
+      if (!file) return;
+      setLoading(true);
+      const BUCKET = process.env.NEXT_PUBLIC_AWS_BUCKET as string;
+      const params = {
+        Bucket: BUCKET,
+        Key: file?.name,
+        Body: file,
+      };
+      console.log(params);
+      try {
+        const upload = s3.upload(params);
+        setUpload(upload);
+        upload.on("httpUploadProgress", (p) => {
+          console.log(p.loaded / p.total);
+          setProgress(p.loaded / p.total);
+        });
+        const result = await upload.promise();
+        const doc = {
+          name: docName,
+          paperType,
+          paperSize,
+          orientation,
+          printSides,
+          color: printColor,
+          pagesPerSheet,
+          amount: cost,
+          printingType: printType,
+          bindingType: bidingType,
+          description: extraDetails,
+          file: result.Location,
+          createdBy: user?._id,
+        };
+        mutate(doc);
+      } catch (err) {
+        console.error(err);
+      }
+      router.push("/checkout");
+    }
+  };
 
-  const dispatch = useDispatch();
-  const router = useRouter();
-  const fileObj: Command = {
-    docName,
-    numberOfCopies,
-    paperType,
-    paperSize,
-    orientation,
-    printSides,
-    printColor,
-    paperColor,
-    pagesPerSheet,
-    printType,
-    biding,
-    bidingType,
-    extraDetails,
-    cost,
-  };
-  const addFile = () => {
-    dispatch(addfile(fileObj));
-    setSaveState(true);
-  };
-  const handlePrint = () => {
-    router.push("/checkout");
-    console.log("print commant: ", {
-      name: docName,
-      paperType,
-      paperSize,
-      orientation,
-      printSides,
-      paperColor,
-      pagesPerSheet,
-      printingType: printType,
-      bindingType: bidingType,
-      description: extraDetails,
-      file: filePath,
-      createdBy: session?.data?.user?.name,
-    });
-  };
+  const { isLoading, data } = useGetDocument(
+    id as string,
+    () => {},
+    () => {}
+  );
+
+  if (isLoading) {
+    return (
+      <div
+        className={`flex h-[calc(100vh-10rem)] items-center justify-center overflow-y-hidden`}
+      >
+        <Header />
+        <div className="self-center">
+          <Sentry size={120} speed={0.2} color="var(--primary-600)" />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <SideBar>
@@ -187,16 +275,56 @@ export default function Create() {
           >
             Order Print
           </p>
+          {pendingDocuments?.data?.data?.length > 0 && (
+            <OrderAlert
+              onClose={() => {}}
+              viewTxt="Proceed To Pay"
+              link="/checkout"
+              message={`You have ${pendingDocuments?.data?.data?.length} file${
+                pendingDocuments?.data?.data?.length > 1 && "s"
+              } pending payment`}
+            />
+          )}
+          <div className="container w-full py-5 flex justify-end">
+            <button
+              onClick={handleUpload}
+              className={`btn-primary flex gap-2 text-lg ${
+                loading && "opacity-20"
+              }`}
+              disabled={loading}
+            >
+              {loading ? (
+                <>
+                  <p className="text-center">Please wait</p>
+                  <Squares
+                    size={16}
+                    color={"var(--primary-300)"}
+                    speed={0.6}
+                    className="self-center"
+                  />
+                </>
+              ) : (
+                <>
+                  <HiOutlinePlus />
+                  <p className={`${roboto.className} font-normal`}>
+                    Add document
+                  </p>
+                </>
+              )}
+            </button>
+          </div>
         </Header>
-        <div className="container mx-auto mt-32 gap-1  md:p-2">
+        <div className="container mx-auto mt-40 gap-1  md:p-2">
           <div className="flex">
             <div className="w-full">
               <div className=" py-5 lg:rounded md:flex gap-4 ">
-                <div className="mb-4 md:w-2/3 rounded-lg pt-6 pb-8">
-                  <div className="mb-4 md:flex md:justify-between">
-                    <div className="md:flex mb-4 md:mb-0 w-full gap-2">
+                <div className="mb-4 md:w-2/3 rounded pt-6 pb-8">
+                  <div className="mb-4 flex md:justify-between">
+                    <div className="flex mb-4 md:mb-0 w-full gap-2">
                       <div className="w-full">
-                        <label className="mb-2 block text-sm font-bold text-gray-700">
+                        <label
+                          className={`text-gray-700 ${roboto_slab.className} font-semibold`}
+                        >
                           File Name
                         </label>
                         <input
@@ -204,33 +332,42 @@ export default function Create() {
                           type="text"
                           placeholder="Enter Document name"
                           onChange={(e) => setDocName(e.target.value)}
+                          defaultValue={data?.data?.data?.name}
                         />
                       </div>
                     </div>
                   </div>
 
                   <div className="bg-white p-4 rounded-md">
-                    <div className="md:flex justify-between my-3 border-b-2 py-2 border-gray-300">
-                      <label className="text-gray-700 text-lg font-medium leading-normal">
+                    <div className=" flex justify-between my-3 border-b-2 py-2 border-gray-300">
+                      <label
+                        className={`text-gray-700 ${roboto_slab.className} font-semibold`}
+                      >
                         Number of Copies
                       </label>
                       <input
-                        className="my-auto bg-gray-50 border border-gray-300 px-2 rounded-md py-2"
+                        className="my-auto bg-gray-50 border w-[80px] border-gray-300 px-2 rounded-md py-2"
                         type="number"
+                        min={1}
+                        value={numberOfCopies}
                         onChange={(e: any) => setNumberOfCopies(e.target.value)}
                       />
                     </div>
-                    <div className="md:flex justify-between my-3 border-b-2 py-2 border-gray-300">
-                      <label className="text-gray-700 text-lg font-medium leading-normal">
-                        Pages{" "}
+                    <div className="flex justify-between my-3 border-b-2 py-2 border-gray-300">
+                      <label
+                        className={`text-gray-700 ${roboto_slab.className} font-semibold`}
+                      >
+                        Pages
                       </label>
                       <select className="my-auto bg-gray-50 border border-gray-300 px-2 rounded-md py-2">
                         <option value="All">All</option>
                         <option value="Some Pages">Some Pages</option>
                       </select>
                     </div>
-                    <div className="md:flex justify-between my-3 py-2">
-                      <label className="text-gray-700 text-lg font-medium leading-normal">
+                    <div className="flex justify-between my-3 py-2">
+                      <label
+                        className={`text-gray-700 ${roboto_slab.className} font-semibold`}
+                      >
                         Paper Type
                       </label>
                       <select
@@ -241,8 +378,10 @@ export default function Create() {
                         <option value="Hard page">Hard Page</option>
                       </select>
                     </div>
-                    <div className="md:flex justify-between border-b-2 border-gray-300 my-3 py-2">
-                      <label className="text-gray-700 text-lg font-medium leading-normal">
+                    <div className="flex justify-between border-b-2 border-gray-300 my-3 py-2">
+                      <label
+                        className={`text-gray-700 ${roboto_slab.className} font-semibold`}
+                      >
                         Paper color
                       </label>
                       <select
@@ -256,8 +395,10 @@ export default function Create() {
                       </select>
                     </div>
 
-                    <div className="md:flex justify-between my-3 border-b-2 py-2 border-gray-300">
-                      <label className="text-gray-700 text-lg font-medium leading-normal">
+                    <div className="flex justify-between my-3 border-b-2 py-2 border-gray-300">
+                      <label
+                        className={`text-gray-700 ${roboto_slab.className} font-semibold`}
+                      >
                         Paper Size
                       </label>
                       <select
@@ -270,11 +411,13 @@ export default function Create() {
                       </select>
                     </div>
 
-                    <div className="md:flex justify-between my-3 border-b-2 py-2 border-gray-300">
-                      <label className="text-gray-700 text-lg font-medium leading-normal">
+                    <div className="flex justify-between my-3 border-b-2 py-2 border-gray-300">
+                      <label
+                        className={`text-gray-700 ${roboto_slab.className} font-semibold`}
+                      >
                         Orientation
                       </label>
-                      <div className="md:flex flex-row justify-between">
+                      <div className="flex flex-row justify-between">
                         <label className="inline-flex items-center">
                           <input
                             type="radio"
@@ -285,25 +428,36 @@ export default function Create() {
                               setOrientation(e.target.value)
                             }
                           />
-                          <span className="ml-2 pr-3">Landscape</span>
+                          <span
+                            className={`text-gray-700 ${roboto_slab.className} font-semibold px-2`}
+                          >
+                            Landscape
+                          </span>
                         </label>
                         <label className="inline-flex items-center">
                           <input
                             type="radio"
                             className="form-radio h-4 w-4 text-blue-600"
                             value="Potrait"
+                            defaultChecked={true}
                             onChange={(e: any) =>
                               setOrientation(e.target.value)
                             }
                             name="orientation"
                           />
-                          <span className="ml-2">Potrait</span>
+                          <span
+                            className={`text-gray-700 ${roboto_slab.className} font-semibold px-2`}
+                          >
+                            Potrait
+                          </span>
                         </label>
                       </div>
                     </div>
 
                     <div className="flex justify-between my-3 border-b-2 py-2 border-gray-300">
-                      <label className="text-gray-700 text-lg font-medium leading-normal">
+                      <label
+                        className={`text-gray-700 ${roboto_slab.className} font-semibold`}
+                      >
                         Print Sides
                       </label>
                       <div className="flex flex-row justify-between">
@@ -314,8 +468,13 @@ export default function Create() {
                             value="Recto"
                             name="printSides"
                             onChange={(e) => setprintSides(e.target.value)}
+                            defaultChecked={true}
                           />
-                          <span className="ml-2 pr-3">Recto</span>
+                          <span
+                            className={`text-gray-700 ${roboto_slab.className} font-semibold px-2`}
+                          >
+                            Recto
+                          </span>
                         </label>
                         <label className="inline-flex items-center">
                           <input
@@ -325,13 +484,19 @@ export default function Create() {
                             value="Recto Veso"
                             onChange={(e) => setprintSides(e.target.value)}
                           />
-                          <span className="ml-2">Recto Veso</span>
+                          <span
+                            className={`text-gray-700 ${roboto_slab.className} font-semibold px-2`}
+                          >
+                            Recto Veso
+                          </span>
                         </label>
                       </div>
                     </div>
 
                     <div className="flex justify-between my-3 border-b-2 py-2 border-gray-300">
-                      <label className="text-gray-700 text-lg font-medium leading-normal">
+                      <label
+                        className={`text-gray-700 ${roboto_slab.className} font-semibold`}
+                      >
                         Print Color
                       </label>
                       <div className="flex flex-row justify-between">
@@ -343,7 +508,11 @@ export default function Create() {
                             value="color"
                             onChange={(e) => setPrintColor("true")}
                           />
-                          <span className="ml-2 pr-3">Color</span>
+                          <span
+                            className={`text-gray-700 ${roboto_slab.className} font-semibold px-2`}
+                          >
+                            Color
+                          </span>
                         </label>
                         <label className="inline-flex items-center">
                           <input
@@ -351,18 +520,29 @@ export default function Create() {
                             className="form-radio h-4 w-4 text-blue-600"
                             value="black-and-white"
                             name="printColor"
+                            defaultChecked={true}
                             onChange={(e) => setPrintColor("false")}
                           />
-                          <span className="ml-2">Black & White</span>
+                          <span
+                            className={`text-gray-700 ${roboto_slab.className} font-semibold px-2`}
+                          >
+                            Black & White
+                          </span>
                         </label>
                       </div>
                     </div>
                   </div>
 
-                  <h3>Layout</h3>
+                  <h3
+                    className={`text-gray-700 ${roboto_slab.className} font-semibold my-3`}
+                  >
+                    Layout
+                  </h3>
                   <div className="bg-white rounded-md p-4 my-2">
                     <div className="flex justify-between my-3 border-b-2 py-2 border-gray-300">
-                      <label className="text-gray-700 text-lg font-medium leading-normal">
+                      <label
+                        className={`text-gray-700 ${roboto_slab.className} font-semibold`}
+                      >
                         Pages per sheet
                       </label>
                       <select
@@ -380,7 +560,9 @@ export default function Create() {
                     </div>
 
                     <div className="flex justify-between my-3 border-b-2 py-2 border-gray-300">
-                      <label className="text-gray-700 text-lg font-medium leading-normal">
+                      <label
+                        className={`text-gray-700 ${roboto_slab.className} font-semibold`}
+                      >
                         Layout Direction
                       </label>
                       <select className="my-auto bg-gray-50 border border-gray-300 px-2 rounded-md py-2">
@@ -390,7 +572,9 @@ export default function Create() {
                       </select>
                     </div>
                     <div className="flex justify-between my-3 border-b-2 py-2 border-gray-300">
-                      <label className="text-gray-700 text-lg font-medium leading-normal">
+                      <label
+                        className={`text-gray-700 ${roboto_slab.className} font-semibold`}
+                      >
                         Margin
                       </label>
                       <select className="my-auto bg-gray-50 border border-gray-300 px-2 rounded-md py-2">
@@ -401,10 +585,16 @@ export default function Create() {
                     </div>
                   </div>
 
-                  <h3>Paper Handling</h3>
+                  <h3
+                    className={`text-gray-700 ${roboto_slab.className} font-semibold my-3`}
+                  >
+                    Paper Handling
+                  </h3>
                   <div className="bg-white rounded-md p-4 my-2">
                     <div className="flex justify-between my-3 border-b-2 py-2 border-gray-300">
-                      <label className="text-gray-700 text-lg font-medium leading-normal">
+                      <label
+                        className={`text-gray-700 ${roboto_slab.className} font-semibold`}
+                      >
                         Printing Type
                       </label>
                       <div className="flex flex-row justify-between">
@@ -417,7 +607,11 @@ export default function Create() {
                             // checked={value === 'true'}
                             onChange={(e) => setPrintType(e.target.value)}
                           />
-                          <span className="ml-2 pr-3">Booklet</span>
+                          <span
+                            className={`text-gray-700 ${roboto_slab.className} font-semibold px-2`}
+                          >
+                            Booklet
+                          </span>
                         </label>
                         <label className="inline-flex items-center">
                           <input
@@ -425,44 +619,21 @@ export default function Create() {
                             className="form-radio h-4 w-4 text-blue-600"
                             value="Plain"
                             name="printColor"
-                            // checked={value === 'false'}
+                            defaultChecked={true}
                             onChange={(e) => setPrintType(e.target.value)}
                           />
-                          <span className="ml-2">Plain</span>
-                        </label>
-                      </div>
-                    </div>
-
-                    <div className="flex justify-between my-3 border-b-2 py-2 border-gray-300">
-                      <label className="text-gray-700 text-lg font-medium leading-normal">
-                        Binding
-                      </label>
-                      <div className="flex flex-row justify-between">
-                        <label className="inline-flex items-center">
-                          <input
-                            type="radio"
-                            className="form-radio h-4 w-4 text-blue-600"
-                            value="Yes"
-                            name="binding"
-                            // checked={value === 'true'}
-                            onChange={(e) => setBiding(e.target.value)}
-                          />
-                          <span className="ml-2 pr-3">Yes</span>
-                        </label>
-                        <label className="inline-flex items-center">
-                          <input
-                            type="radio"
-                            className="form-radio h-4 w-4 text-blue-600"
-                            value="false"
-                            name="binding"
-                            onChange={(e) => setBiding(e.target.value)}
-                          />
-                          <span className="ml-2">No</span>
+                          <span
+                            className={`text-gray-700 ${roboto_slab.className} font-semibold px-2`}
+                          >
+                            Plain
+                          </span>
                         </label>
                       </div>
                     </div>
                     <div className="flex justify-between my-3 border-b-2 py-2 border-gray-300">
-                      <label className="text-gray-700 text-lg font-medium leading-normal">
+                      <label
+                        className={`text-gray-700 ${roboto_slab.className} font-semibold`}
+                      >
                         Binding Type
                       </label>
                       <select
@@ -491,20 +662,26 @@ export default function Create() {
                 </div>
                 <div className="mb-4 md:w-1/3 rounded-lg pt-6 pb-8">
                   <br />
-                  <div className="bg-white overflow-y-scroll  w-full h-[300px] rounded-md">
+                  <div className="w-full h-[450px] rounded-md">
                     <div>
                       {url ? (
-                        <div>{/* <FileUpload url={url} /> */}</div>
+                        <div className="rounded-md">
+                          <FileUpload url={url} />
+                        </div>
+                      ) : data?.data?.data?.file ? (
+                        <div className="rounded-md">
+                          <FileUpload url={data?.data?.data?.file} />
+                        </div>
                       ) : (
-                        <div className="">
+                        <div className="h-full">
                           <div className="flex items-center justify-center w-full">
                             <label
                               // for="dropzone-file"
-                              className="flex flex-col items-center justify-center w-full h-[400px] border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-bray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600"
+                              className=" w-full  border-2 h-40 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100"
                             >
-                              <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                              <div className="flex flex-col py-40 bg-white rounded-md items-center justify-center ">
                                 <svg
-                                  className="w-8 h-8 mb-4 text-gray-500 dark:text-gray-400"
+                                  className="w-8 h-8  mb-4 text-gray-500"
                                   aria-hidden="true"
                                   xmlns="http://www.w3.org/2000/svg"
                                   fill="none"
@@ -532,6 +709,7 @@ export default function Create() {
                                 id="dropzone-file"
                                 type="file"
                                 className="hidden"
+                                accept=".pdf"
                                 onChange={handleFileChange}
                               />
                             </label>
@@ -540,7 +718,7 @@ export default function Create() {
                       )}
                     </div>
                   </div>
-                  <div className="flex justify-between px-3">
+                  <div className="flex mt-20 justify-between px-3">
                     <button
                       className="my-3 hover:text-blue-500"
                       onClick={handleUpload}
@@ -568,7 +746,7 @@ export default function Create() {
                             Document name
                           </div>
                           <div className="text-gray-700 text-base font-normal leading-normal">
-                            Bio Paper2{" "}
+                            {docName || ""}
                           </div>
                         </div>
                         <div className="self-stretch justify-between items-center  inline-flex md:block lg:inline-flex">
@@ -576,7 +754,7 @@ export default function Create() {
                             Uploaded date
                           </div>
                           <div className="text-gray-700 text-base font-normal leading-normal">
-                            13/06/2023
+                            {moment().format("DD/MM/YYY")}
                           </div>
                         </div>
                         <div className="self-stretch justify-between items-center  inline-flex md:block lg:inline-flex">
@@ -592,16 +770,32 @@ export default function Create() {
                             Total Cost
                           </div>
                           <div className="text-gray-700 text-base font-normal leading-normal">
-                            2500frs
+                            {`${addCommas(cost)}frs`}
                           </div>
                         </div>
                       </div>
                       <div className="self-stretch justify-between items-start gap-6 inline-flex">
                         <button className="btn-tetiary">Move to Trash</button>
-                        <button onClick={handlePrint} className="btn-primary">
-                          <div className="text-white text-sm font-medium leading-tight">
-                            Proceed To Pay
-                          </div>
+                        <button
+                          className={`btn-primary ${loading && "opacity-20"}`}
+                          onClick={handleProceed}
+                          disabled={loading}
+                        >
+                          {loading ? (
+                            <>
+                              <p className="text-center text-sm">Please wait</p>
+                              <Squares
+                                size={12}
+                                color={"var(--primary-300)"}
+                                speed={0.6}
+                                className="self-center"
+                              />
+                            </>
+                          ) : (
+                            <div className="text-white text-sm font-medium leading-tight">
+                              Proceed To Pay
+                            </div>
+                          )}
                         </button>
                       </div>
                     </div>

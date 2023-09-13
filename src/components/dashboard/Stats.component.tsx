@@ -1,4 +1,5 @@
 import { roboto, roboto_slab } from "@/pages/_app";
+import { addCommas } from "@/utils/addCommas";
 import React from "react";
 import {
   HiOutlineDocumentAdd,
@@ -6,7 +7,15 @@ import {
 } from "react-icons/hi";
 import { HiOutlineCurrencyPound, HiOutlineDocument } from "react-icons/hi2";
 
-const Stats: React.FC = () => {
+type Props = {
+  stats: {
+    amount: number;
+    completed: number;
+    pending: number;
+    refunded: number;
+  };
+};
+const Stats: React.FC<Props> = ({ stats }) => {
   return (
     <div className="grid md:grid-cols-4 gap-4">
       <div className="card items-center">
@@ -21,7 +30,7 @@ const Stats: React.FC = () => {
               Total Documents
             </p>
             <p className={`${roboto_slab.className} text-2xl font-semibold`}>
-              71,897
+              {addCommas(stats?.pending + stats?.completed + stats?.refunded)}
             </p>
           </div>
         </div>
@@ -38,7 +47,7 @@ const Stats: React.FC = () => {
               Total Printed
             </p>
             <p className={`${roboto_slab.className} text-2xl font-semibold`}>
-              71,897
+              {addCommas(stats?.completed)}
             </p>
           </div>
         </div>
@@ -55,7 +64,7 @@ const Stats: React.FC = () => {
               Total Pending
             </p>
             <p className={`${roboto_slab.className} text-2xl font-semibold`}>
-              71,897
+              {addCommas(stats?.pending)}
             </p>
           </div>
         </div>
@@ -72,7 +81,7 @@ const Stats: React.FC = () => {
               Total Amount Spent
             </p>
             <p className={`${roboto_slab.className} text-2xl font-semibold`}>
-              127,897{" "}
+              {addCommas(stats?.amount)}{" "}
               <span className="text-sm font-light text-[var(--gray-700)]">
                 XAF
               </span>

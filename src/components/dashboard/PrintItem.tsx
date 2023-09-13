@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { roboto, roboto_slab } from "@/pages/_app";
 import Image from "next/image";
 import {
@@ -7,7 +7,91 @@ import {
   HiOutlinePlus,
   HiOutlineTrash,
 } from "react-icons/hi2";
+import {
+  useGetUserDocuments,
+  useGetUserPendingDocuments,
+} from "@/hooks/document/useDocument";
+import { toaster } from "../general/Toaster.component";
+import { User } from "@/types";
+import { useQueryClient } from "@tanstack/react-query";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/router";
 export default function PrintItem() {
+  const [showAlert, setShowAlert] = useState(true);
+  const [newOrder, setNewOrder] = useState(1);
+  const [documents, setDocuments] = useState();
+  const [pendingDocuments, setPendingDocuments] = useState();
+
+  const router = useRouter();
+
+  const session = useSession();
+
+  const queryClient = useQueryClient();
+
+  const user = session.data?.user as User;
+
+  useEffect(() => {
+    const originalData = queryClient.getQueryData([
+      "documents",
+      user?._id,
+    ]) as any;
+    console.log({ originalData });
+    if (originalData?.data?.data) {
+      const pending = originalData?.data?.data?.filter(
+        (data: any) => data?.status === "pending"
+      );
+
+      console.log({ pending });
+      setPendingDocuments(pending);
+      setDocuments(originalData?.data?.data);
+    }
+  }, [queryClient, user?._id]);
+
+  const onError = (error: any) => {
+    console.log("error creating: ", error);
+    toaster(
+      error?.response
+        ? error.response.data.message
+        : error?.message
+        ? error.message
+        : "An unknown error occured",
+      "error"
+    );
+  };
+
+  const onSuccess = (data: any) => {
+    console.log("successfully fetched: ", data);
+    const pending = data?.data?.data?.filter(
+      (data: any) => data?.status === "pending"
+    );
+
+    console.log({ pending });
+    setPendingDocuments(pending);
+    setDocuments(data?.data?.data);
+  };
+
+  const { isLoading, isError } = useGetUserDocuments(
+    user?._id as string,
+    onSuccess,
+    onError
+  );
+
+  useEffect(() => {
+    const originalData = queryClient.getQueryData([
+      "documents",
+      user?._id,
+      "pending",
+    ]) as any;
+    console.log({ originalData });
+    originalData?.data?.data && setPendingDocuments(originalData?.data?.data);
+  }, [queryClient, user?._id]);
+
+  const { isLoading: isPendingDocumentsLoading } = useGetUserPendingDocuments(
+    user?._id as string,
+    onSuccess,
+    onError,
+    !!pendingDocuments
+  );
   return (
     <tr className="border-b-[1px] hover:cursor-pointer bg-[var(--neutral-10)]">
       <td className="px-4 text-[var(--gray-700)] font-semibold p-3  rounded-l-lg text-center">

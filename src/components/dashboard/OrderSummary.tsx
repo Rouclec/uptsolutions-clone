@@ -1,6 +1,6 @@
-import { Header, OrderAlert, SideBar, Stats } from "@/components";
+import { Header, OrderAlert, SideBar, Stats, toaster } from "@/components";
 import { useRouter } from "next/router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   HiOutlineChevronDown,
   HiOutlineMagnifyingGlass,
@@ -9,15 +9,82 @@ import { HiOutlineCloudDownload } from "react-icons/hi";
 import { roboto, roboto_slab } from "@/pages/_app";
 import OrderItem from "./OrderItem";
 import { useGetOrders } from "@/hooks/order/useOrder";
+import { useSession } from "next-auth/react";
+import { useQueryClient } from "@tanstack/react-query";
+import { User } from "@/types";
+import {
+  useGetUserDocuments,
+  useGetUserPendingDocuments,
+} from "@/hooks/document/useDocument";
 function OrderSummary() {
   const [showAlert, setShowAlert] = useState(true);
   const [newOrder, setNewOrder] = useState(1);
+  const [documents, setDocuments] = useState();
+  const [pendingDocuments, setPendingDocuments] = useState();
 
   const router = useRouter();
 
-  const { isLoading, isError } = useGetOrders(
-    () => {},
-    () => {}
+  const session = useSession();
+
+  const queryClient = useQueryClient();
+
+  const user = session.data?.user as User;
+
+  useEffect(() => {
+    const originalData = queryClient.getQueryData([
+      "documents",
+      user?._id,
+    ]) as any;
+    console.log({ originalData });
+    if (originalData?.data?.data) {
+      const pending = originalData?.data?.data?.filter(
+        (data: any) => data?.status === "pending"
+      );
+
+      console.log({ pending });
+      setPendingDocuments(pending);
+      setDocuments(originalData?.data?.data);
+    }
+  }, [queryClient, user?._id]);
+
+  const onError = (error: any) => {
+    console.log("error creating: ", error);
+    toaster(
+      error?.response
+        ? error.response.data.message
+        : error?.message
+        ? error.message
+        : "An unknown error occured",
+      "error"
+    );
+  };
+
+  const onSuccess = (data: any) => {
+    console.log("successfully fetched: ", data);
+    setDocuments(data?.data?.data);
+  };
+
+  const { isLoading, isError } = useGetUserDocuments(
+    user?._id as string,
+    onSuccess,
+    onError
+  );
+
+  useEffect(() => {
+    const originalData = queryClient.getQueryData([
+      "documents",
+      user?._id,
+      "pending",
+    ]) as any;
+    console.log({ originalData });
+    originalData?.data?.data && setPendingDocuments(originalData?.data?.data);
+  }, [queryClient, user?._id]);
+
+  const { isLoading: isPendingDocumentsLoading } = useGetUserPendingDocuments(
+    user?._id as string,
+    onSuccess,
+    onError,
+    !!pendingDocuments
   );
 
   if (isLoading) {

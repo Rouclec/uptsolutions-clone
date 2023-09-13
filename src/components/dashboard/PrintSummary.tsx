@@ -1,6 +1,6 @@
 import { Header, OrderAlert, SideBar, Stats } from "@/components";
 import { useRouter } from "next/router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   HiOutlineChevronDown,
   HiOutlineMagnifyingGlass,
@@ -12,11 +12,37 @@ import Image from "next/image";
 import Link from "next/link";
 import { roboto, roboto_slab } from "@/pages/_app";
 import PrintItem from "./PrintItem";
+
 function PrintSummary() {
   const [showAlert, setShowAlert] = useState(true);
+  const [newOrder, setNewOrder] = useState(1);
+
 
   return (
     <div className={`${showAlert ? "mt-44" : "mt-28"}`}>
+          <Header>
+          <p
+            className={`text-[var(--gray-800)] ${roboto_slab.className} text-2xl font-semibold`}
+          >
+            Dashboard
+          </p>
+          <div className="flex w-full items-center justify-end mb-2">
+            <Link href="/order-print">
+              <button className={`btn-primary flex gap-2 text-lg`}>
+                <HiOutlinePlus />
+                <p className={`${roboto.className} font-normal`}>Order Print</p>
+              </button>
+            </Link>
+          </div>
+          {showAlert && newOrder > 0 && (
+            <OrderAlert
+              message={`You have ${newOrder} pending order pending payment`}
+              viewTxt={"View order"}
+              onClose={() => setShowAlert(false)}
+              link={"/checkout"}
+            />
+          )}
+        </Header>
       <Stats />
       <div className="my-10 grid gap-2">
         <div className="grid gap-1">

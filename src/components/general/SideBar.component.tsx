@@ -4,10 +4,11 @@ import React, { FC, useEffect, useRef, useState } from "react";
 import { HiMagnifyingGlass, HiOutlineBell } from "react-icons/hi2";
 import { HiOutlineMenu, HiOutlineRefresh } from "react-icons/hi";
 import { RiMessage2Line } from "react-icons/ri";
-import { navItems, adminNavItems } from "@/utils";
+import { navItems as userNavitems, adminNavItems } from "@/utils";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import { signOut, useSession } from "next-auth/react";
+import { User } from "@/types";
 
 type Props = {
   children?: any;
@@ -16,9 +17,9 @@ const SideBar: FC<Props> = ({ children }) => {
   const router = useRouter();
   const [showSideBar, setShowSideBar] = useState(false);
   const [active, setActive] = useState();
-  const session = useSession() as any;
-
-  console.log("session user: ", session?.data?.user);
+  const [navItems, setNavItems] = useState(userNavitems);
+  const session = useSession();
+  const user = session?.data?.user as User;
 
   const ref = useRef(null) as any;
 
@@ -39,6 +40,12 @@ const SideBar: FC<Props> = ({ children }) => {
   const handleClick = (item: { name: String; path: String; icon: any }) => {
     item.name === "Logout" && signOut();
   };
+
+  useEffect(() => {
+    user?.role?.code === "admin"
+      ? setNavItems(adminNavItems)
+      : setNavItems(userNavitems);
+  }, [user]);
   return (
     <div>
       <div className="fixed left-0 top-0 right-0 h-20 bg-[var(--neutral-10)] z-10 border-2 flex p-4 items-center gap-2 md:gap-16">
@@ -79,13 +86,7 @@ const SideBar: FC<Props> = ({ children }) => {
         <div className="flex flex-col items-center gap-1">
           <div className="w-24 h-24 bg-[var(--gray-400)] rounded-full flex items-center justify-center">
             <Image
-              src={
-                session?.data?.user?.image
-                  ? session?.data?.user?.image
-                  : session?.data?.user?.picture
-                  ? session?.data?.user?.picture
-                  : "/assets/default-avatar.png"
-              }
+              src={user?.image ? user?.image : "/assets/default-avatar.png"}
               alt="avatar"
               width={96}
               height={96}
@@ -96,17 +97,17 @@ const SideBar: FC<Props> = ({ children }) => {
             <p
               className={`${roboto.className} text-center text-[var(--gray-800)] text-[16px] font-[500]`}
             >
-              {session?.data?.user?.name}
+              {user?.name}
             </p>
             <p
               className={`${roboto.className} text-center text-[var(--gray-700)] text-sm font-[500]`}
             >
-              {session?.data?.user?.phoneNumber || "No phone number"}
+              {user?.phoneNumber || "No phone number"}
             </p>
             <p
               className={`${roboto.className} text-center text-[var(--gray-700)] text-sm font-[500]`}
             >
-              {session?.data?.user?.email}
+              {user?.email}
             </p>
           </div>
         </div>

@@ -150,6 +150,10 @@ export default function orderdetails() {
                     {/* Order detials */}
                     <OrderDetails />
 
+                    <OrderDetails />
+                    <OrderDetails />
+                    <OrderDetails />
+
                     <div className="px-4 py-2 bg-violet-100 rounded-bl-md rounded-br-md border-t border-gray-700 justify-between w-full items-center inline-flex">
                       <div className="px-4 py-2 bg-violet-100 rounded-md justify-start items-center gap-[296px] flex">
                         <div className="text-gray-700 text-sm font-medium leading-none">

@@ -16,10 +16,15 @@ const documentSchema = new Schema({
         default: 'All',
         enum: ['', 'All', 'Some pages']
     },
-    paperType: {
+    coverPage: {
         type: String,
         default: 'Normal',
         enum: ['', 'Normal', 'Hard page']
+    },
+    paperType: {
+        type: String,
+        default: 'Normal',
+        enum: ['', 'Normal', 'Glossy']
     },
     paperSize: {
         type: String,
@@ -52,7 +57,7 @@ const documentSchema = new Schema({
     bindingType: {
         type: String,
         default: "No binding",
-        enum: ['', 'No binding', 'Spiral', 'Pin']
+        enum: ['', 'No binding', 'Spiral', 'Slide binding', 'Normal gum', 'Hard gum']
     },
     description: {
         type: String

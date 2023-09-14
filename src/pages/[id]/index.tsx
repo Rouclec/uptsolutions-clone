@@ -34,6 +34,7 @@ export default function Create() {
 
   const [docName, setDocName] = useState("");
   const [numberOfCopies, setNumberOfCopies] = useState(1);
+  const [coverPage, setCoverPage] = useState("Normal");
   const [paperType, setPaperType] = useState("Normal");
   const [paperSize, setPaperSize] = useState("A4");
   const [orientation, setOrientation] = useState("Potrait");
@@ -106,6 +107,7 @@ export default function Create() {
       const result = await upload.promise();
       const doc = {
         name: docName,
+        coverPage,
         paperType,
         paperSize,
         orientation,
@@ -140,19 +142,85 @@ export default function Create() {
 
   const calculateAmount = useMemo(() => {
     let unitPrice = 0;
+    let bindingCost = 0;
     let numberOfSheets =
       printSides === "Recto"
         ? Math.ceil(numberOfPages / parseInt(pagesPerSheet))
         : Math.ceil(Math.ceil(numberOfPages / 2) / parseInt(pagesPerSheet));
-    if (numberOfSheets < 10) {
-      unitPrice = printColor === "true" ? 200 : 50;
-    } else if (numberOfSheets < 50) {
+    if (numberOfSheets < 5) {
+      unitPrice = printColor === "true" ? 100 : 50;
+      bindingCost =
+        bidingType === "Spiral"
+          ? 500
+          : bidingType === "Slide binding"
+          ? 450
+          : bidingType === "Normal gum"
+          ? 2000
+          : bidingType === "Hard gum"
+          ? 5000
+          : 0;
+    } else if (numberOfSheets < 25) {
       unitPrice = printColor === "true" ? 100 : 25;
+      bindingCost =
+        bidingType === "Spiral"
+          ? 500
+          : bidingType === "Slide binding"
+          ? 500
+          : bidingType === "Normal gum"
+          ? 2000
+          : bidingType === "Hard gum"
+          ? 5000
+          : 0;
+    } else if (numberOfSheets < 70) {
+      unitPrice = printColor === "true" ? 100 : 20;
+      bindingCost =
+        bidingType === "Spiral"
+          ? 600
+          : bidingType === "Slide binding"
+          ? 550
+          : bidingType === "Normal gum"
+          ? 2000
+          : bidingType === "Hard gum"
+          ? 5000
+          : 0;
+    } else if (numberOfSheets < 100) {
+      unitPrice = printColor === "true" ? 100 : 20;
+      bindingCost =
+        bidingType === "Spiral"
+          ? 700
+          : bidingType === "Slide binding"
+          ? 650
+          : bidingType === "Normal gum"
+          ? 2000
+          : bidingType === "Hard gum"
+          ? 5000
+          : 0;
     } else {
       unitPrice = printColor === "true" ? 100 : 20;
+      bindingCost =
+        bidingType === "Spiral"
+          ? 750
+          : bidingType === "Slide binding"
+          ? 650
+          : bidingType === "Normal gum"
+          ? 2000
+          : bidingType === "Hard gum"
+          ? 5000
+          : 0;
     }
-    return numberOfSheets * unitPrice * numberOfCopies;
-  }, [printSides, numberOfPages, pagesPerSheet, numberOfCopies, printColor]);
+
+    bindingCost = coverPage === "Normal" ? bindingCost - 150 : bindingCost;
+
+    return (numberOfSheets * unitPrice + bindingCost) * numberOfCopies;
+  }, [
+    printSides,
+    numberOfPages,
+    pagesPerSheet,
+    numberOfCopies,
+    printColor,
+    bidingType,
+    coverPage,
+  ]);
 
   useEffect(() => {
     const amount = calculateAmount;
@@ -275,7 +343,7 @@ export default function Create() {
               viewTxt="Proceed To Pay"
               link="/checkout"
               message={`You have ${pendingDocuments?.data?.data?.length} file${
-                pendingDocuments?.data?.data?.length > 1 && "s"
+                pendingDocuments?.data?.data?.length > 1 ? "s" : ""
               } pending payment`}
             />
           )}
@@ -358,14 +426,28 @@ export default function Create() {
                         <option value="Some Pages">Some Pages</option>
                       </select>
                     </div>
-                    <div className="flex justify-between my-3 py-2">
+                    <div className="flex justify-between my-3 py-2 border-b-2">
                       <label
                         className={`text-gray-700 ${roboto_slab.className} font-semibold`}
                       >
-                        Paper Type
+                        Paper type
                       </label>
                       <select
                         onChange={(e: any) => setPaperType(e.target.value)}
+                        className="my-auto bg-gray-50 border border-gray-300 px-2 rounded-md py-2"
+                      >
+                        <option value="Normal">Normal</option>
+                        <option value="Glossy">Glossy</option>
+                      </select>
+                    </div>
+                    <div className="flex justify-between my-3 py-2 border-b-2">
+                      <label
+                        className={`text-gray-700 ${roboto_slab.className} font-semibold`}
+                      >
+                        Cover page
+                      </label>
+                      <select
+                        onChange={(e: any) => setCoverPage(e.target.value)}
                         className="my-auto bg-gray-50 border border-gray-300 px-2 rounded-md py-2"
                       >
                         <option value="Normal">Normal</option>
@@ -636,7 +718,9 @@ export default function Create() {
                       >
                         <option value="No binding">No binding</option>
                         <option value="Spiral">Spiral</option>
-                        <option value="Pin">Pin</option>
+                        <option value="Slide binding">Slide binding</option>
+                        <option value="Normal gum">Normal gum</option>
+                        <option value="Hard gum">Hard gum</option>
                       </select>
                     </div>
                   </div>

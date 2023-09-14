@@ -61,7 +61,7 @@ function Account() {
     e.preventDefault();
     let profileImageString;
     setLoading(true);
-    if (image) {
+    if (!!image.raw && !!image.name && !!image.preview) {
       const BUCKET = process.env.NEXT_PUBLIC_AWS_BUCKET as string;
       const params = {
         Bucket: BUCKET,

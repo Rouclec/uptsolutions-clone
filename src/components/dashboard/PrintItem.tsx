@@ -11,9 +11,15 @@ import { useRouter } from "next/router";
 
 type Props = {
   document: Command;
+  handleSelect: any;
+  isChecked: boolean;
 };
 
-export default function PrintItem({ document }: Props) {
+export default function PrintItem({
+  document,
+  handleSelect,
+  isChecked,
+}: Props) {
   const router = useRouter();
   const handleDelete = () => {
     const doc = {
@@ -34,7 +40,7 @@ export default function PrintItem({ document }: Props) {
   return (
     <tr className="border-b-[1px] hover:cursor-pointer bg-[var(--neutral-10)]">
       <td className="px-4 text-[var(--gray-700)] font-semibold p-3  rounded-l-lg text-center">
-        <input type="checkbox" />
+        <input type="checkbox" onChange={handleSelect} checked={!!isChecked} />
       </td>
       <td className="px-4 font-semibold p-3 text-left ">
         <div className="flex gap-2 items-center">

@@ -84,7 +84,6 @@ export default function Create() {
     const pdfDoc = await PDFDocument.load(arrayBuffer);
     const totalPages = pdfDoc.getPages().length;
     setNumberOfPages(totalPages);
-    console.log({ numberOfPages });
   };
 
   const handleUpload: MouseEventHandler<HTMLButtonElement> = async (e) => {
@@ -97,7 +96,6 @@ export default function Create() {
       Key: file?.name,
       Body: file,
     };
-    console.log(params);
     try {
       const upload = s3.upload(params);
       setUpload(upload);
@@ -158,14 +156,11 @@ export default function Create() {
 
   useEffect(() => {
     const amount = calculateAmount;
-    console.log("amount: ", amount);
     setCost(amount);
   }, [calculateAmount]);
 
   const onSuccess = (data: any) => {
     setLoading(false);
-    console.log("data uploaded: ", data);
-
     const oldQueryData = queryClient.getQueryData([
       "documents",
       user?._id,
@@ -215,7 +210,6 @@ export default function Create() {
         Key: file?.name,
         Body: file,
       };
-      console.log(params);
       try {
         const upload = s3.upload(params);
         setUpload(upload);

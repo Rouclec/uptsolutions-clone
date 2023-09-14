@@ -16,8 +16,8 @@ export const navItems = [
     icon: <RiDashboardLine size={24} />,
   },
   {
-    name: "Profile",
-    path: "#",
+    name: "Account",
+    path: "/account",
     icon: <HiOutlineUser size={24} />,
   },
   {
@@ -34,11 +34,6 @@ export const navItems = [
     name: "Help",
     path: "#",
     icon: <MdHelpOutline size={24} />,
-  },
-  {
-    name: "Logout",
-    path: "#",
-    icon: <TbLogout size={24} />,
   },
 ];
 

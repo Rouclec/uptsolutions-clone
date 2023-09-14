@@ -1,15 +1,14 @@
 /**User types signature */
 export interface User {
-  _id?: string | null | undefined;
-  name?: string | null | undefined;
-  gender?: string | null | undefined;
-  phoneNumber?: string | null | undefined;
-  email?: string | null | undefined;
-  token?: string | null | undefined;
-  image?: string | null | undefined;
+  _id?: string;
+  name?: string;
+  phoneNumber?: string;
+  email?: string;
+  profileImage?: string;
   role?: {
     code: string;
   };
+  address?: string;
 }
 
 export interface Command {

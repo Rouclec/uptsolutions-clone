@@ -4,6 +4,7 @@ import Header from "./general/Header.component";
 import OrderAlert from "./general/OrderAlert.component";
 import Stats from "./dashboard/Stats.component";
 import ActionModal from "./general/ActionModal.component";
+import UpdateModal from "./account/UpdateModal.component";
 import { toaster } from "./general/Toaster.component";
 
 export {
@@ -13,5 +14,6 @@ export {
   OrderAlert,
   Stats,
   ActionModal,
+  UpdateModal,
   toaster,
 };

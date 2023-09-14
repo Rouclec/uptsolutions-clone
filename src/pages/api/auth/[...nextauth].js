@@ -30,8 +30,6 @@ export default NextAuth({
                     throw new Error("Email and password doesn't match")
                 }
 
-                console.log('user returned from sign in: ', user)
-
                 return user;
             }
         })
@@ -52,14 +50,14 @@ export default NextAuth({
             if (isUser) {
                 session.user._id = isUser._id;
                 session.user.name = isUser?.fullName
-                session.user.image = isUser?.profileImage
+                session.user.profileImage = isUser?.profileImage
+                session.user.phoneNumber = isUser?.phoneNumber
                 session.user.role = isUser.role
                 return session;
             }
 
             try {
                 // create a new user
-                console.log('session user: ', session?.user)
                 const userRole = await Role.findOne({ code: "user" });
                 const user = new User({
                     email: session.user.email,

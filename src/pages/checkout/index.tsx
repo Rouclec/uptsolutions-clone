@@ -37,7 +37,6 @@ export default function Index() {
       user?._id,
       "pending",
     ]) as any;
-    console.log({ originalData });
     originalData?.data?.data && setPendingDocuments(originalData?.data?.data);
   }, [queryClient, user?._id]);
 
@@ -60,7 +59,6 @@ export default function Index() {
   };
 
   const onSuccess = (data: any) => {
-    console.log("successfully fetched: ", data);
     setPendingDocuments(data?.data?.data);
   };
 
@@ -75,8 +73,6 @@ export default function Index() {
     const isSelected = selected.find(
       (item: Command) => item?._id === document?._id
     );
-
-    console.log("is selected: ", isSelected);
     if (!!isSelected) {
       setSelected(
         selected.filter((item: Command) => item?._id !== isSelected?._id)

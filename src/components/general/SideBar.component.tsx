@@ -9,6 +9,7 @@ import { useRouter } from "next/router";
 import Link from "next/link";
 import { signOut, useSession } from "next-auth/react";
 import { User } from "@/types";
+import { TbLogout } from "react-icons/tb";
 
 type Props = {
   children?: any;
@@ -38,7 +39,9 @@ const SideBar: FC<Props> = ({ children }) => {
   }, [ref]);
 
   const handleClick = (item: { name: String; path: String; icon: any }) => {
-    item.name === "Logout" && signOut();
+    if (item.name === "Logout") {
+      signOut();
+    }
   };
 
   useEffect(() => {
@@ -86,7 +89,11 @@ const SideBar: FC<Props> = ({ children }) => {
         <div className="flex flex-col items-center gap-1">
           <div className="w-24 h-24 bg-[var(--gray-400)] rounded-full flex items-center justify-center">
             <Image
-              src={user?.image ? user?.image : "/assets/default-avatar.png"}
+              src={
+                user?.profileImage
+                  ? user?.profileImage
+                  : "/assets/default-avatar.png"
+              }
               alt="avatar"
               width={96}
               height={96}
@@ -135,6 +142,18 @@ const SideBar: FC<Props> = ({ children }) => {
               </div>
             </Link>
           ))}
+          <Link href={"signin"} className={`w-full`}>
+            <div
+              className={`flex gap-2 text-xl items-center card ${"text-[var(--gray-700)]"} justify-start text-[16px] hover:cursor-pointer hover:card-primary`}
+              onClick={() => {
+                router.push("/signin");
+                signOut();
+              }}
+            >
+              <TbLogout size={24} />
+              <p className="text-center">Logout</p>
+            </div>
+          </Link>
         </div>
       </div>
       <main className="md:ml-[300px] mt-20 p-4 md:p-10">{children}</main>

@@ -3,7 +3,7 @@ import catchAsync from "lib/catchAsync";
 import DB from 'lib/db';
 import Document from 'models/Document'
 
-const deleteDoc = catchAsync(async (req, res, next) => {
+const deleteDoc = catchAsync(async (req, res) => {
     const { id, name } = req?.query
 
     const s3 = new S3({
@@ -25,7 +25,6 @@ const deleteDoc = catchAsync(async (req, res, next) => {
             }
         }
         else {
-            console.log('data: ', data)
             await DB()
             const deletedDoc = await Document.findByIdAndDelete(id)
             return {
@@ -35,7 +34,7 @@ const deleteDoc = catchAsync(async (req, res, next) => {
         };
     });
     console.log('response on B.E: ', response)
-    return next(res.send(response))
+    return res.send(response)
 })
 
 export default deleteDoc;

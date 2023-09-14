@@ -21,8 +21,6 @@ const getStats = catchAsync(async (req, res) => {
         }
     ])
 
-    console.log('stats: ', stats)
-
     const totalPending = stats.find(stat => stat._id === 'pending');
     const totalCompleted = stats.find(stat => stat._id === 'completed');
     const totalRejected = stats.find(stat => stat._id === 'rejected');

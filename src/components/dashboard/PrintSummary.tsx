@@ -21,14 +21,13 @@ import { useSession } from "next-auth/react";
 import { useGetUserOrderStats } from "@/hooks/order/useOrder";
 
 function PrintSummary() {
+  const router = useRouter();
   const [showAlert, setShowAlert] = useState(true);
   const [documents, setDocuments] = useState() as any;
   const [pendingDocuments, setPendingDocuments] = useState() as any;
   const [items, setItems] = useState(1);
   const [page, setPage] = useState(1);
   const [selected, setSelected] = useState<Command[]>([]);
-
-  const router = useRouter();
 
   const session = useSession();
 
@@ -87,7 +86,6 @@ function PrintSummary() {
       user?._id,
       "pending",
     ]) as any;
-    console.log({ originalData });
     originalData?.data?.data && setPendingDocuments(originalData?.data?.data);
   }, [queryClient, user?._id]);
 
@@ -100,12 +98,17 @@ function PrintSummary() {
     !!pendingDocuments
   );
 
+  const handleMultiSelect = () => {
+    selected?.length !== documents.length
+      ? setSelected(documents)
+      : setSelected([]);
+  };
+
   const handleSelect = (document: Command) => {
     const isSelected = selected.find(
       (item: Command) => item?._id === document?._id
     );
 
-    console.log("is selected: ", isSelected);
     if (!!isSelected) {
       setSelected(
         selected.filter((item: Command) => item?._id !== isSelected?._id)
@@ -182,10 +185,20 @@ function PrintSummary() {
         </div>
         <div className="flex items-center justify-end md:justify-between">
           <div className="md:flex gap-2 items-center hidden">
-            <button className="flex gap-2 btn-secondary">
+            {/* <button className="flex gap-2 btn-secondary">
               <p className={`${roboto.className} font-normal`}>Bulk actions</p>
               <HiOutlineChevronDown />
-            </button>
+            </button> */}
+            <select
+              // onChange={(e) => setPaperSize(e.target.value)}
+              className="my-auto bg-gray-50 border border-gray-300 p-3 rounded-lg"
+            >
+              <option value="" disabled>
+                Bulk actions
+              </option>
+              <option value="delete">Delete</option>
+              <option value="print">Print</option>
+            </select>
             <button className={`btn-secondary`}>
               <p className={`${roboto.className} font-normal`}>Apply</p>
             </button>
@@ -212,7 +225,11 @@ function PrintSummary() {
                 className={`bg-[var(--gray-100)]  text-[var(--gray-500)] font-[500] h-12 ${roboto.className} border-b-2 uppercase`}
               >
                 <th className=" border-[var(--gray-100)] px-4">
-                  <input type="checkbox" />
+                  <input
+                    type="checkbox"
+                    onChange={handleMultiSelect}
+                    checked={selected?.length === documents?.length}
+                  />
                 </th>
                 <th className="text-left border-[var(--gray-100)] px-4">
                   Document Name
@@ -227,7 +244,14 @@ function PrintSummary() {
             </thead>
             <tbody>
               {documents?.map((document: Command, index: number) => (
-                <PrintItem key={index} document={document} />
+                <PrintItem
+                  key={index}
+                  document={document}
+                  handleSelect={() => handleSelect(document)}
+                  isChecked={
+                    !!selected.find((item) => item?._id == document?._id)
+                  }
+                />
               ))}
               <tr
                 className={`bg-[var(--gray-100)]  text-[var(--gray-500)] font-[500] h-12 ${roboto.className} border-b-2 uppercase`}

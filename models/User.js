@@ -30,6 +30,8 @@ const userSchema = new Schema(
         profileImage: {
             type: String
         },
+        phoneNumber: String,
+        address: String,
         passwordConfirm: {
             type: String,
             required: [true, "Please confirm your password"],

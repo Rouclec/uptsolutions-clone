@@ -36,13 +36,10 @@ function OrderSummary() {
       "documents",
       user?._id,
     ]) as any;
-    console.log({ originalData });
     if (originalData?.data?.data) {
       const pending = originalData?.data?.data?.filter(
         (data: any) => data?.status === "pending"
       );
-
-      console.log({ pending });
       setPendingDocuments(pending);
       setDocuments(originalData?.data?.data);
     }
@@ -77,7 +74,6 @@ function OrderSummary() {
       user?._id,
       "pending",
     ]) as any;
-    console.log({ originalData });
     originalData?.data?.data && setPendingDocuments(originalData?.data?.data);
   }, [queryClient, user?._id]);
 

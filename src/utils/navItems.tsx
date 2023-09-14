@@ -41,7 +41,7 @@ export const adminNavItems = navItems.map((item: any) =>
   item.name === "Billing"
     ? {
         name: "Customers",
-        path: "#",
+        path: "/customers",
         icon: <HiOutlineUserGroup />,
       }
     : item

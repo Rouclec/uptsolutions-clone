@@ -21,13 +21,16 @@ const SideBar: FC<Props> = ({ children }) => {
   const [navItems, setNavItems] = useState(userNavitems);
   const session = useSession();
   const user = session?.data?.user as User;
-
+  const [notificationDropDown, setNotificationDropdown] = useState(false);
+  const [messageDropDown, setMessageDropdown] = useState(false);
   const ref = useRef(null) as any;
 
   useEffect(() => {
     const handleOutSideClick = (event: any) => {
       if (!ref.current?.contains(event.target) && event.target.id !== "menu") {
         setShowSideBar(false);
+        setNotificationDropdown(false);
+        setMessageDropdown(false);
       }
     };
 
@@ -75,8 +78,23 @@ const SideBar: FC<Props> = ({ children }) => {
           </div>
           <div className="md:w-[20%] flex items-center gap-2 justify-evenly">
             <HiOutlineRefresh className="text-[var(--gray-700)] font-extralight hover:cursor-pointer text-lg md:text-3xl" />
-            <RiMessage2Line className="text-[var(--gray-700)] hover:cursor-pointer text-lg md:text-3xl" />
-            <HiOutlineBell className="text-[var(--gray-700)] hover:cursor-pointer text-lg md:text-3xl" />
+            {/* <RiMessage2Line className={`text-[var(--gray-700)] hover:cursor-pointer text-lg md:text-3xl ${notificationDropDown || "text-violet-800"} `}/> */}
+            {/* <HiOutlineBell className="text-[var(--gray-700)] hover:cursor-pointer text-lg md:text-3xl" /> */}
+
+            <div>
+              <RiMessage2Line
+                onClick={() => setMessageDropdown((p) => !p)}
+                className="text-[var(--gray-700)] hover:cursor-pointer text-lg md:text-3xl"
+              />
+              {messageDropDown && <MessageDropdown />}
+            </div>
+            <div>
+              <HiOutlineBell
+                onClick={() => setNotificationDropdown((p) => !p)}
+                className="text-[var(--gray-700)] hover:cursor-pointer text-lg md:text-3xl"
+              />
+              {notificationDropDown && <NotificationDropdown />}
+            </div>
           </div>
         </div>
       </div>
@@ -162,3 +180,76 @@ const SideBar: FC<Props> = ({ children }) => {
 };
 
 export default SideBar;
+
+const NotificationDropdown = () => {
+  return (
+    <div
+      className="absolute right-0 z-10 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
+      role="menu"
+      aria-orientation="vertical"
+      aria-labelledby="menu-button"
+      tabIndex={-1}
+    >
+      <div className=" h-24 p-4 bg-white rounded-lg shadow justify-start items-start gap-4 inline-flex">
+        <div className="grow shrink basis-0 h-16 justify-start items-start gap-3 flex">
+          <div className="grow shrink basis-0 flex-col justify-start items-start gap-4 inline-flex">
+            <div className="self-stretch h-16 flex-col justify-start items-start gap-1 flex">
+              <div className="self-stretch text-gray-900 text-sm font-medium font-['Roboto'] leading-tight">
+                Receive notifications
+              </div>
+              <div className="self-stretch text-gray-500 text-sm font-normal font-['Roboto'] leading-tight">
+                Notifications may include alerts, sounds, and badges.
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="bg-white rounded-md justify-center items-center flex">
+          <div className="w-5 h-5 relative" />
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const MessageDropdown = () => {
+  return (
+    <div
+      className="absolute right-0 z-10 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
+      role="menu"
+      aria-orientation="vertical"
+      aria-labelledby="menu-button"
+      tabIndex={-1}
+    >
+      <div className=" p-4 bg-white rounded-lg shadow justify-start items-start gap-4 inline-flex">
+        <div className="grow shrink basis-0 h-[94px] justify-start items-start gap-3 flex">
+          <div className="pt-0.5 justify-center items-start flex">
+            <img
+              className="w-10 h-10 rounded-[20px]"
+              src="https://via.placeholder.com/40x40"
+            />
+          </div>
+          <div className="grow shrink basis-0 flex-col justify-start items-start gap-4 inline-flex">
+            <div className="self-stretch h-11 flex-col justify-start items-start gap-1 flex">
+              <div className="self-stretch text-gray-900 text-sm font-medium font-['Roboto'] leading-tight">
+                Emilia Gates
+              </div>
+              <div className="text-gray-500 text-sm font-normal font-['Roboto'] leading-tight">
+                Sent you a message
+              </div>
+            </div>
+            <div className="self-stretch justify-start items-center gap-3 inline-flex">
+              <div className="px-[13px] py-[9px] bg-blue-600 rounded-md shadow justify-center items-center flex">
+                <div className="text-white text-sm font-medium font-['Roboto'] leading-none">
+                  Reply
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="bg-white rounded-md justify-center items-center flex">
+          <div className="w-5 h-5 relative" />
+        </div>
+      </div>
+    </div>
+  );
+};

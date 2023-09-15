@@ -1,6 +1,14 @@
-import React from "react";
+import React, { SetStateAction, useEffect } from "react";
 
-export default function OrderDetails() {
+interface Props {
+  setShowModal: any;
+  setUrl: any;
+}
+
+export default function OrderDetails({ setShowModal, setUrl }: Props) {
+  useEffect(() => {
+    setUrl("https://research.google.com/pubs/archive/44678.pdf");
+  }, []);
   return (
     <div>
       <div className="px-4 pt-2 pb-4 bg-violet-100 rounded-tl-md w-full rounded-tr-md border-b border-gray-700 justify-start items-center  inline-flex">
@@ -9,20 +17,20 @@ export default function OrderDetails() {
             <div className="w-5 h-5 relative rounded-[100px]" />
           </div>
           <div className="justify-start items-start gap-3 flex">
-            <img
-              className="w-[51px] h-[41px] relative rounded-md"
-              src=""
-            />
+            <img className="w-[51px] h-[41px] relative rounded-md" src="" />
             <div className="flex-col justify-start items-start gap-2 inline-flex">
               <div className="self-stretch text-gray-700 text-sm font-medium leading-none">
                 Doc Name
               </div>
               <div className="w-[81px] justify-start items-start inline-flex">
-                <div className="grow shrink basis-0 h-4 justify-start items-start gap-2 flex">
+                <button
+                  onClick={() => setShowModal(true)}
+                  className="grow shrink basis-0 h-4 justify-start items-start gap-2 flex"
+                >
                   <div className="grow shrink basis-0 text-violet-700 text-sm font-normal leading-none">
-                    View{" "}
+                    View
                   </div>
-                </div>
+                </button>
                 <div className="grow shrink basis-0 text-violet-700 text-sm font-normal leading-none">
                   Save
                 </div>

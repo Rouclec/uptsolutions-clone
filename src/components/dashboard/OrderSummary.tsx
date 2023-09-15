@@ -108,6 +108,7 @@ function OrderSummary() {
             viewTxt={"View order"}
             onClose={() => setShowAlert(false)}
             link={"/checkout"}
+            showBtn= {false}
           />
         )}
       </Header>

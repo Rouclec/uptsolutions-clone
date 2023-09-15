@@ -9,8 +9,15 @@ type Props = {
   link: string;
   message: string;
   viewTxt: string;
+  showBtn: boolean;
 };
-const OrderAlert: React.FC<Props> = ({ onClose, link, viewTxt, message }) => {
+const OrderAlert: React.FC<Props> = ({
+  onClose,
+  link,
+  viewTxt,
+  message,
+  showBtn
+}) => {
   return (
     <div className="w-full p-2 rounded-md flex items-center justify-between bg-[var(--primary-600)]">
       <div className="flex items-center gap-2 md:gap-4">
@@ -27,9 +34,11 @@ const OrderAlert: React.FC<Props> = ({ onClose, link, viewTxt, message }) => {
         </p>
       </div>
       <div className="flex items-center gap-1 md:gap-4">
-        <Link href={link}>
-          <button className="btn-secondary">{viewTxt}</button>
-        </Link>
+        {showBtn && (
+          <Link href={link}>
+            <button className="btn-secondary">{viewTxt}</button>
+          </Link>
+        )}
         <div className="hover:cursor-pointer" onClick={onClose}>
           <AiOutlineClose size={24} className="text-[var(--neutral-10)]" />
         </div>

@@ -16,6 +16,7 @@ import {
   useGetUserDocuments,
   useGetUserPendingDocuments,
 } from "@/hooks/document/useDocument";
+import AdminStats from "./AdminStats.component";
 
 function OrderSummary() {
   const [showAlert, setShowAlert] = useState(true);
@@ -110,7 +111,7 @@ function OrderSummary() {
           />
         )}
       </Header>
-      <Stats
+      <AdminStats
         stats={{
           amount: 0,
           pending: 0,

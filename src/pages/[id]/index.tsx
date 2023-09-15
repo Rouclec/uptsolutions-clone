@@ -340,11 +340,13 @@ export default function Create() {
           {pendingDocuments?.data?.data?.length > 0 && (
             <OrderAlert
               onClose={() => {}}
-              viewTxt="Proceed To Pay"
+              viewTxt="Proceed to pay"
               link="/checkout"
-              message={`You have ${pendingDocuments?.data?.data?.length} file${
+              message={`You have ${
+                pendingDocuments?.data?.data?.length
+              } pending file${
                 pendingDocuments?.data?.data?.length > 1 ? "s" : ""
-              } pending payment`}
+              }`}
             />
           )}
           <div className="container w-full py-5 flex justify-end">
@@ -871,7 +873,7 @@ export default function Create() {
                             </>
                           ) : (
                             <div className="text-white text-sm font-medium leading-tight">
-                              Proceed To Pay
+                              Proceed to pay
                             </div>
                           )}
                         </button>

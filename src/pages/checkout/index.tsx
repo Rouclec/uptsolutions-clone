@@ -9,6 +9,8 @@ import { useSession } from "next-auth/react";
 import moment from "moment";
 import { data } from "autoprefixer";
 import { addCommas } from "@/utils/addCommas";
+import { useInitPayment, useProcessPayment } from "@/hooks/payment/usePayment";
+import { ModalType } from "@/components/general/ActionModal.component";
 
 export const validatePhoneNumber = (phoneNumber: string) => {
   const mtnRegexp = new RegExp(/^6(((7|8)[0-9]{7}$)|(5[0-4][0-9]{6}$))/);
@@ -19,7 +21,7 @@ export const validatePhoneNumber = (phoneNumber: string) => {
 };
 
 export default function Index() {
-  const [showModal, setShowModal] = useState(false);
+  const [showModal, setShowModal] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [pendingDocuments, setPendingDocuments] = useState() as any;
   const [selected, setSelected] = useState<Command[]>([]);
@@ -40,9 +42,36 @@ export default function Index() {
     originalData?.data?.data && setPendingDocuments(originalData?.data?.data);
   }, [queryClient, user?._id]);
 
+  const handleSelect = (document: Command) => {
+    const isSelected = selected.find(
+      (item: Command) => item?._id === document?._id
+    );
+    if (!!isSelected) {
+      setSelected(
+        selected.filter((item: Command) => item?._id !== isSelected?._id)
+      );
+    } else {
+      setSelected([...selected, document]);
+    }
+  };
+
   const payNow = async () => {
     if (phoneNumber) {
-      setShowModal(true);
+      const data = {
+        external_ref: `Payment for print`,
+        amount: Math.round(
+          (selected.reduce(function (prev: any, curr: any) {
+            return prev * 1 + curr.amount * 1;
+          }, 0) *
+            1) /
+            100
+        ),
+        phoneNumber: phoneNumber.startsWith("+237")
+          ? phoneNumber
+          : `+237${phoneNumber}`,
+      };
+      mutate(data);
+      setShowModal("init");
     }
   };
 
@@ -62,6 +91,12 @@ export default function Index() {
     setPendingDocuments(data?.data?.data);
   };
 
+  const onProcessPaymentSucess = (data: any) => {
+    const { status } = data?.data?.data;
+    status === "FAILED" && setShowModal("canceled");
+    status === "SUCCESSFUL" && setShowModal("success");
+  };
+
   const { isLoading } = useGetUserPendingDocuments(
     user?._id as string,
     onSuccess,
@@ -69,18 +104,21 @@ export default function Index() {
     !!pendingDocuments
   );
 
-  const handleSelect = (document: Command) => {
-    const isSelected = selected.find(
-      (item: Command) => item?._id === document?._id
-    );
-    if (!!isSelected) {
-      setSelected(
-        selected.filter((item: Command) => item?._id !== isSelected?._id)
-      );
-    } else {
-      setSelected([...selected, document]);
-    }
-  };
+  const {
+    isLoading: isPaymentLoading,
+    mutate,
+    data: paymentInitData,
+  } = useInitPayment(
+    (data: any) => console.log("payment initiation data: ", data),
+    onError
+  );
+
+  const { isLoading: isPaymentProcessing } = useProcessPayment(
+    onProcessPaymentSucess,
+    onError,
+    paymentInitData?.data?.data?.reference,
+    !!paymentInitData?.data?.data?.reference
+  );
   return (
     <SideBar>
       <div>
@@ -218,12 +256,30 @@ export default function Index() {
           </div>
         </div>
       </div>
-      {showModal && (
+      {showModal === "init" && (
         <ActionModal
           title="Payment initiated"
           subtitle="Your payment has been initiated, please confirm to proceed"
-          onConfirm={() => setShowModal(false)}
+          // onConfirm={() => setShowModal(false)}
+          // confirmText="OK"
+        />
+      )}
+      {showModal === "success" && (
+        <ActionModal
+          title="Successfull!"
+          subtitle="Your payment has been successfully confirmed"
+          onConfirm={() => setShowModal("")}
           confirmText="OK"
+          type={ModalType.SUCCESS}
+        />
+      )}
+      {showModal === "canceled" && (
+        <ActionModal
+          title="Failed!"
+          subtitle="The payment was unsuccessfull, please try again later"
+          onConfirm={() => setShowModal("")}
+          confirmText="OK"
+          type={ModalType.ERROR}
         />
       )}
     </SideBar>

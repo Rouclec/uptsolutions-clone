@@ -49,6 +49,14 @@ const ActionModal: React.FC<Props> = ({
               speed={0.6}
               className="self-center mx-auto"
             />
+          ) : type === ModalType.ERROR ? (
+            <Image
+              src={"/assets/cancel.png"}
+              alt="canceled"
+              width={64}
+              height={64}
+              className="mx-auto"
+            />
           ) : (
             <Image
               src={"/assets/success.png"}

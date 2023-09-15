@@ -7,7 +7,7 @@ const fetchOrder = () => {
 };
 
 const fetchOrderById = (orderId: string) => {
-  return axios.get(`/api/order/get-one/${orderId}`);
+  return axios.get(`/api/order/get-one?id=${orderId}`);
 };
 
 const createOrder = (order: Order) => {

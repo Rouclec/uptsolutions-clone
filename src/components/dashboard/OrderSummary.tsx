@@ -8,20 +8,26 @@ import {
 import { HiOutlineCloudDownload } from "react-icons/hi";
 import { roboto, roboto_slab } from "@/pages/_app";
 import OrderItem from "./OrderItem";
-import { useGetOrders } from "@/hooks/order/useOrder";
+import { useGetOrderStats, useGetOrders } from "@/hooks/order/useOrder";
 import { useSession } from "next-auth/react";
 import { useQueryClient } from "@tanstack/react-query";
-import { User } from "@/types";
+import { Command, User } from "@/types";
 import {
+  useGetDocuments,
   useGetUserDocuments,
   useGetUserPendingDocuments,
 } from "@/hooks/document/useDocument";
+import { Sentry } from "react-activity";
+import { useWithdraw } from "@/hooks/payment/usePayment";
 
 function OrderSummary() {
   const [showAlert, setShowAlert] = useState(true);
   const [newOrder, setNewOrder] = useState(1);
-  const [documents, setDocuments] = useState();
-  const [pendingDocuments, setPendingDocuments] = useState();
+  const [items, setItems] = useState(1);
+  const [page, setPage] = useState(1);
+  const [orders, setOrders] = useState() as any;
+  const [pendingOrders, setPendingOrders] = useState() as any;
+  const [selected, setSelected] = useState([]) as any;
 
   const router = useRouter();
 
@@ -31,20 +37,14 @@ function OrderSummary() {
 
   const user = session.data?.user as User;
 
-  useEffect(() => {
-    const originalData = queryClient.getQueryData([
-      "documents",
-      user?._id,
-    ]) as any;
-    if (originalData?.data?.data) {
-      const pending = originalData?.data?.data?.filter(
-        (data: any) => data?.status === "pending"
-      );
-      setPendingDocuments(pending);
-      setDocuments(originalData?.data?.data);
-    }
-  }, [queryClient, user?._id]);
-
+  const onSuccess = (data: any) => {
+    setItems(data?.data?.results);
+    setOrders(data?.data?.data);
+    const pendingOrders = data?.data?.data?.filter(
+      (data: any) => data?.status === "pending"
+    );
+    setPendingOrders(pendingOrders);
+  };
   const onError = (error: any) => {
     console.log("error creating: ", error);
     toaster(
@@ -57,39 +57,59 @@ function OrderSummary() {
     );
   };
 
-  const onSuccess = (data: any) => {
-    console.log("successfully fetched: ", data);
-    setDocuments(data?.data?.data);
+  const { isLoading: isStatsLoading, data: stats } = useGetOrderStats(() => {},
+  onError);
+
+  const { isLoading } = useGetOrders(onSuccess, onError);
+
+  const handleMultiSelect = () => {
+    selected?.length !== orders.length ? setSelected(orders) : setSelected([]);
   };
 
-  const { isLoading, isError } = useGetUserDocuments(
-    user?._id as string,
-    onSuccess,
+  const handleSelect = (document: Command) => {
+    const isSelected = selected.find(
+      (item: Command) => item?._id === document?._id
+    );
+
+    if (!!isSelected) {
+      setSelected(
+        selected.filter((item: Command) => item?._id !== isSelected?._id)
+      );
+    } else {
+      setSelected([...selected, document]);
+    }
+  };
+
+  /****************TEST WITHDRAWAL */
+  const { mutate } = useWithdraw(
+    (data: any) => console.log("withdrawal :", data),
     onError
   );
+  /*************ENDS HERE */
 
-  useEffect(() => {
-    const originalData = queryClient.getQueryData([
-      "documents",
-      user?._id,
-      "pending",
-    ]) as any;
-    originalData?.data?.data && setPendingDocuments(originalData?.data?.data);
-  }, [queryClient, user?._id]);
-
-  const { isLoading: isPendingDocumentsLoading } = useGetUserPendingDocuments(
-    user?._id as string,
-    onSuccess,
-    onError,
-    !!pendingDocuments
-  );
-
-  if (isLoading) {
-    return <h2>Loading...</h2>;
-  }
-
-  if (isError) {
-    return <h2>Server Error try refreshing</h2>;
+  if (isLoading || isStatsLoading) {
+    return (
+      <div
+        className={`flex h-[calc(100vh-10rem)] items-center justify-center overflow-y-hidden`}
+      >
+        <Header>
+          <p
+            className={`text-[var(--gray-800)] ${roboto_slab.className} text-2xl font-semibold`}
+          >
+            Dashboard
+          </p>
+          <div className="flex w-full items-center justify-end mb-2">
+            <button
+              className={`btn-primary flex gap-2 text-lg opacity-20`}
+              disabled
+            ></button>
+          </div>
+        </Header>
+        <div className="self-center">
+          <Sentry size={120} speed={0.2} color="var(--primary-600)" />
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -101,23 +121,14 @@ function OrderSummary() {
           Dashboard
         </p>
 
-        {showAlert && newOrder > 0 && (
+        {showAlert && pendingOrders?.length > 0 && (
           <OrderAlert
-            message={`You have ${newOrder} pending order`}
-            viewTxt={"View order"}
+            message={`You have ${pendingOrders?.length} pending order`}
             onClose={() => setShowAlert(false)}
-            link={"/checkout"}
           />
         )}
       </Header>
-      <Stats
-        stats={{
-          amount: 0,
-          pending: 0,
-          completed: 0,
-          refunded: 0,
-        }}
-      />
+      <Stats stats={stats?.data?.data} />
       <div className="my-10 grid gap-2">
         <div className="grid gap-1">
           <p
@@ -136,7 +147,12 @@ function OrderSummary() {
               <HiOutlineChevronDown />
             </button>
             <button className={`btn-secondary`}>
-              <p className={`${roboto.className} font-normal`}>Apply</p>
+              <p
+                className={`${roboto.className} font-normal`}
+                onClick={() => mutate(69)}
+              >
+                Apply
+              </p>
             </button>
           </div>
           <div className="flex gap-2 items-center">
@@ -161,7 +177,11 @@ function OrderSummary() {
                 className={`bg-[var(--gray-100)]  text-[var(--gray-500)] font-[500] h-12 ${roboto.className} border-b-2 uppercase`}
               >
                 <th className=" border-[var(--gray-100)] px-4">
-                  <input type="checkbox" />
+                  <input
+                    type="checkbox"
+                    onChange={handleMultiSelect}
+                    checked={selected?.length === orders?.length}
+                  />
                 </th>
                 <th className="text-left border-[var(--gray-100)] px-4">
                   Client Name
@@ -169,25 +189,30 @@ function OrderSummary() {
                 <th className=" px-4 text-left">Description</th>
                 <th className=" px-4 text-left">Order date</th>
                 <th className=" px-4 text-left">Status</th>
-                <th className=" px-4 text-left">Order Type</th>
-
                 <th className=" border-[var(--gray-100)] px-4 text-left">
                   Actions
                 </th>
               </tr>
             </thead>
             <tbody>
-              {Array(10)
-                .fill("a")
-                ?.map((_: any, index) => (
-                  <OrderItem key={index} />
-                ))}
+              {orders?.map((order: any, index: number) => (
+                <OrderItem
+                  key={index}
+                  document={order}
+                  handleSelect={() => handleSelect(order)}
+                  isChecked={
+                    !!selected.find((item: any) => item?._id == order?._id)
+                  }
+                />
+              ))}
               <tr
                 className={`bg-[var(--gray-100)]  text-[var(--gray-500)] font-[500] h-12 ${roboto.className} border-b-2 uppercase`}
               >
                 <th className=" border-[var(--gray-100)] px-4"></th>
                 <th className="text-left border-[var(--gray-100)] px-4">
-                  Showing 1 of 10
+                  {`Showing ${page} of ${
+                    items > 0 ? Math.ceil(items / 10) : 1
+                  }`}
                 </th>
                 <th className=" px-4 text-left" />
                 <th className=" px-4 text-left" />

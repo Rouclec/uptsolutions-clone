@@ -6,9 +6,9 @@ import { HiOutlineSpeakerphone } from "react-icons/hi";
 
 type Props = {
   onClose: any;
-  link: string;
+  link?: string;
   message: string;
-  viewTxt: string;
+  viewTxt?: string;
 };
 const OrderAlert: React.FC<Props> = ({ onClose, link, viewTxt, message }) => {
   return (
@@ -27,9 +27,11 @@ const OrderAlert: React.FC<Props> = ({ onClose, link, viewTxt, message }) => {
         </p>
       </div>
       <div className="flex items-center gap-1 md:gap-4">
-        <Link href={link}>
-          <button className="btn-secondary">{viewTxt}</button>
-        </Link>
+        {link && viewTxt && (
+          <Link href={link}>
+            <button className="btn-secondary">{viewTxt}</button>
+          </Link>
+        )}
         <div className="hover:cursor-pointer" onClick={onClose}>
           <AiOutlineClose size={24} className="text-[var(--neutral-10)]" />
         </div>

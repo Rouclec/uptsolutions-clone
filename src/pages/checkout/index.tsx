@@ -11,6 +11,7 @@ import { data } from "autoprefixer";
 import { addCommas } from "@/utils/addCommas";
 import { useInitPayment, useProcessPayment } from "@/hooks/payment/usePayment";
 import { ModalType } from "@/components/general/ActionModal.component";
+import { useCreateOrder } from "@/hooks/order/useOrder";
 
 export const validatePhoneNumber = (phoneNumber: string) => {
   const mtnRegexp = new RegExp(/^6(((7|8)[0-9]{7}$)|(5[0-4][0-9]{6}$))/);
@@ -26,6 +27,7 @@ export default function Index() {
   const [pendingDocuments, setPendingDocuments] = useState() as any;
   const [selected, setSelected] = useState<Command[]>([]);
   const [provider, setProvider] = useState("");
+  const [paid, setPaid] = useState(false);
 
   const session = useSession();
 
@@ -93,8 +95,24 @@ export default function Index() {
 
   const onProcessPaymentSucess = (data: any) => {
     const { status } = data?.data?.data;
-    status === "FAILED" && setShowModal("canceled");
-    status === "SUCCESSFUL" && setShowModal("success");
+    if (status === "FAILED") {
+      setShowModal("canceled");
+      setPaid(true);
+    }
+    if (status === "SUCCESSFUL") {
+      setShowModal("success");
+      setPaid(true);
+      const order = {
+        documents: selected.map((item: Command) => item?._id),
+        user: user?._id as string,
+        amount:
+          selected.reduce(function (prev: any, curr: any) {
+            return prev * 1 + curr.amount * 1;
+          }, 0) * 1,
+        method: provider === "orange" ? "orange-money" : "mtn-momo",
+      };
+      createOrder(order);
+    }
   };
 
   const { isLoading } = useGetUserPendingDocuments(
@@ -103,6 +121,12 @@ export default function Index() {
     onError,
     !!pendingDocuments
   );
+
+  const { isLoading: isCreateOrderLoading, mutate: createOrder } =
+    useCreateOrder(
+      (data: any) => console.log("order created: ", data),
+      onError
+    );
 
   const {
     isLoading: isPaymentLoading,
@@ -117,7 +141,7 @@ export default function Index() {
     onProcessPaymentSucess,
     onError,
     paymentInitData?.data?.data?.reference,
-    !!paymentInitData?.data?.data?.reference
+    !!paymentInitData?.data?.data?.reference && !paid
   );
   return (
     <SideBar>

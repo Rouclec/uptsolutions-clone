@@ -69,7 +69,7 @@ const documentSchema = new Schema({
     status: {
         type: String,
         default: 'pending',
-        enum: ['pending', 'printed']
+        enum: ['pending', 'paid', 'printed']
     },
     active: {
         type: Boolean,

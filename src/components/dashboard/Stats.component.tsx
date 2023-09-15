@@ -13,6 +13,7 @@ type Props = {
     completed: number;
     pending: number;
     refunded: number;
+    paid: number;
   };
 };
 const Stats: React.FC<Props> = ({ stats }) => {
@@ -30,7 +31,12 @@ const Stats: React.FC<Props> = ({ stats }) => {
               Total Documents
             </p>
             <p className={`${roboto_slab.className} text-2xl font-semibold`}>
-              {addCommas(stats?.pending + stats?.completed + stats?.refunded)}
+              {addCommas(
+                stats?.pending +
+                  stats?.completed +
+                  stats?.refunded +
+                  (stats?.paid || 0)
+              )}
             </p>
           </div>
         </div>

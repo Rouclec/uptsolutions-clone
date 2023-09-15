@@ -5,12 +5,13 @@ import Order from "models/Order";
 const getStats = catchAsync(async (_, res) => {
     await DB()
 
+
     const stats = await Order.aggregate([
         {
             $group: {
                 _id: '$status',
                 total: { $sum: 1 },
-                totalAmount: { $sum: "$amount" }
+                totalAmount: { $sum: "$amount" },
             }
         }
     ])

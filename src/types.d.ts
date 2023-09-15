@@ -37,6 +37,7 @@ export interface Order {
   documents: Commands[];
   amount: string | number;
   user: string;
+  method: string;
 }
 
 export type RequestPaymentModel = {};

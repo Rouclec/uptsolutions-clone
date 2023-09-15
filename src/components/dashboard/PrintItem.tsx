@@ -90,6 +90,10 @@ export default function PrintItem({
           <div className="p-[2px] rounded-full card-primary items-center justify-center flex truncate">
             Printed
           </div>
+        ) : document?.status === "paid" ? (
+          <div className="p-[2px] rounded-full card-gray items-center justify-center flex truncate">
+            Paid
+          </div>
         ) : (
           <div className="p-[2px] rounded-full card-secondary items-center justify-center flex truncate">
             Pending

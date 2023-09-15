@@ -344,9 +344,9 @@ export default function Create() {
               link="/checkout"
               message={`You have ${
                 pendingDocuments?.data?.data?.length
-              } pending file${
+              } file${
                 pendingDocuments?.data?.data?.length > 1 ? "s" : ""
-              }`}
+              } pending payment`}
             />
           )}
           <div className="container w-full py-5 flex justify-end">

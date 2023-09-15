@@ -47,6 +47,7 @@ export default function Create() {
   const [file, setFile] = useState<File | null>(null);
   const [numberOfPages, setNumberOfPages] = useState<number>(0);
   const [upload, setUpload] = useState<S3.ManagedUpload | null>(null);
+  const [showAlert, setShowAlert] = useState(true);
   const [progress, setProgress] = useState(0);
 
   const [loading, setLoading] = useState(false);
@@ -319,14 +320,16 @@ export default function Create() {
           >
             Order Print
           </p>
-          {pendingDocuments?.data?.data?.length > 0 && (
+          {pendingDocuments?.data?.data?.length > 0 && showAlert && (
             <OrderAlert
-              onClose={() => {}}
-              viewTxt="Proceed To Pay"
+              onClose={() => setShowAlert(false)}
+              viewTxt="Proceed to pay"
               link="/checkout"
-              message={`You have ${pendingDocuments?.data?.data?.length} file${
+              message={`You have ${
+                pendingDocuments?.data?.data?.length
+              } pending file${
                 pendingDocuments?.data?.data?.length > 1 ? "s" : ""
-              } pending payment`}
+              }`}
             />
           )}
           <div className="container w-full py-5 flex justify-end">
@@ -358,7 +361,13 @@ export default function Create() {
             </button>
           </div>
         </Header>
-        <div className="container mx-auto mt-40 gap-1  md:p-2">
+        <div
+          className={`container mx-auto ${
+            showAlert && pendingDocuments?.data?.data?.length > 0
+              ? "mt-52 md:mt-48"
+              : "mt-36 md:mt-40"
+          } md:mt-20 gap-1  md:p-2`}
+        >
           <div className="flex">
             <div className="w-full">
               <div className=" py-5 lg:rounded md:flex gap-4 ">
@@ -848,7 +857,7 @@ export default function Create() {
                             </>
                           ) : (
                             <div className="text-white text-sm font-medium leading-tight">
-                              Proceed To Pay
+                              Proceed to pay
                             </div>
                           )}
                         </button>

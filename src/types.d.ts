@@ -38,3 +38,44 @@ export interface Order {
   amount: string | number;
   user: string;
 }
+
+export type RequestPaymentModel = {};
+
+export type CmpyToken = {
+  username: string;
+  password: string;
+  expires_in?: string;
+};
+
+export type TokenResponse = {
+  token: string;
+  expires_in: number;
+};
+
+export type MakePaymentRequest = {
+  amount: number;
+  currency?: string;
+  from: string; // number to initiate payment on
+  description?: string;
+  external_reference: string; // the vote_id
+};
+
+export type webhookPymntResponse = {
+  reference: string;
+  external_reference: string;
+  status: string;
+  amount: number;
+  currency: string;
+  operator: string;
+  code: string;
+  operator_reference: string;
+  description: string;
+  external_user: string;
+  reason: string;
+};
+
+export type initiatePaymentResponse = {
+  reference: string;
+  ussd_code: string;
+  operator: string;
+};

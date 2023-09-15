@@ -164,8 +164,10 @@ function PrintSummary() {
         </div>
         {showAlert && pendingDocuments?.length > 0 && (
           <OrderAlert
-            message={`You have ${pendingDocuments?.length} pending order pending payment`}
-            viewTxt={"View order"}
+            message={`You have ${pendingDocuments?.length} pending file${
+              pendingDocuments?.length > 1 ? "s" : ""
+            }`}
+            viewTxt={"Proceed to pay"}
             onClose={() => setShowAlert(false)}
             link={"/checkout"}
           />

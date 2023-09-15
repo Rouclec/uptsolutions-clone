@@ -22,7 +22,7 @@ export const navItems = [
   },
   {
     name: "Billing",
-    path: "#",
+    path: "billing",
     icon: <HiOutlineCreditCard size={24} />,
   },
   {
@@ -32,7 +32,7 @@ export const navItems = [
   },
   {
     name: "Help",
-    path: "#",
+    path: "/help",
     icon: <MdHelpOutline size={24} />,
   },
 ];

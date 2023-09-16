@@ -1,12 +1,11 @@
 import { Schema, models, model } from "mongoose";
 import uniqueValidator from 'mongoose-unique-validator'
-import { randomUUID } from "crypto";
-import validator from 'validator'
+import { nanoid } from "nanoid";
 
 const orderSchema = new Schema({
     id: {
         type: String,
-        default: randomUUID()
+        default: nanoid(10)
     },
     documents: [
         {
@@ -23,6 +22,11 @@ const orderSchema = new Schema({
     user: {
         type: Schema.ObjectId,
         ref: "User"
+    },
+    method: {
+        type: String,
+        enum: ['mtn-momo', 'orange-money'],
+        default: 'mtn-momo'
     },
     active: {
         type: Boolean,

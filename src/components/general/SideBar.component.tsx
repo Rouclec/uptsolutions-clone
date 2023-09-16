@@ -17,12 +17,12 @@ type Props = {
 const SideBar: FC<Props> = ({ children }) => {
   const router = useRouter();
   const [showSideBar, setShowSideBar] = useState(false);
-  const [active, setActive] = useState();
   const [navItems, setNavItems] = useState(userNavitems);
   const session = useSession();
   const user = session?.data?.user as User;
   const [notificationDropDown, setNotificationDropdown] = useState(false);
   const [messageDropDown, setMessageDropdown] = useState(false);
+  const [activeTab, setActiveTab] = useState("/");
   const ref = useRef(null) as any;
 
   useEffect(() => {
@@ -43,7 +43,9 @@ const SideBar: FC<Props> = ({ children }) => {
 
   const handleClick = (item: { name: String; path: String; icon: any }) => {
     if (item.name === "Logout") {
-      signOut();
+      signOut({ redirect: false }).then(() => {
+        router.push("/signin");
+      });
     }
   };
 
@@ -52,6 +54,17 @@ const SideBar: FC<Props> = ({ children }) => {
       ? setNavItems(adminNavItems)
       : setNavItems(userNavitems);
   }, [user]);
+
+  useEffect(() => {
+    const root = router.pathname.split("/")[1];
+    root === "checkout"
+      ? setActiveTab("/")
+      : root === "order-print"
+      ? setActiveTab("/")
+      : root === "[id]"
+      ? setActiveTab("/")
+      : setActiveTab(`/${root}`);
+  }, [router.pathname, activeTab]);
   return (
     <div>
       <div className="fixed left-0 top-0 right-0 h-20 bg-[var(--neutral-10)] z-10 border-2 flex p-4 items-center gap-2 md:gap-16">
@@ -147,9 +160,7 @@ const SideBar: FC<Props> = ({ children }) => {
             >
               <div
                 className={`flex gap-2 text-xl items-center card ${
-                  item.path === "/" ||
-                  item.path === "/checkout" ||
-                  item.path === "/order"
+                  item.path === activeTab
                     ? "card-primary"
                     : "text-[var(--gray-700)]"
                 } justify-start text-[16px] hover:cursor-pointer hover:card-primary`}
@@ -164,8 +175,9 @@ const SideBar: FC<Props> = ({ children }) => {
             <div
               className={`flex gap-2 text-xl items-center card ${"text-[var(--gray-700)]"} justify-start text-[16px] hover:cursor-pointer hover:card-primary`}
               onClick={() => {
-                router.push("/signin");
-                signOut();
+                signOut({ redirect: false }).then(() => {
+                  router.push("/signin");
+                });
               }}
             >
               <TbLogout size={24} />

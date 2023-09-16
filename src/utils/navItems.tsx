@@ -22,7 +22,7 @@ export const navItems = [
   },
   {
     name: "Billing",
-    path: "billing",
+    path: "/billing",
     icon: <HiOutlineCreditCard size={24} />,
   },
   {

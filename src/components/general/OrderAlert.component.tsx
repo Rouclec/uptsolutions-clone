@@ -6,17 +6,15 @@ import { HiOutlineSpeakerphone } from "react-icons/hi";
 
 type Props = {
   onClose: any;
-  link: string;
+  link?: string;
   message: string;
-  viewTxt: string;
-  showBtn: boolean;
+  viewTxt?: string;
 };
 const OrderAlert: React.FC<Props> = ({
   onClose,
   link,
   viewTxt,
   message,
-  showBtn
 }) => {
   return (
     <div className="w-full p-2 rounded-md flex items-center justify-between bg-[var(--primary-600)]">
@@ -34,7 +32,7 @@ const OrderAlert: React.FC<Props> = ({
         </p>
       </div>
       <div className="flex items-center gap-1 md:gap-4">
-        {showBtn && (
+        {link && viewTxt && (
           <Link href={link}>
             <button className="btn-secondary">{viewTxt}</button>
           </Link>

@@ -22,16 +22,18 @@ const getStats = catchAsync(async (req, res) => {
     ])
 
     const totalPending = stats.find(stat => stat._id === 'pending');
+    const totalPaid = stats.find(stat => stat._id === 'paid');
     const totalCompleted = stats.find(stat => stat._id === 'completed');
     const totalRejected = stats.find(stat => stat._id === 'rejected');
 
     return res.status(200).json({
         status: "OK",
         data: {
-            pending: totalPending?.total || 0,
+            pending: (totalPending?.total || 0),
+            paid: (totalPaid?.total || 0),
             completed: totalCompleted?.total || 0,
             refunded: totalRejected?.total || 0,
-            amount: totalCompleted?.totalAmount || 0
+            amount: ((totalCompleted?.totalAmount || 0) + (totalPaid?.totalAmount || 0))
         }
     })
 })

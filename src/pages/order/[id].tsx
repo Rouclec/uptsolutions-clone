@@ -16,11 +16,12 @@ import { RootState } from "@/store";
 import { useSession } from "next-auth/react";
 import { S3 } from "aws-sdk";
 import OrderDetails from "@/components/order/OrderDetails";
-import { Header, OrderAlert, SideBar } from "@/components";
+import { Header, OrderAlert, SideBar, toaster } from "@/components";
 import { roboto, roboto_slab } from "../_app";
 import { HiOutlinePlus } from "react-icons/hi2";
 import OrderNotes from "@/components/order/OrderNotes";
 import OrderInfo from "@/components/order/OrderInfo";
+import { useGetOrder } from "@/hooks/order/useOrder";
 
 interface Props {
   url: string;
@@ -30,6 +31,25 @@ interface Props {
 export default function Orderdetails() {
   const [showModal, setShowModal] = useState(false);
   const [url, setUrl] = useState("");
+  const router = useRouter();
+
+  const id = router?.query?.docId as string;
+
+  const onError = (error: any) => {
+    console.log("error creating: ", error);
+    toaster(
+      error?.response
+        ? error.response.data.message
+        : error?.message
+        ? error.message
+        : "An unknown error occured",
+      "error"
+    );
+  };
+
+  const { isLoading, data } = useGetOrder(id, () => {}, onError);
+
+  console.log("data: ", data);
   return (
     <div className="">
       <div className="absolute z-0">
@@ -169,7 +189,11 @@ const PdfModal = ({ setShowModal, url }: Props) => {
               </button>
             </div>
             <div className=" space-y-6 w-full">
-              <embed type="application/pdf" src={url} className="h-screen w-[800px] " />
+              <embed
+                type="application/pdf"
+                src={url}
+                className="h-screen w-[800px] "
+              />
             </div>
             <div className="flex items-center p-6 space-x-2 border-t border-gray-200 rounded-b dark:border-gray-600">
               <button

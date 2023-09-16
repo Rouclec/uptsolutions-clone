@@ -1,11 +1,8 @@
 import { roboto, roboto_slab } from "@/pages/_app";
 import { addCommas } from "@/utils/addCommas";
 import React from "react";
-import {
-  HiOutlineDocumentAdd,
-  HiOutlineDocumentDownload,
-} from "react-icons/hi";
-import { HiOutlineCurrencyPound, HiOutlineDocument } from "react-icons/hi2";
+import { BsCart, BsCartCheck, BsCartDash } from "react-icons/bs";
+import { HiOutlineCurrencyPound } from "react-icons/hi2";
 
 type Props = {
   stats: {
@@ -16,18 +13,19 @@ type Props = {
   };
 };
 const AdminStats: React.FC<Props> = ({ stats }) => {
+  console.log({ stats });
   return (
     <div className="grid md:grid-cols-4 gap-4">
       <div className="card items-center">
         <div className="flex gap-4 p-3">
           <div className="flex card card-primary items-center justify-center">
-            <HiOutlineDocument size={24} />
+            <BsCart size={24} />
           </div>
           <div className="grid gap-1 items-center">
             <p
               className={`${roboto.className} font[500] text-[var(--gray-700)] text-sm`}
             >
-              Pending Others
+              Pending orders
             </p>
             <p className={`${roboto_slab.className} text-2xl font-semibold`}>
               {addCommas(stats?.pending + stats?.completed + stats?.refunded)}
@@ -38,13 +36,13 @@ const AdminStats: React.FC<Props> = ({ stats }) => {
       <div className="card items-center">
         <div className="flex gap-4 p-3">
           <div className="flex card card-secondary items-center justify-center">
-            <HiOutlineDocumentDownload size={24} />
+            <BsCartCheck size={24} />
           </div>
           <div className="grid gap-1 items-center">
             <p
               className={`${roboto.className} font[500] text-[var(--gray-700)] text-sm`}
             >
-              Completed Other
+              Completed orders
             </p>
             <p className={`${roboto_slab.className} text-2xl font-semibold`}>
               {addCommas(stats?.completed)}
@@ -55,16 +53,16 @@ const AdminStats: React.FC<Props> = ({ stats }) => {
       <div className="card items-center">
         <div className="flex gap-4 p-3">
           <div className="flex card card-gray items-center justify-center">
-            <HiOutlineDocumentAdd size={24} />
+            <BsCartDash size={24} />
           </div>
           <div className="grid gap-1 items-center">
             <p
               className={`${roboto.className} font[500] text-[var(--gray-700)] text-sm`}
             >
-              Total Amount Received
+              Order Refunded
             </p>
             <p className={`${roboto_slab.className} text-2xl font-semibold`}>
-              {addCommas(stats?.pending)}
+              {addCommas(stats?.refunded)}
             </p>
           </div>
         </div>
@@ -78,7 +76,7 @@ const AdminStats: React.FC<Props> = ({ stats }) => {
             <p
               className={`${roboto.className} font[500] text-[var(--gray-700)] text-sm`}
             >
-              Order Refunded
+              Total Amount Received
             </p>
             <p className={`${roboto_slab.className} text-2xl font-semibold`}>
               {addCommas(stats?.amount)}{" "}

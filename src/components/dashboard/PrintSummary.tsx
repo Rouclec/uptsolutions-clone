@@ -170,6 +170,8 @@ function PrintSummary() {
             viewTxt={"Proceed to pay"}
             onClose={() => setShowAlert(false)}
             link={"/checkout"}
+            showBtn= {true}
+
           />
         )}
       </Header>

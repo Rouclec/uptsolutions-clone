@@ -10,7 +10,12 @@ type Props = {
   message: string;
   viewTxt?: string;
 };
-const OrderAlert: React.FC<Props> = ({ onClose, link, viewTxt, message }) => {
+const OrderAlert: React.FC<Props> = ({
+  onClose,
+  link,
+  viewTxt,
+  message,
+}) => {
   return (
     <div className="w-full p-2 rounded-md flex items-center justify-between bg-[var(--primary-600)]">
       <div className="flex items-center gap-2 md:gap-4">

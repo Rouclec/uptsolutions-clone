@@ -19,6 +19,7 @@ import {
 } from "@/hooks/document/useDocument";
 import { Sentry } from "react-activity";
 import { useWithdraw } from "@/hooks/payment/usePayment";
+import AdminStats from "./AdminStats.component";
 
 function OrderSummary() {
   const [showAlert, setShowAlert] = useState(true);
@@ -128,7 +129,7 @@ function OrderSummary() {
           />
         )}
       </Header>
-      <Stats stats={stats?.data?.data} />
+      <AdminStats stats={stats?.data?.data} />
       <div className="my-10 grid gap-2">
         <div className="grid gap-1">
           <p

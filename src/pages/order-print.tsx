@@ -119,6 +119,11 @@ export default function Create() {
         createdBy: user?._id,
       };
       mutate(doc);
+
+      setDocName("");
+      setUrl("");
+      setNumberOfCopies(1);
+      setExtraDetails("");
     } catch (err) {
       console.error(err);
     }
@@ -325,6 +330,7 @@ export default function Create() {
               onClose={() => setShowAlert(false)}
               viewTxt="Proceed to pay"
               link="/checkout"
+              showBtn={true}
               message={`You have ${
                 pendingDocuments?.data?.data?.length
               } file${
@@ -383,6 +389,7 @@ export default function Create() {
                         <input
                           className="border  w-full p-2 rounded-md"
                           type="text"
+                          value={docName}
                           placeholder="Enter Document name"
                           onChange={(e) => setDocName(e.target.value)}
                         />
@@ -426,7 +433,9 @@ export default function Create() {
                         onChange={(e: any) => setPaperType(e.target.value)}
                         className="my-auto bg-gray-50 border border-gray-300 px-2 rounded-md py-2"
                       >
-                        <option value="Normal">Normal</option>
+                        <option value="Normal" selected>
+                          Normal
+                        </option>
                         <option value="Glossy">Glossy</option>
                       </select>
                     </div>
@@ -725,7 +734,9 @@ export default function Create() {
                       placeholder="Explain any other additional printing information here... (please be detailed as posible)"
                       onChange={(e) => setExtraDetails(e.target.value)}
                       className="focus:shadow-outline mb-3 w-full appearance-none rounded border px-3 py-2 text-sm leading-tight text-gray-700 shadow focus:outline-none"
-                    ></textarea>
+                    >
+                      {extraDetails}
+                    </textarea>
                   </div>
                 </div>
                 <div className="mb-4 md:w-1/3 rounded-lg pt-6 pb-8">

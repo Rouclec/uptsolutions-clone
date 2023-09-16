@@ -342,6 +342,7 @@ export default function Create() {
               onClose={() => {}}
               viewTxt="Proceed to pay"
               link="/checkout"
+              showBtn={true}
               message={`You have ${
                 pendingDocuments?.data?.data?.length
               } file${

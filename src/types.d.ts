@@ -16,6 +16,7 @@ export interface Command {
   name?: string;
   numberOfCopies?: string;
   paperType?: string;
+  pages?: string;
   paperSize?: string;
   orientation?: string;
   printSides?: string;
@@ -24,7 +25,7 @@ export interface Command {
   pagesPerSheet?: string;
   printType?: string;
   biding?: string;
-  bidingType?: string;
+  bindingType?: string;
   extraDetails?: string;
   amount: number;
   createdAt?: string;

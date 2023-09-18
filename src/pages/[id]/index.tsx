@@ -343,9 +343,7 @@ export default function Create() {
               viewTxt="Proceed to pay"
               link="/checkout"
               showBtn={true}
-              message={`You have ${
-                pendingDocuments?.data?.data?.length
-              } file${
+              message={`You have ${pendingDocuments?.data?.data?.length} file${
                 pendingDocuments?.data?.data?.length > 1 ? "s" : ""
               } pending payment`}
             />

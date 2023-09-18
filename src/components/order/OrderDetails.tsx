@@ -1,13 +1,20 @@
+import { Command } from "@/types";
 import React, { SetStateAction, useEffect } from "react";
 
 interface Props {
   setShowModal: any;
   setUrl: any;
+  document: Command;
 }
 
-export default function OrderDetails({ setShowModal, setUrl }: Props) {
+export default function OrderDetails({
+  setShowModal,
+  setUrl,
+  document,
+}: Props) {
+  console.log(document);
   useEffect(() => {
-    setUrl("https://research.google.com/pubs/archive/44678.pdf");
+    setUrl(document.file);
   }, []);
   return (
     <div>
@@ -20,8 +27,7 @@ export default function OrderDetails({ setShowModal, setUrl }: Props) {
             <img className="w-[51px] h-[41px] relative rounded-md" src="" />
             <div className="flex-col justify-start items-start gap-2 inline-flex">
               <div className="self-stretch text-gray-700 text-sm font-medium leading-none">
-                Doc Name
-              </div>
+                {document.name}              </div>
               <div className="w-[81px] justify-start items-start inline-flex">
                 <button
                   onClick={() => setShowModal(true)}
@@ -40,13 +46,13 @@ export default function OrderDetails({ setShowModal, setUrl }: Props) {
         </div>
         <div className="grow shrink basis-0 h-[17.35px] justify-between items-start gap-[26px] flex">
           <div className="w-[74.68px] origin-top-left -rotate-1 text-right text-gray-700 text-sm font-normal leading-none">
-            4000 xaf
+            {document.amount} xaf
           </div>
           <div className="w-[71.12px] origin-top-left -rotate-1 text-right text-gray-700 text-sm font-normal leading-none">
-            x1
+            x1 ({document.status})
           </div>
           <div className="w-[71.43px] origin-top-left -rotate-1 text-right text-gray-700 text-sm font-normal leading-none">
-            4000 xaf
+            {document.amount}xaf
           </div>
         </div>
       </div>
@@ -66,7 +72,7 @@ export default function OrderDetails({ setShowModal, setUrl }: Props) {
                   Copies
                 </div>
                 <div className="self-stretch text-zinc-500 text-sm font-normal leading-none">
-                  1
+                  {document.numberOfCopies}
                 </div>
               </div>
               <div className="grow shrink basis-0 flex-col justify-start items-start gap-2 inline-flex">
@@ -74,7 +80,7 @@ export default function OrderDetails({ setShowModal, setUrl }: Props) {
                   Pages
                 </div>
                 <div className="self-stretch text-zinc-500 text-sm font-normal leading-none">
-                  1-3, 8, 11-13
+                  {document.pages}
                 </div>
               </div>
             </div>
@@ -84,15 +90,15 @@ export default function OrderDetails({ setShowModal, setUrl }: Props) {
                   Paper type
                 </div>
                 <div className="self-stretch text-zinc-500 text-sm font-normal leading-none">
-                  Hard sheet
+                  {document.paperType}
                 </div>
               </div>
               <div className="grow shrink basis-0 flex-col justify-start items-start gap-2 inline-flex">
                 <div className="self-stretch text-gray-700 text-sm font-medium leading-[18px]">
-                  Color
+                  Paper Color
                 </div>
                 <div className="self-stretch text-zinc-500 text-sm font-normal leading-none">
-                  Blue
+                  {document.paperColor}
                 </div>
               </div>
             </div>
@@ -102,7 +108,7 @@ export default function OrderDetails({ setShowModal, setUrl }: Props) {
                   Paper size
                 </div>
                 <div className="self-stretch text-zinc-500 text-sm font-normal leading-none">
-                  A4
+                  {document.paperSize}
                 </div>
               </div>
               <div className="grow shrink basis-0 flex-col justify-start items-start gap-2 inline-flex">
@@ -110,7 +116,7 @@ export default function OrderDetails({ setShowModal, setUrl }: Props) {
                   Orientation
                 </div>
                 <div className="self-stretch text-zinc-500 text-sm font-normal leading-none">
-                  Portrait
+                  {document.orientation}
                 </div>
               </div>
             </div>
@@ -120,7 +126,7 @@ export default function OrderDetails({ setShowModal, setUrl }: Props) {
                   Print sides
                 </div>
                 <div className="self-stretch text-zinc-500 text-sm font-normal leading-none">
-                  Recto-verso
+                  {document.printSides}{" "}
                 </div>
               </div>
               <div className="grow shrink basis-0 flex-col justify-start items-start gap-2 inline-flex">
@@ -128,7 +134,7 @@ export default function OrderDetails({ setShowModal, setUrl }: Props) {
                   Print color
                 </div>
                 <div className="self-stretch text-zinc-500 text-sm font-normal leading-none">
-                  Colored
+                  {document.printColor? "Print color": "Print Black and White"}
                 </div>
               </div>
             </div>
@@ -138,7 +144,7 @@ export default function OrderDetails({ setShowModal, setUrl }: Props) {
                   Number of Pages
                 </div>
                 <div className="self-stretch text-zinc-500 text-sm font-normal leading-none">
-                  1-3, 8, 11-13
+                  {document.pages}
                 </div>
               </div>
               <div className="grow shrink basis-0 flex-col justify-start items-start gap-2 inline-flex">
@@ -146,7 +152,7 @@ export default function OrderDetails({ setShowModal, setUrl }: Props) {
                   Color
                 </div>
                 <div className="self-stretch text-zinc-500 text-sm font-normal leading-none">
-                  Blue
+                  {/* Blue */}
                 </div>
               </div>
             </div>
@@ -164,7 +170,7 @@ export default function OrderDetails({ setShowModal, setUrl }: Props) {
                     Pages per sheet
                   </div>
                   <div className="self-stretch text-zinc-500 text-sm font-normal leading-none">
-                    2
+                    {document.pagesPerSheet}
                   </div>
                 </div>
                 <div className="grow shrink basis-0 flex-col justify-start items-start gap-[9px] inline-flex">
@@ -172,18 +178,18 @@ export default function OrderDetails({ setShowModal, setUrl }: Props) {
                     Layout direction
                   </div>
                   <div className="self-stretch text-zinc-500 text-sm font-normal leading-none">
-                    2
+                    {}
                   </div>
                 </div>
               </div>
-              <div className="self-stretch h-[43px] flex-col justify-start items-start gap-[9px] flex">
+              {/* <div className="self-stretch h-[43px] flex-col justify-start items-start gap-[9px] flex">
                 <div className="self-stretch text-gray-700 text-sm font-medium leading-[18px]">
                   Margin
                 </div>
                 <div className="self-stretch text-zinc-500 text-sm font-normal leading-none">
                   1-3, 8, 11-13
                 </div>
-              </div>
+              </div> */}
             </div>
           </div>
           <div className="self-stretch h-[129px] flex-col justify-start items-start gap-[17px] flex">
@@ -197,7 +203,7 @@ export default function OrderDetails({ setShowModal, setUrl }: Props) {
                     Print type
                   </div>
                   <div className="self-stretch text-zinc-500 text-sm font-normal leading-none">
-                    Booklet
+                    {document.printType}
                   </div>
                 </div>
                 <div className="grow shrink basis-0 flex-col justify-start items-start gap-[9px] inline-flex">
@@ -205,7 +211,7 @@ export default function OrderDetails({ setShowModal, setUrl }: Props) {
                     Binding
                   </div>
                   <div className="self-stretch text-zinc-500 text-sm font-normal leading-none">
-                    Yes
+                    {document.bindingType}
                   </div>
                 </div>
               </div>
@@ -214,7 +220,7 @@ export default function OrderDetails({ setShowModal, setUrl }: Props) {
                   Binding type
                 </div>
                 <div className="self-stretch text-zinc-500 text-sm font-normal leading-none">
-                  Goes here
+                  {document.bindingType}
                 </div>
               </div>
             </div>

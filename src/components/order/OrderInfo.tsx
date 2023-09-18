@@ -1,6 +1,9 @@
 import React from "react";
 
-export default function OrderInfo() {
+export default function OrderInfo({ user }: any) {
+  const date = new Date(user?.createdAt);
+  const createdDate = date?.toLocaleDateString();
+  const time = date?.toLocaleTimeString();
   return (
     <div>
       <div className=" p-5 rounded-md">
@@ -8,11 +11,11 @@ export default function OrderInfo() {
           <div className="grow shrink basis-0 h-[45px] justify-end items-start gap-2 flex">
             <div className="grow shrink basis-0">
               <span className="text-gray-700 text-xl font-medium leading-normal">
-                Order #95 details
+                {user?.fullName}
                 <br />
               </span>
               <span className="text-gray-700 text-sm font-normal leading-tight">
-                Payment via MTN MOMO. Customer IP: 14.202.173.123
+                {user?.address} | {user?.email}
               </span>
             </div>
           </div>
@@ -32,7 +35,7 @@ export default function OrderInfo() {
                   Date created
                 </div>
                 <div className="self-stretch text-gray-700 text-sm font-normal leading-none">
-                  2023-07-02
+                  {createdDate}
                 </div>
               </div>
               <div className="self-stretch flex-col justify-start items-start gap-2 inline-flex">
@@ -40,7 +43,7 @@ export default function OrderInfo() {
                   Time{" "}
                 </div>
                 <div className="self-stretch text-gray-700 text-sm font-normal leading-none">
-                  00:00:00
+                  {time}
                 </div>
               </div>
             </div>
@@ -80,7 +83,7 @@ export default function OrderInfo() {
                       Email Address
                     </div>
                     <div className="self-stretch text-zinc-500 text-sm font-normal leading-none">
-                      info@example.com
+                      {user?.email}
                     </div>
                   </div>
                   <div className="self-stretch h-10 flex-col justify-start items-start gap-2 flex">
@@ -88,7 +91,7 @@ export default function OrderInfo() {
                       Phone number
                     </div>
                     <div className="self-stretch text-zinc-500 text-sm font-normal leading-none">
-                      +237-672-234-654
+                      {user?.phoneNumber ? user?.phoneNumber : "No Number"}
                     </div>
                   </div>
                 </div>
@@ -102,7 +105,7 @@ export default function OrderInfo() {
                     Address
                   </div>
                   <div className="self-stretch text-zinc-500 text-sm font-normal leading-none">
-                    No delivery address set.
+                    {user?.address ? user?.address : "No delivery address set"}
                   </div>
                 </div>
               </div>

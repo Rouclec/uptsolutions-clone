@@ -12,10 +12,15 @@ export default function OrderDetails({
   setUrl,
   document,
 }: Props) {
-  console.log(document);
   useEffect(() => {
     setUrl(document.file);
   }, []);
+
+ const handlePrint = () => {
+    console.log("somekind tng");
+    window.open(document?.file, "PRINT", "height=400,width=600");
+  };
+
   return (
     <div>
       <div className="px-4 pt-2 pb-4 bg-violet-100 rounded-tl-md w-full rounded-tr-md border-b border-gray-700 justify-start items-center  inline-flex">
@@ -30,7 +35,7 @@ export default function OrderDetails({
                 {document.name}              </div>
               <div className="w-[81px] justify-start items-start inline-flex">
                 <button
-                  onClick={() => setShowModal(true)}
+                  onClick={ handlePrint}
                   className="grow shrink basis-0 h-4 justify-start items-start gap-2 flex"
                 >
                   <div className="grow shrink basis-0 text-violet-700 text-sm font-normal leading-none">

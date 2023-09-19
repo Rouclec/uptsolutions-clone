@@ -26,13 +26,13 @@ import { useGetOrder } from "@/hooks/order/useOrder";
 interface Props {
   url: string;
   setShowModal: any;
+  showModal: boolean;
 }
 
 export default function Orderdetails() {
   const [showModal, setShowModal] = useState(false);
   const [url, setUrl] = useState("");
   const router = useRouter();
-
   const id = router?.query?.docId as string;
 
   const onError = (error: any) => {
@@ -48,8 +48,8 @@ export default function Orderdetails() {
   };
 
   const { isLoading, data } = useGetOrder(id, () => {}, onError);
+  console.log("document=>", data?.data?.data?.documents);
 
-  console.log("data: ", data);
   return (
     <div className="">
       <div className="absolute z-0">
@@ -69,13 +69,37 @@ export default function Orderdetails() {
                   <div className="mb-4 md:w-2/3 rounded-lg  bg-white rounded pt-6 p-5 pb-8">
                     {/* End of drop down  content */}
 
-                    <OrderInfo />
+                    <OrderInfo user={data?.data?.data.user} />
                     <div>
-                      <OrderDetails
-                        setShowModal={setShowModal}
-                        setUrl={setUrl}
-                      />
-
+                      {data?.data?.data?.documents.map(
+                        (doc: any, index: any) => (
+                          <OrderDetails
+                            key={index}
+                            setShowModal={setShowModal}
+                            setUrl={setUrl}
+                            document={{
+                              _id: doc?.id,
+                              name: doc?.name,
+                              amount: doc?.amount,
+                              bindingType: doc?.bindingType,
+                              paperType: doc?.paperType,
+                              // coverPage: doc?.coverPage,
+                              numberOfCopies: doc?.numberOfCopies,
+                              orientation: doc?.orientation,
+                              extraDetails: doc?.description,
+                              file: doc?.file,
+                              pages: doc?.pages,
+                              pagesPerSheet: doc?.pagesPersheet,
+                              paperSize: doc?.paperSize,
+                              printColor: doc?.printColor,
+                              printSides: doc?.printSides,
+                              printType: doc?.printType,
+                              status: doc?.status,
+                              updatedAt: doc?.updatedAt,
+                            }}
+                          />
+                        )
+                      )}
                       <div className="px-4 py-2 bg-violet-100 rounded-bl-md rounded-br-md border-t border-gray-700 justify-between w-full items-center inline-flex">
                         <div className="px-4 py-2 bg-violet-100 rounded-md justify-start items-center gap-[296px] flex">
                           <div className="text-gray-700 text-sm font-medium leading-none">
@@ -88,7 +112,7 @@ export default function Orderdetails() {
                               Items Subtotal:
                             </div>
                             <div className="w-[70.12px] origin-top-left -rotate-1 text-right text-gray-700 text-base font-semibold leading-none">
-                              4000 xaf
+                              {data?.data?.data?.amount} xaf
                             </div>
                           </div>
                           <div className="self-stretch justify-between items-start gap-[37px] inline-flex">
@@ -96,7 +120,7 @@ export default function Orderdetails() {
                               Order Total:
                             </div>
                             <div className=" text-right text-gray-700 text-base font-semibold leading-none">
-                              4000 xaf
+                            {data?.data?.data?.amount} xaf
                             </div>
                           </div>
                         </div>
@@ -147,14 +171,18 @@ export default function Orderdetails() {
       </div>
       {showModal && (
         <div className="bg-[rgba(0,0,0,0.65)] z-[10]  fixed h-full w-full">
-          <PdfModal setShowModal={() => setShowModal} url={url} />
+          <PdfModal
+            setShowModal={setShowModal}
+            url={url}
+            showModal={showModal}
+          />
         </div>
       )}
     </div>
   );
 }
 
-const PdfModal = ({ setShowModal, url }: Props) => {
+const PdfModal = ({ setShowModal, url, showModal }: Props) => {
   return (
     <div className="flex justify-center py-10 w-full min-h-screen">
       <div id="extralarge-modal" tabIndex={-1} className="">

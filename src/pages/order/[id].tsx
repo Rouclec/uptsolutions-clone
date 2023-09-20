@@ -66,7 +66,7 @@ export default function Orderdetails() {
               <div className="w-full">
                 {/* order button  has to be a drop down */}
                 <div className=" py-5 lg:rounded md:flex gap-2 ">
-                  <div className="mb-4 md:w-2/3 rounded-lg  bg-white rounded pt-6 p-5 pb-8">
+                  <div className="mb-4 md:w-2/3 rounded-lg  bg-white pt-6 p-5 pb-8">
                     {/* End of drop down  content */}
 
                     <OrderInfo user={data?.data?.data.user} />

@@ -23,7 +23,7 @@ const getStats = catchAsync(async (req, res) => {
 
     const totalPending = stats.find(stat => stat._id === 'pending');
     const totalPaid = stats.find(stat => stat._id === 'paid');
-    const totalCompleted = stats.find(stat => stat._id === 'completed');
+    const totalCompleted = stats.find(stat => stat._id === 'printed');
     const totalRejected = stats.find(stat => stat._id === 'rejected');
 
     return res.status(200).json({

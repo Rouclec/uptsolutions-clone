@@ -1,6 +1,6 @@
 import { Command } from "@/types";
-import React, { SetStateAction, useEffect } from "react";
-
+import React, { SetStateAction, useEffect, useState } from "react";
+import { FaFilePdf } from "react-icons/fa";
 interface Props {
   setShowModal: any;
   setUrl: any;
@@ -12,30 +12,51 @@ export default function OrderDetails({
   setUrl,
   document,
 }: Props) {
+  const [showDropdown, setShowDropdown] = useState(false);
   useEffect(() => {
     setUrl(document.file);
   }, []);
 
- const handlePrint = () => {
-    console.log("somekind tng");
-    window.open(document?.file, "PRINT", "height=400,width=600");
+  const handlePrint = () => {
+    var pdfUrl =document?.file
+    var xhr:any = new XMLHttpRequest();
+    xhr.open("GET", pdfUrl, true);
+    xhr.responseType = "blob";
+    xhr.onload = function(e:any) {
+      if (this.status == 200) {
+        var blob = new Blob([this.response], {type: "application/pdf"});
+        var url = URL.createObjectURL(blob);
+        var win = window?.open(url, "_blank");
+        win?.print();
+      }
+    };
+    xhr.send();
   };
 
   return (
     <div>
-      <div className="px-4 pt-2 pb-4 bg-violet-100 rounded-tl-md w-full rounded-tr-md border-b border-gray-700 justify-start items-center  inline-flex">
+      <div
+        onClick={() => setShowDropdown((d) => !d)}
+        className="px-4 pt-2 pb-4 bg-violet-100 rounded-tl-md w-full rounded-tr-md border-b border-gray-700 justify-start items-center  inline-flex"
+      >
         <div className="justify-start items-center gap-4 flex">
-          <div className="w-6 px-0.5 rounded-[100px] border border-black justify-center items-center gap-2 flex">
+          <div className={`w-6 px-0.5 rounded-[100px] border  border-black justify-center items-center gap-2 flex  ${
+          showDropdown ? "bg-red-500" : ""
+        }`}>
             <div className="w-5 h-5 relative rounded-[100px]" />
           </div>
           <div className="justify-start items-start gap-3 flex">
-            <img className="w-[51px] h-[41px] relative rounded-md" src="" />
+            <FaFilePdf
+              className="w-[50px] h-[40px] relative rounded-md"
+              color="red"
+            />
             <div className="flex-col justify-start items-start gap-2 inline-flex">
               <div className="self-stretch text-gray-700 text-sm font-medium leading-none">
-                {document.name}              </div>
+                {document.name}{" "}
+              </div>
               <div className="w-[81px] justify-start items-start inline-flex">
                 <button
-                  onClick={ handlePrint}
+                  onClick={handlePrint}
                   className="grow shrink basis-0 h-4 justify-start items-start gap-2 flex"
                 >
                   <div className="grow shrink basis-0 text-violet-700 text-sm font-normal leading-none">
@@ -65,7 +86,11 @@ export default function OrderDetails({
 
       {/* Start of Content */}
 
-      <div className="w-full py-5 pl-[54px] pb-4 justify-start items-center gap-[83px] inline-flex">
+      <div
+        className={`w-full py-5 pl-[54px] pb-4 justify-start items-center gap-[83px] inline-flex ${
+          showDropdown ? "" : "hidden"
+        }`}
+      >
         <div className="grow shrink basis-0 flex-col justify-start items-start gap-4 inline-flex">
           <div className="self-stretch text-gray-700 text-base font-medium leading-[18px]">
             Specifications
@@ -139,7 +164,9 @@ export default function OrderDetails({
                   Print color
                 </div>
                 <div className="self-stretch text-zinc-500 text-sm font-normal leading-none">
-                  {document.printColor? "Print color": "Print Black and White"}
+                  {document.printColor
+                    ? "Print color"
+                    : "Print Black and White"}
                 </div>
               </div>
             </div>

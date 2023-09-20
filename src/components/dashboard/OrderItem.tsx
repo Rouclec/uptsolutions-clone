@@ -65,9 +65,9 @@ export default function OrderItem({
         </p>
       </td>
       <td className="px-4 text-[var(--primary-100)] p-3">
-        {document?.status === "printed" ? (
+        {document?.status === "completed" ? (
           <div className="p-[2px] rounded-full card-primary items-center justify-center flex truncate">
-            Printed
+            Completed
           </div>
         ) : (
           <div className="p-[2px] rounded-full card-secondary items-center justify-center flex truncate">

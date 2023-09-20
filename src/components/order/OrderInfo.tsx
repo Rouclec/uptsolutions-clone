@@ -2,12 +2,12 @@ import moment from "moment";
 import React from "react";
 
 export default function OrderInfo({ data }: any) {
-  const user= data?.user
-const dateTime = moment(data?.createdAt)
-const date = dateTime.format("DD-MM-YYYY")
-const time = dateTime.format("HH:MM A")
+  const user = data?.user;
+  const dateTime = moment(data?.createdAt);
+  const date = dateTime.format("DD-MM-YYYY");
+  const time = dateTime.format("HH:MM A");
 
-  console.log({data})
+  console.log({ data });
   return (
     <div>
       <div className=" p-5 rounded-md">
@@ -15,11 +15,11 @@ const time = dateTime.format("HH:MM A")
           <div className="grow shrink basis-0 h-[45px] justify-end items-start gap-2 flex">
             <div className="grow shrink basis-0">
               <span className="text-gray-700 text-xl font-medium leading-normal">
-             Order #{data?.id}
+              {user?.fullName} | Order #{data?.id}
                 <br />
               </span>
               <span className="text-gray-700 text-sm font-normal leading-tight">
-              {user?.fullName}| {user?.email}
+                {user?.fullName}| {user?.email}
               </span>
             </div>
           </div>
@@ -55,11 +55,19 @@ const time = dateTime.format("HH:MM A")
               <div className="self-stretch text-gray-700 text-sm font-medium leading-[18px]">
                 Status
               </div>
-              <div className="px-4 py-2 bg-violet-100 rounded-md justify-start items-center gap-[296px] inline-flex">
-                <div className="text-gray-700 text-sm font-medium leading-none">
-                  Pending
+              {data?.status == "completed" ? (
+                <div className="px-4 py-2 bg-green-100 rounded-md justify-start items-center gap-[296px] inline-flex">
+                  <div className="text-gray-700 text-sm font-medium leading-none">
+                    Completed
+                  </div>{" "}
                 </div>
-              </div>
+              ) : (
+                <div className="px-4 py-2 bg-violet-100 rounded-md justify-start items-center gap-[296px] inline-flex">
+                  <div className="text-gray-700 text-sm font-medium leading-none">
+                    Pending
+                  </div>{" "}
+                </div>
+              )}
             </div>
             <div className="self-stretch justify-start items-start gap-[38px] inline-flex">
               <div className="w-[122px] self-stretch flex-col justify-start items-start gap-4 inline-flex">

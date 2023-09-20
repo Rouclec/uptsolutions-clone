@@ -147,9 +147,9 @@ export default function Orderdetails() {
                           </div>
                         </div>
                         <div className="self-stretch flex-col justify-start items-start gap-6 flex">
-                          <div className="self-stretch px-4 py-3 bg-violet-100 rounded-xl justify-between items-center inline-flex">
+                          <div className="self-stretch justify-between items-center inline-flex">
                             <select
-                              className="text-gray-700 text-lg font-medium leading-loose"
+                              className="  px-4 py-3 bg-violet-100 rounded-xl w-full text-lg font-medium leading-loose"
                               onChange={(e: any) => setStatus(e.target.value)}
                             >
                               <option value="Pending">Pending</option>

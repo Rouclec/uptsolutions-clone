@@ -31,6 +31,10 @@ const documentSchema = new Schema({
         default: 'A4',
         enum: ['', 'A4', 'A3', 'A5']
     },
+    numberOfCopies: {
+        type: Number,
+        default: 1
+    },
     orientation: {
         type: String,
         default: 'Potrait',

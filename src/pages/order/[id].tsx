@@ -21,7 +21,7 @@ import { roboto, roboto_slab } from "../_app";
 import { HiOutlinePlus } from "react-icons/hi2";
 import OrderNotes from "@/components/order/OrderNotes";
 import OrderInfo from "@/components/order/OrderInfo";
-import { useGetOrder } from "@/hooks/order/useOrder";
+import { useConfirmOrder, useGetOrder } from "@/hooks/order/useOrder";
 
 interface Props {
   url: string;
@@ -31,6 +31,7 @@ interface Props {
 
 export default function Orderdetails() {
   const [showModal, setShowModal] = useState(false);
+  const [status, setStatus] = useState("Pending");
   const [url, setUrl] = useState("");
   const router = useRouter();
   const id = router?.query?.docId as string;
@@ -48,7 +49,15 @@ export default function Orderdetails() {
   };
 
   const { isLoading, data } = useGetOrder(id, () => {}, onError);
-  console.log("document=>", data?.data?.data?.documents);
+
+  const { mutate } = useConfirmOrder(id, () => {}, onError);
+
+  const updateStatus = () => {
+    console.log("Data Id ==>", data?.data?.data?._id);
+    mutate(data?.data?.data?._id, { status: status });
+
+    console.log("New data order ==> ", data?.data?.data);
+  };
 
   return (
     <div className="">
@@ -63,7 +72,7 @@ export default function Orderdetails() {
           </Header>
           <div className="container mx-auto mt-[75px]">
             <div className="flex">
-              <div className="w-full"> 
+              <div className="w-full">
                 {/* order button  has to be a drop down */}
                 <div className=" py-5 lg:rounded md:flex gap-2 ">
                   <div className="mb-4 md:w-2/3 rounded-lg  bg-white rounded pt-6 p-5 pb-8">
@@ -120,7 +129,7 @@ export default function Orderdetails() {
                               Order Total:
                             </div>
                             <div className=" text-right text-gray-700 text-base font-semibold leading-none">
-                            {data?.data?.data?.amount} xaf
+                              {data?.data?.data?.amount} xaf
                             </div>
                           </div>
                         </div>
@@ -139,21 +148,26 @@ export default function Orderdetails() {
                         </div>
                         <div className="self-stretch flex-col justify-start items-start gap-6 flex">
                           <div className="self-stretch px-4 py-3 bg-violet-100 rounded-xl justify-between items-center inline-flex">
-                            <div className="text-gray-700 text-lg font-medium leading-loose">
-                              Change Status
-                            </div>
+                            <select
+                              className="text-gray-700 text-lg font-medium leading-loose"
+                              onChange={(e: any) => setStatus(e.target.value)}
+                            >
+                              <option value="Pending">Pending</option>
+                              <option value="Completed">Completed</option>
+                            </select>
                           </div>
                           <div className="self-stretch justify-between items-start inline-flex">
                             <div className="h-10 py-2 opacity-80 rounded-lg justify-start items-center gap-2 flex">
-                              <div className="grow shrink basis-0 text-gray-700 text-base font-medium underline leading-normal">
+                              {/* <div className="grow shrink basis-0 text-gray-700 text-base font-medium underline leading-normal">
                                 Move to Trash
-                              </div>
+                              </div> */}
                             </div>
-                            <div className="py-[9px] bg-violet-700 rounded-md shadow justify-center items-center flex">
-                              <div className="text-white text-base font-medium leading-tight">
-                                Update
-                              </div>
-                            </div>
+                            <button
+                              onClick={updateStatus}
+                              className="py-1 px-4 text-white text-base font-medium leading-tight bg-violet-700 rounded-md shadow justify-center items-center flex"
+                            >
+                              Update
+                            </button>
                           </div>
                         </div>
                       </div>

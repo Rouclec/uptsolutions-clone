@@ -1,9 +1,13 @@
+import moment from "moment";
 import React from "react";
 
-export default function OrderInfo({ user }: any) {
-  const date = new Date(user?.createdAt);
-  const createdDate = date?.toLocaleDateString();
-  const time = date?.toLocaleTimeString();
+export default function OrderInfo({ data }: any) {
+  const user= data?.user
+const dateTime = moment(data?.createdAt)
+const date = dateTime.format("DD-MM-YYYY")
+const time = dateTime.format("HH:MM A")
+
+  console.log({data})
   return (
     <div>
       <div className=" p-5 rounded-md">
@@ -11,11 +15,11 @@ export default function OrderInfo({ user }: any) {
           <div className="grow shrink basis-0 h-[45px] justify-end items-start gap-2 flex">
             <div className="grow shrink basis-0">
               <span className="text-gray-700 text-xl font-medium leading-normal">
-                {user?.fullName}
+             Order #{data?.id}
                 <br />
               </span>
               <span className="text-gray-700 text-sm font-normal leading-tight">
-                {user?.address} | {user?.email}
+              {user?.fullName}| {user?.email}
               </span>
             </div>
           </div>
@@ -35,7 +39,7 @@ export default function OrderInfo({ user }: any) {
                   Date created
                 </div>
                 <div className="self-stretch text-gray-700 text-sm font-normal leading-none">
-                  {createdDate}
+                  {date}
                 </div>
               </div>
               <div className="self-stretch flex-col justify-start items-start gap-2 inline-flex">

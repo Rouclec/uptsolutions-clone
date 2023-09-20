@@ -69,7 +69,7 @@ export default function Orderdetails() {
                   <div className="mb-4 md:w-2/3 rounded-lg  bg-white rounded pt-6 p-5 pb-8">
                     {/* End of drop down  content */}
 
-                    <OrderInfo user={data?.data?.data.user} />
+                    <OrderInfo data={data?.data?.data} />
                     <div>
                       {data?.data?.data?.documents.map(
                         (doc: any, index: any) => (

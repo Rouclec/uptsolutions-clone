@@ -22,6 +22,9 @@ const getUserStats = (user: string) => {
   return axios.get(`/api/order/user/stats?user=${user}`);
 };
 
+const confirmOrder = (orderId: string) =>{
+  return axios.patch(`/api/order/confirm?id=${orderId}`);
+}
 export const useGetOrders = (onSuccess: any, onError: any) => {
   return useQuery(["orders"], fetchOrder, {
     onSuccess,
@@ -60,5 +63,13 @@ export const useGetUserOrderStats = (
     onSuccess,
     onError,
     enabled: !disabled,
+  });
+};
+
+
+export const useConfirmOrder = (orderId: string, onSuccess: any, onError: any) => {
+  return useMutation(["order", orderId], () => confirmOrder(orderId), {
+    onSuccess,
+    onError,
   });
 };

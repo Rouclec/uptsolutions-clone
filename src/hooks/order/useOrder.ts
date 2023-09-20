@@ -22,8 +22,8 @@ const getUserStats = (user: string) => {
   return axios.get(`/api/order/user/stats?user=${user}`);
 };
 
-const confirmOrder = (order: string) =>{
-  return axios.patch(`/api/order/confirm`);
+const confirmOrder = (orderId: string) =>{
+  return axios.patch(`/api/order/confirm?id=${orderId}`);
 }
 export const useGetOrders = (onSuccess: any, onError: any) => {
   return useQuery(["orders"], fetchOrder, {

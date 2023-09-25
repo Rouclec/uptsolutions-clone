@@ -76,7 +76,7 @@ const SideBar: FC<Props> = ({ children }) => {
           />
           <Image src={"/assets/logo.png"} alt="logo" width={28} height={28} />
           <p className="font-[dm-sans] text-[var(--primary-600)] font-semibold text-xl hidden md:block">
-            Universal Print Tech
+            Universal PrinTech
           </p>
         </div>
         <div className="flex w-[100vw] md:w-[calc(100vw-16rem)] justify-between items-center">

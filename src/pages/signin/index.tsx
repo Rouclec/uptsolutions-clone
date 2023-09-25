@@ -44,7 +44,6 @@ export default function Login() {
     }
   };
 
-
   return (
     <div className="grid">
       <div className="grid grid-rows-5 md:grid-cols-2 w-screen h-screen md:flex">

@@ -90,7 +90,7 @@ export default function Signup() {
                 height={56}
               />
               <p className="font-[dm-sans] text-[var(--primary-600)] font-semibold text-2xl md:text-4xl block">
-                Universal Print Tech
+                Universal PrinTech
               </p>
             </div>
             <div className="flex flex-col gap-2">

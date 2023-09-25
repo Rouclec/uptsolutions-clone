@@ -37,7 +37,8 @@ export default function Create() {
   const [printSides, setprintSides] = useState("Recto");
   const [printColor, setPrintColor] = useState("false");
   const [paperColor, setPaperColor] = useState("");
-  // const [pagesToPrint, setPagesToPrint] = useState("");
+  const [pagesToPrint, setPagesToPrint] = useState("All");
+  const [showPagesInput, setShowPagesInput] = useState(false);
   // Layout properties
   const [pagesPerSheet, setPagesPerSheet] = useState("1");
   const [printType, setPrintType] = useState("Plain");
@@ -84,6 +85,15 @@ export default function Create() {
     setNumberOfPages(totalPages);
   };
 
+  const handlePages = (e: any) => {
+    if (e.target.value == "Some Pages") {
+      setShowPagesInput(true);
+    } else {
+      setPagesToPrint(e.target.value);
+      setShowPagesInput(false);
+    }
+  };
+
   const handleUpload: MouseEventHandler<HTMLButtonElement> = async (e) => {
     e.preventDefault();
     if (!file) return;
@@ -104,6 +114,7 @@ export default function Create() {
       const result = await upload.promise();
       const doc = {
         name: docName,
+        pages: pagesToPrint,
         coverPage,
         paperType,
         paperSize,
@@ -296,6 +307,7 @@ export default function Create() {
         const result = await upload.promise();
         const doc = {
           name: docName,
+          pages: pagesToPrint,
           coverPage,
           paperSize,
           orientation,
@@ -331,9 +343,7 @@ export default function Create() {
               viewTxt="Proceed to pay"
               link="/checkout"
               showBtn={true}
-              message={`You have ${
-                pendingDocuments?.data?.data?.length
-              } file${
+              message={`You have ${pendingDocuments?.data?.data?.length} file${
                 pendingDocuments?.data?.data?.length > 1 ? "s" : ""
               } pending payment`}
             />
@@ -418,10 +428,32 @@ export default function Create() {
                       >
                         Pages
                       </label>
-                      <select className="my-auto bg-gray-50 border border-gray-300 px-2 rounded-md py-2">
-                        <option value="All">All</option>
-                        <option value="Some Pages">Some Pages</option>
-                      </select>
+                      <div className="my-auto">
+                        <select
+                          onChange={(e) => handlePages(e)}
+                          className="my-auto bg-gray-50 border border-gray-300 px-2 rounded-md py-2 w-full"
+                        >
+                          <option value="All">All</option>
+                          <option value="Some Pages">Some Pages</option>
+                        </select>
+                        <br />
+                        {showPagesInput ? (
+                          <div>
+                            {" "}
+                            <input
+                              type="text"
+                              placeholder="Enter pages"
+                              onChange={(e: any) =>
+                                setPagesToPrint(e.target.value)
+                              }
+                              className="my-auto bg-gray-50 border w-full my-1 border-gray-300 px-2 rounded-md py-2"
+                            />
+                            <p>e.g. 1-3, 8, 11-13</p>
+                          </div>
+                        ) : (
+                          <></>
+                        )}
+                      </div>
                     </div>
                     <div className="flex justify-between my-3 py-2 border-b-2">
                       <label
@@ -436,6 +468,7 @@ export default function Create() {
                         <option value="Normal" selected>
                           Normal
                         </option>
+                        <option value="Hard">Hard</option>
                         <option value="Glossy">Glossy</option>
                       </select>
                     </div>
@@ -465,8 +498,9 @@ export default function Create() {
                       >
                         <option value="white">white</option>
                         <option value="Green">Green</option>
-                        <option value="Red">Red</option>
-                        <option value="Pink">Pink</option>
+                        <option value="Blue">Blue</option>
+                        <option value="Yellow">Yellow</option>
+                        <option value="Cream White">Cream White</option>
                       </select>
                     </div>
 
@@ -548,7 +582,7 @@ export default function Create() {
                           <span
                             className={`text-gray-700 ${roboto_slab.className} font-semibold px-2`}
                           >
-                            Recto
+                            Recto Recto
                           </span>
                         </label>
                         <label className="inline-flex items-center">

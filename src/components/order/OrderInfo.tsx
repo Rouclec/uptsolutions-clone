@@ -7,7 +7,6 @@ export default function OrderInfo({ data }: any) {
   const date = dateTime.format("DD-MM-YYYY");
   const time = dateTime.format("HH:MM A");
 
-  console.log({ data });
   return (
     <div>
       <div className=" p-5 rounded-md">

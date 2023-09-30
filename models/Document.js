@@ -14,7 +14,7 @@ const documentSchema = new Schema({
     pages: {
         type: String,
         default: 'All',
-        enum: ['', 'All', 'Some pages']
+        // enum: ['', 'All', 'Some pages']
     },
     coverPage: {
         type: String,

@@ -53,10 +53,7 @@ export default function Orderdetails() {
   const { mutate } = useConfirmOrder(id, () => {}, onError);
 
   const updateStatus = () => {
-    console.log("Data Id ==>", data?.data?.data?._id);
     mutate(data?.data?.data?._id);
-
-    console.log("New data order ==> ", data?.data?.data);
   };
 
   return (

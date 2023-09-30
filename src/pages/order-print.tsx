@@ -82,7 +82,9 @@ export default function Create() {
     const arrayBuffer = await e.target.files![0].arrayBuffer();
     const pdfDoc = await PDFDocument.load(arrayBuffer);
     const totalPages = pdfDoc.getPages().length;
-    setNumberOfPages(totalPages);
+    if (pagesToPrint == "All") {
+      setNumberOfPages(totalPages);
+    }
   };
 
   const handlePages = (e: any) => {
@@ -93,6 +95,28 @@ export default function Create() {
       setShowPagesInput(false);
     }
   };
+
+  function calculateIndividualPages() {
+    const pageRanges = pagesToPrint.split(",");
+
+    let individualPages = [];
+    for (let i = 0; i < pageRanges.length; i++) {
+      const range = pageRanges[i].split("-");
+      const start = parseInt(range[0]);
+      const end = range[1] ? parseInt(range[1]) : start;
+      for (let j = start; j <= end; j++) {
+        individualPages.push(j);
+      }
+    }
+    setNumberOfPages(individualPages.length);
+    console.log("number of pages ==>", numberOfPages);
+  }
+
+  useEffect(() => {
+    if (pagesToPrint !== "All") {
+      calculateIndividualPages();
+    }
+  }, [pagesToPrint]);
 
   const handleUpload: MouseEventHandler<HTMLButtonElement> = async (e) => {
     e.preventDefault();

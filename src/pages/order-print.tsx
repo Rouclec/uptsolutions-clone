@@ -50,7 +50,8 @@ export default function Create() {
   const [upload, setUpload] = useState<S3.ManagedUpload | null>(null);
   const [showAlert, setShowAlert] = useState(true);
   const [progress, setProgress] = useState(0);
-
+  const [pageExceeded, setPageExceeded] = useState(false);
+  const [maxPage, setMaxPage] = useState<number>(0);
   const [loading, setLoading] = useState(false);
   // Show file
 
@@ -82,6 +83,7 @@ export default function Create() {
     const arrayBuffer = await e.target.files![0].arrayBuffer();
     const pdfDoc = await PDFDocument.load(arrayBuffer);
     const totalPages = pdfDoc.getPages().length;
+    setMaxPage(totalPages);
     if (pagesToPrint == "All") {
       setNumberOfPages(totalPages);
     }
@@ -98,6 +100,7 @@ export default function Create() {
 
   function calculateIndividualPages() {
     const pageRanges = pagesToPrint.split(",");
+    // setPageExceeded(false);
 
     let individualPages = [];
     for (let i = 0; i < pageRanges.length; i++) {
@@ -106,10 +109,14 @@ export default function Create() {
       const end = range[1] ? parseInt(range[1]) : start;
       for (let j = start; j <= end; j++) {
         individualPages.push(j);
+        if (j > maxPage) {
+          setPageExceeded(true);
+        } else {
+          setNumberOfPages(individualPages.length);
+          setPageExceeded(false);
+        }
       }
     }
-    setNumberOfPages(individualPages.length);
-    console.log("number of pages ==>", numberOfPages);
   }
 
   useEffect(() => {
@@ -464,14 +471,27 @@ export default function Create() {
                         {showPagesInput ? (
                           <div>
                             {" "}
-                            <input
-                              type="text"
-                              placeholder="Enter pages"
-                              onChange={(e: any) =>
-                                setPagesToPrint(e.target.value)
-                              }
-                              className="my-auto bg-gray-50 border w-full my-1 border-gray-300 px-2 rounded-md py-2"
-                            />
+                            {file ? (
+                              <div>
+                                <input
+                                  type="text"
+                                  placeholder="Enter pages"
+                                  onChange={(e: any) =>
+                                    setPagesToPrint(e.target.value)
+                                  }
+                                  className="my-2 bg-gray-50 border w-full my-1 border-gray-300 px-2 rounded-md py-2"
+                                />
+                                {pageExceeded ? (
+                                  <p className="text-red-400">
+                                    This document ends at page {maxPage}
+                                  </p>
+                                ) : (
+                                  <></>
+                                )}
+                              </div>
+                            ) : (
+                              <h3 className="text-red-300">Upload you document first</h3>
+                            )}
                             <p>e.g. 1-3, 8, 11-13</p>
                           </div>
                         ) : (

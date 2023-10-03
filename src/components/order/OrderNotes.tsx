@@ -1,6 +1,6 @@
 import React from "react";
 
-export default function OrderNotes({extraDetails}: any) {
+export default function OrderNotes({ extraDetails }: any) {
   return (
     <div>
       <div className=" p-6 bg-white rounded-md flex-col justify-start items-start gap-4 inline-flex">
@@ -53,7 +53,6 @@ export default function OrderNotes({extraDetails}: any) {
                     </div>
                   </div>
                 </div>
-                
               </div>
             </div>
             <div className="self-stretch pb-2 flex-col justify-start items-start gap-4 flex">
@@ -72,9 +71,8 @@ export default function OrderNotes({extraDetails}: any) {
                     </div>
                   </div>
                 </div>
-              
               </div>
-              <div className="self-stretch justify-start items-center gap-[11px] inline-flex">
+              {/* <div className="self-stretch justify-start items-center gap-[11px] inline-flex">
                 <div className="h-11 px-4 py-2 bg-violet-100 rounded-md justify-between items-center flex">
                   <div className="text-gray-700 text-lg font-medium font-['Roboto'] leading-7">
                     Note to customer
@@ -88,7 +86,7 @@ export default function OrderNotes({extraDetails}: any) {
                     </div>
                   </div>
                 </div>
-              </div>
+              </div> */}
             </div>
           </div>
         </div>

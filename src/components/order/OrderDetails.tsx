@@ -5,12 +5,14 @@ interface Props {
   setShowModal: any;
   setUrl: any;
   document: Command;
+  setSelectedOrder: any;
 }
 
 export default function OrderDetails({
   setShowModal,
   setUrl,
   document,
+  setSelectedOrder,
 }: Props) {
   const [showDropdown, setShowDropdown] = useState(false);
   useEffect(() => {
@@ -18,13 +20,13 @@ export default function OrderDetails({
   }, []);
 
   const handlePrint = () => {
-    var pdfUrl =document?.file
-    var xhr:any = new XMLHttpRequest();
+    var pdfUrl = document?.file;
+    var xhr: any = new XMLHttpRequest();
     xhr.open("GET", pdfUrl, true);
     xhr.responseType = "blob";
-    xhr.onload = function(e:any) {
+    xhr.onload = function (e: any) {
       if (this.status == 200) {
-        var blob = new Blob([this.response], {type: "application/pdf"});
+        var blob = new Blob([this.response], { type: "application/pdf" });
         var url = URL.createObjectURL(blob);
         var win = window?.open(url, "_blank");
         win?.print();
@@ -36,13 +38,18 @@ export default function OrderDetails({
   return (
     <div>
       <div
-        onClick={() => setShowDropdown((d) => !d)}
+        onClick={() => {
+          setShowDropdown((d) => !d);
+          setSelectedOrder(document?.extraDetails);
+        }}
         className="px-4 pt-2 pb-4 bg-violet-100 rounded-tl-md w-full rounded-tr-md border-b border-gray-700 justify-start items-center  inline-flex"
       >
         <div className="justify-start items-center gap-4 flex">
-          <div className={`w-6 px-0.5 rounded-[100px] border  border-black justify-center items-center gap-2 flex  ${
-          showDropdown ? "bg-red-500" : ""
-        }`}>
+          <div
+            className={`w-6 px-0.5 rounded-[100px] border  border-black justify-center items-center gap-2 flex  ${
+              showDropdown ? "bg-red-500" : ""
+            }`}
+          >
             <div className="w-5 h-5 relative rounded-[100px]" />
           </div>
           <div className="justify-start items-start gap-3 flex">

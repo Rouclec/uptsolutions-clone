@@ -31,6 +31,7 @@ interface Props {
 
 export default function Orderdetails() {
   const [showModal, setShowModal] = useState(false);
+  const [extraDetails, setExtraDetails] = useState("");
   const [status, setStatus] = useState("Pending");
   const [url, setUrl] = useState("");
   const router = useRouter();
@@ -71,8 +72,8 @@ export default function Orderdetails() {
             <div className="flex">
               <div className="w-full">
                 {/* order button  has to be a drop down */}
-                <div className=" py-5 lg:rounded md:flex gap-2 ">
-                  <div className="mb-4 md:w-2/3 rounded-lg  bg-white pt-6 p-5 pb-8">
+                <div className=" py-5 rounded sm:flex gap-2 ">
+                  <div className="mb-4 sm:w-2/3 rounded-lg  bg-white pt-6 p-5 pb-8">
                     {/* End of drop down  content */}
 
                     <OrderInfo data={data?.data?.data} />
@@ -83,13 +84,13 @@ export default function Orderdetails() {
                             key={index}
                             setShowModal={setShowModal}
                             setUrl={setUrl}
+                            setSelectedOrder = {setExtraDetails}
                             document={{
                               _id: doc?.id,
                               name: doc?.name,
                               amount: doc?.amount,
                               bindingType: doc?.bindingType,
                               paperType: doc?.paperType,
-                              // coverPage: doc?.coverPage,
                               numberOfCopies: doc?.numberOfCopies,
                               orientation: doc?.orientation,
                               extraDetails: doc?.description,
@@ -133,7 +134,7 @@ export default function Orderdetails() {
                       </div>
                     </div>
                   </div>
-                  <div className="mb-4 md:w-1/3 rounded-lg pt-6 pb-8">
+                  <div className="mb-4 sm:w-1/3 rounded-lg pt-6 pb-8 float-right">
                     <div className="bg-white rounded-md">
                       <div className="p-6 bg-white w-full rounded-md flex-col justify-start items-start inline-flex">
                         <div className="self-stretch pb-2 border-b border-neutral-200 justify-start items-center gap-2 inline-flex">
@@ -154,11 +155,6 @@ export default function Orderdetails() {
                             </select>
                           </div>
                           <div className="self-stretch justify-between items-start inline-flex">
-                            <div className="h-10 py-2 opacity-80 rounded-lg justify-start items-center gap-2 flex">
-                              {/* <div className="grow shrink basis-0 text-gray-700 text-base font-medium underline leading-normal">
-                                Move to Trash
-                              </div> */}
-                            </div>
                             <button
                               onClick={updateStatus}
                               className="py-1 px-4 text-white text-base font-medium leading-tight bg-violet-700 rounded-md shadow justify-center items-center flex"
@@ -171,7 +167,7 @@ export default function Orderdetails() {
                     </div>
 
                     <div className="w-full h-auto mt-5 p-6 bg-white rounded-md flex-col justify-start items-start gap-4 inline-flex">
-                      <OrderNotes />
+                      <OrderNotes extraDetails={extraDetails} />
                     </div>
                   </div>
                 </div>

@@ -3,7 +3,8 @@ import { roboto } from "@/pages/_app";
 import Image from "next/image";
 import Link from "next/link";
 import { HiOutlineTrash } from "react-icons/hi2";
-export default function UserItem() {
+import { User } from "@/types";
+export default function UserItem({ user }: any) {
   return (
     <tr className="border-b-[1px] hover:cursor-pointer bg-[var(--neutral-10)]">
       <td className="px-4 text-[var(--gray-700)] font-semibold p-3  rounded-l-lg text-center">
@@ -13,7 +14,11 @@ export default function UserItem() {
         <div className="flex gap-2 items-center">
           <div className="w-10 h-10 rounded-full items-center justify-center">
             <Image
-              src={"/assets/books.png"}
+              src={
+                user.profileImage
+                  ? user.profileImage
+                  : "/assets/default-avatar.png"
+              }
               alt="avatar"
               width={40}
               height={40}
@@ -23,12 +28,12 @@ export default function UserItem() {
             <p
               className={`text-[var(--gray-900)] font-[500] ${roboto.className}`}
             >
-              Suh Denis
+              {user.fullName}
             </p>
             <p
               className={`text-[var(--gray-500)] font-normal ${roboto.className}`}
             >
-              suhdennis@gmail.com
+              {user.email}
             </p>
           </div>
         </div>
@@ -38,7 +43,7 @@ export default function UserItem() {
           <p
             className={`text-[var(--gray-800)] font-normal ${roboto.className}`}
           >
-            06/07/2023
+            {user.role.code}
           </p>
         </div>
       </td>
@@ -49,12 +54,12 @@ export default function UserItem() {
       </td>
       <td className="px-4 text-[var(--primary-100)] p-3">
         <p className={`text-[var(--gray-900)] font-[500] ${roboto.className}`}>
-          Molyko
+          {user.address ? user.address : "--"}
         </p>
       </td>
       <td className="px-4 text-[var(--gray-700)] font-light p-3 ">
         <p className={`text-[var(--gray-900)] font-[500] ${roboto.className}`}>
-          676814364
+          {user.phoneNumber ? user.phoneNumber : "--"}
         </p>
       </td>
       <td className="px-4 p-3  rounded-r-lg">

@@ -17,19 +17,16 @@ import {
   useGetUserPendingDocuments,
 } from "@/hooks/document/useDocument";
 import UserItem from "./UserItem";
+import { useGetUsers } from "@/hooks/user/useUser";
 
 function UserList() {
   const [showAlert, setShowAlert] = useState(false);
- 
 
-  const router = useRouter();
+  const { data } = useGetUsers(
+    () => {},
+    () => {}
+  );
 
-  const session = useSession();
-
- 
-
-
- 
   return (
     <div className={`${showAlert ? "mt-44" : "mt-28"}`}>
       <Header>
@@ -38,9 +35,8 @@ function UserList() {
         >
           Customers
         </p>
-
       </Header>
-     
+
       <div className="my-10 grid gap-2">
         <div className="grid gap-1">
           <p
@@ -89,7 +85,7 @@ function UserList() {
                 <th className="text-left border-[var(--gray-100)] px-4">
                   Client Name
                 </th>
-                <th className=" px-4 text-left">Last Seen</th>
+                <th className=" px-4 text-left">Role</th>
                 <th className=" px-4 text-left">Total Orders</th>
                 <th className=" px-4 text-left">Address</th>
                 <th className=" px-4 text-left">Phone Number</th>
@@ -100,11 +96,9 @@ function UserList() {
               </tr>
             </thead>
             <tbody>
-              {Array(10)
-                .fill("a")
-                ?.map((_: any, index) => (
-                  <UserItem key={index} />
-                ))}
+              {data?.data?.data?.map((user: User, index: any) => (
+                <UserItem key={index} user={user} />
+              ))}
               <tr
                 className={`bg-[var(--gray-100)]  text-[var(--gray-500)] font-[500] h-12 ${roboto.className} border-b-2 uppercase`}
               >

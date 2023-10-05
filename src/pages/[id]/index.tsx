@@ -227,7 +227,7 @@ export default function Create() {
 
     const total = (numberOfSheets * unitPrice + bindingCost) * numberOfCopies;
 
-    return total + total * 0.03;
+    return Math.round(total + total * 0.03);
   }, [
     printSides,
     numberOfPages,

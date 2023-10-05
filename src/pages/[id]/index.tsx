@@ -221,7 +221,9 @@ export default function Create() {
 
     bindingCost = coverPage === "Normal" ? bindingCost - 150 : bindingCost;
 
-    return (numberOfSheets * unitPrice + bindingCost) * numberOfCopies;
+    const total = (numberOfSheets * unitPrice + bindingCost) * numberOfCopies;
+
+    return total + total * 0.03;
   }, [
     printSides,
     numberOfPages,

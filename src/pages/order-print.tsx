@@ -258,7 +258,9 @@ export default function Create() {
         ? bindingCost - 150
         : bindingCost;
 
-    return (numberOfSheets * unitPrice + bindingCost) * numberOfCopies;
+    const total = (numberOfSheets * unitPrice + bindingCost) * numberOfCopies;
+
+    return total + total * 0.03;
   }, [
     printSides,
     numberOfPages,
@@ -490,7 +492,9 @@ export default function Create() {
                                 )}
                               </div>
                             ) : (
-                              <h3 className="text-red-400">Upload you document first</h3>
+                              <h3 className="text-red-400">
+                                Upload you document first
+                              </h3>
                             )}
                             <p>e.g. 1-3, 8, 11-13</p>
                           </div>

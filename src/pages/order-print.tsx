@@ -191,7 +191,8 @@ export default function Create() {
       printSides === "Recto"
         ? Math.ceil(numberOfPages / parseInt(pagesPerSheet))
         : Math.ceil(Math.ceil(numberOfPages / 2) / parseInt(pagesPerSheet));
-    if (numberOfSheets < 5) {
+    const totalSheets = numberOfSheets * numberOfCopies;
+    if (totalSheets < 5) {
       unitPrice = printColor === "true" ? 100 : 50;
       bindingCost =
         bidingType === "Spiral"
@@ -203,7 +204,7 @@ export default function Create() {
           : bidingType === "Hard gum"
           ? 5000
           : 0;
-    } else if (numberOfSheets < 25) {
+    } else if (totalSheets < 25) {
       unitPrice = printColor === "true" ? 100 : 25;
       bindingCost =
         bidingType === "Spiral"
@@ -215,7 +216,7 @@ export default function Create() {
           : bidingType === "Hard gum"
           ? 5000
           : 0;
-    } else if (numberOfSheets < 70) {
+    } else if (totalSheets < 70) {
       unitPrice = printColor === "true" ? 100 : 20;
       bindingCost =
         bidingType === "Spiral"
@@ -227,7 +228,7 @@ export default function Create() {
           : bidingType === "Hard gum"
           ? 5000
           : 0;
-    } else if (numberOfSheets < 100) {
+    } else if (totalSheets < 100) {
       unitPrice = printColor === "true" ? 100 : 20;
       bindingCost =
         bidingType === "Spiral"

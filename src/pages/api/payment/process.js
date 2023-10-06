@@ -13,7 +13,7 @@ const checkTransactionStatus = async (reference) => {
     const token = await getTokenFromCampay(creds);
 
     try {
-        const response = await fetch(`${process.env.CAMPAY_BASE_URL_DEMO}/transaction/${reference}`, {
+        const response = await fetch(`${process.env.CAMPAY_BASE_URL}/transaction/${reference}`, {
             method: "get",
             headers: {
                 "Content-Type": "application/json",

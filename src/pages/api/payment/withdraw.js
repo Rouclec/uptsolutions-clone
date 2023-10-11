@@ -12,7 +12,7 @@ const withdrawal = async (withdrawalRequest) => {
     const token = await getTokenFromCampay(creds);
 
     try {
-        const response = await fetch(`${process.env.CAMPAY_BASE_URL_DEMO}/withdraw/`, {
+        const response = await fetch(`${process.env.CAMPAY_BASE_URL}/withdraw/`, {
             method: "post",
             body: JSON.stringify(withdrawalRequest),
             headers: {

@@ -82,7 +82,7 @@ const Stats: React.FC<Props> = ({ stats }) => {
           </div>
           <div className="grid gap-1 items-center">
             <p
-              className={`${roboto.className} font[500] text-[var(--gray-700)] text-sm`}
+              className={`${roboto.className} font[500] text-[var(--gray-700)] text-sm truncate`}
             >
               Total Amount Spent
             </p>

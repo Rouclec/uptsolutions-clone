@@ -10,9 +10,10 @@ const initiatePayment = async (paymentRequest) => {
 
     // get token from campay.
     const token = await getTokenFromCampay(creds);
+    console.log({ token })
 
     try {
-        const response = await fetch(`${process.env.CAMPAY_BASE_URL_DEMO}/collect/`, {
+        const response = await fetch(`${process.env.CAMPAY_BASE_URL}/collect/`, {
             method: "post",
             body: JSON.stringify(paymentRequest),
             headers: {
@@ -21,6 +22,7 @@ const initiatePayment = async (paymentRequest) => {
             },
         });
 
+        console.log('payemtn request response: ', response)
         if (response.ok) {
             const data = await response.json();
             return data;
@@ -32,12 +34,20 @@ const initiatePayment = async (paymentRequest) => {
 };
 
 const pay = catchAsync(async (req, res) => {
+
     const paymentRequest = {
         from: req?.body?.phoneNumber,
         external_ref: req?.body?.ref,
         amount: req?.body?.amount
     }
+
+    console.log({
+        body: req?.body
+    });
+
     const paymentResponse = await initiatePayment(paymentRequest)
+
+    console.log({ paymentResponse });
 
     return res.status(200).json({
         status: "OK",

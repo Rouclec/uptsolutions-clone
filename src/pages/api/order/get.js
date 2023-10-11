@@ -7,7 +7,7 @@ const getOrders = catchAsync(async (req, res) => {
     await DB()
     let queryParms = { active: true };
     if (req?.query) queryParms = { ...queryParms, ...req.query }
-    const query = Order.find(queryParms).populate('user').populate('documents')
+    const query = Order.find(queryParms).populate('user').populate('documents').sort({ createdAt: -1 })
     const docs = await query
     return res.status(200).json({
         status: "OK",

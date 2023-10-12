@@ -27,7 +27,7 @@ import Link from "next/link";
 import moment from "moment";
 import { addCommas } from "@/utils/addCommas";
 import { BsArrow90DegDown, BsArrowDown } from "react-icons/bs";
-import { IoIosArrowDown } from "react-icons/io";
+import { IoIosArrowDown, IoIosArrowUp } from "react-icons/io";
 
 export default function Create() {
   const [docName, setDocName] = useState("");
@@ -57,9 +57,12 @@ export default function Create() {
   const [loading, setLoading] = useState(false);
   const [binding, setBinding] = useState(false);
   const [isBooklet, setIsBooklet] = useState(false);
-
   const [url, setUrl] = React.useState("");
 
+  const [showBinding, setShowBinding] = useState(false);
+  const [showAdvancedSetting, setShowAdvancedSetting] = useState(false);
+  const [showDescription, setShowDescription] = useState(false);
+  const [showSummary, setShowSummary] = useState(false);
   const session = useSession();
 
   const queryClient = useQueryClient();
@@ -646,230 +649,264 @@ export default function Create() {
                   </div>
 
                   <h3
+                    onClick={() => setShowBinding(!showBinding)}
                     className={`text-gray-700 ${roboto_slab.className} flex gap-3 font-semibold my-4`}
                   >
-                    <IoIosArrowDown className="mt-1" /> Binding
+                    {showBinding ? (
+                      <IoIosArrowUp className="mt-1" />
+                    ) : (
+                      <IoIosArrowDown className="mt-1" />
+                    )}{" "}
+                    Binding
                   </h3>
-                  <div className="bg-white rounded-md p-4 my-2">
-                    <div className="flex justify-between my-3 border-b-2 py-2 border-gray-300">
-                      <label
-                        className={`text-gray-700 ${roboto_slab.className} font-semibold`}
-                      >
-                        Binding
-                      </label>
-                      <div className="flex flex-row justify-between">
-                        <label className="inline-flex items-center">
-                          <input
-                            type="radio"
-                            name="binding"
-                            className="form-radio h-4 w-4 text-blue-600"
-                            onChange={() => setBinding(true)}
-                          />
-                          <span
-                            className={`text-gray-700 ${roboto_slab.className} font-semibold px-2`}
-                          >
-                            Yes
-                          </span>
+                  {showBinding ? (
+                    <div className="bg-white rounded-md p-4 my-2">
+                      <div className="flex justify-between my-3 border-b-2 py-2 border-gray-300">
+                        <label
+                          className={`text-gray-700 ${roboto_slab.className} font-semibold`}
+                        >
+                          Binding
                         </label>
-                        <label className="inline-flex items-center">
-                          <input
-                            type="radio"
-                            className="form-radio h-4 w-4 text-blue-600"
-                            name="binding"
-                            defaultChecked={true}
-                            onChange={() => setBinding(false)}
-                          />
-                          <span
-                            className={`text-gray-700 ${roboto_slab.className} font-semibold px-2`}
-                          >
-                            No
-                          </span>
+                        <div className="flex flex-row justify-between">
+                          <label className="inline-flex items-center">
+                            <input
+                              type="radio"
+                              name="binding"
+                              className="form-radio h-4 w-4 text-blue-600"
+                              onChange={() => setBinding(true)}
+                            />
+                            <span
+                              className={`text-gray-700 ${roboto_slab.className} font-semibold px-2`}
+                            >
+                              Yes
+                            </span>
+                          </label>
+                          <label className="inline-flex items-center">
+                            <input
+                              type="radio"
+                              className="form-radio h-4 w-4 text-blue-600"
+                              name="binding"
+                              defaultChecked={true}
+                              onChange={() => setBinding(false)}
+                            />
+                            <span
+                              className={`text-gray-700 ${roboto_slab.className} font-semibold px-2`}
+                            >
+                              No
+                            </span>
+                          </label>
+                        </div>
+                      </div>
+                      <div className="flex justify-between my-3 border-b-2 py-2 border-gray-300">
+                        <label
+                          className={`text-gray-700 ${roboto_slab.className} font-semibold`}
+                        >
+                          Type of binding
                         </label>
+                        <select
+                          onClick={(e: any) => setBidingType(e.target.value)}
+                          disabled={!binding}
+                          className="my-auto bg-gray-50 border border-gray-300 px-2 rounded-md py-2 "
+                        >
+                          <option value="No binding">No binding</option>
+                          <option value="Spiral">Spiral</option>
+                          <option value="Slide binding">Slide binding</option>
+                          <option value="Normal gum">Normal gum</option>
+                          <option value="Hard gum">Hard gum</option>
+                        </select>
+                      </div>
+                      <div className="flex justify-between my-3 py-2 border-b-2">
+                        <label
+                          className={`text-gray-700 ${roboto_slab.className} font-semibold`}
+                        >
+                          Cover page
+                        </label>
+                        <select
+                          onChange={(e: any) => setCoverPage(e.target.value)}
+                          disabled={!binding}
+                          className="my-auto bg-gray-50 border border-gray-300 px-2 rounded-md py-2"
+                        >
+                          <option value="Normal">Normal</option>
+                          <option value="Hard page">Hard Page</option>
+                        </select>
+                      </div>
+                      <div className="flex justify-between border-b-2 border-gray-300 my-3 py-2">
+                        <label
+                          className={`text-gray-700 ${roboto_slab.className} font-semibold`}
+                        >
+                          Paper color
+                        </label>
+                        <select
+                          onChange={(e: any) => setPaperColor(e.target.value)}
+                          disabled={!binding}
+                          className="my-auto bg-gray-50 border-gray-300 px-2 rounded-md py-2"
+                        >
+                          <option value="white">white</option>
+                          <option value="Green">Green</option>
+                          <option value="Blue">Blue</option>
+                          <option value="Yellow">Yellow</option>
+                          <option value="Cream White">Cream White</option>
+                        </select>
                       </div>
                     </div>
-                    <div className="flex justify-between my-3 border-b-2 py-2 border-gray-300">
-                      <label
-                        className={`text-gray-700 ${roboto_slab.className} font-semibold`}
-                      >
-                        Type of binding
-                      </label>
-                      <select
-                        onClick={(e: any) => setBidingType(e.target.value)}
-                        disabled={!binding}
-                        className="my-auto bg-gray-50 border border-gray-300 px-2 rounded-md py-2 "
-                      >
-                        <option value="No binding">No binding</option>
-                        <option value="Spiral">Spiral</option>
-                        <option value="Slide binding">Slide binding</option>
-                        <option value="Normal gum">Normal gum</option>
-                        <option value="Hard gum">Hard gum</option>
-                      </select>
-                    </div>
-                    <div className="flex justify-between my-3 py-2 border-b-2">
-                      <label
-                        className={`text-gray-700 ${roboto_slab.className} font-semibold`}
-                      >
-                        Cover page
-                      </label>
-                      <select
-                        onChange={(e: any) => setCoverPage(e.target.value)}
-                        disabled={!binding}
-                        className="my-auto bg-gray-50 border border-gray-300 px-2 rounded-md py-2"
-                      >
-                        <option value="Normal">Normal</option>
-                        <option value="Hard page">Hard Page</option>
-                      </select>
-                    </div>
-                    <div className="flex justify-between border-b-2 border-gray-300 my-3 py-2">
-                      <label
-                        className={`text-gray-700 ${roboto_slab.className} font-semibold`}
-                      >
-                        Paper color
-                      </label>
-                      <select
-                        onChange={(e: any) => setPaperColor(e.target.value)}
-                        disabled={!binding}
-                        className="my-auto bg-gray-50 border-gray-300 px-2 rounded-md py-2"
-                      >
-                        <option value="white">white</option>
-                        <option value="Green">Green</option>
-                        <option value="Blue">Blue</option>
-                        <option value="Yellow">Yellow</option>
-                        <option value="Cream White">Cream White</option>
-                      </select>
-                    </div>
-                  </div>
+                  ) : (
+                    <></>
+                  )}
 
                   <h3
+                    onClick={() => setShowAdvancedSetting(!showAdvancedSetting)}
                     className={`text-gray-700 ${roboto_slab.className} font-semibold my-3 gap-3 flex `}
                   >
-                    <IoIosArrowDown className="mt-1" /> Advanced information
+                    {showAdvancedSetting ? (
+                      <IoIosArrowUp className="mt-1" />
+                    ) : (
+                      <IoIosArrowDown className="mt-1" />
+                    )}{" "}
+                    Advanced information
                   </h3>
-                  <div className="bg-white rounded-md p-4 my-2">
-                    <div className="flex justify-between my-3 border-b-2 py-2 border-gray-300">
-                      <label
-                        className={`text-gray-700 ${roboto_slab.className} font-semibold`}
-                      >
-                        Printing Type
-                      </label>
-                      <div className="flex flex-row justify-between">
-                        <label className="inline-flex items-center">
-                          <input
-                            type="radio"
-                            className="form-radio h-4 w-4 text-blue-600"
-                            value="Booklet"
-                            name="printColor"
-                            // checked={value === 'true'}
-                            onChange={(e) => {
-                              setPrintType(e.target.value);
-                              setIsBooklet(true);
-                            }}
-                          />
-                          <span
-                            className={`text-gray-700 ${roboto_slab.className} font-semibold px-2`}
-                          >
-                            Booklet
-                          </span>
+                  {showAdvancedSetting ? (
+                    <div className="bg-white rounded-md p-4 my-2">
+                      <div className="flex justify-between my-3 border-b-2 py-2 border-gray-300">
+                        <label
+                          className={`text-gray-700 ${roboto_slab.className} font-semibold`}
+                        >
+                          Printing Type
                         </label>
-                        <label className="inline-flex items-center">
-                          <input
-                            type="radio"
-                            className="form-radio h-4 w-4 text-blue-600"
-                            value="Plain"
-                            name="printColor"
-                            defaultChecked={true}
-                            onChange={(e) => {
-                              setPrintType(e.target.value);
-                              setIsBooklet(false);
-                            }}
-                          />
-                          <span
-                            className={`text-gray-700 ${roboto_slab.className} font-semibold px-2`}
-                          >
-                            Plain
-                          </span>
+                        <div className="flex flex-row justify-between">
+                          <label className="inline-flex items-center">
+                            <input
+                              type="radio"
+                              className="form-radio h-4 w-4 text-blue-600"
+                              value="Booklet"
+                              name="printColor"
+                              // checked={value === 'true'}
+                              onChange={(e) => {
+                                setPrintType(e.target.value);
+                                setIsBooklet(true);
+                              }}
+                            />
+                            <span
+                              className={`text-gray-700 ${roboto_slab.className} font-semibold px-2`}
+                            >
+                              Booklet
+                            </span>
+                          </label>
+                          <label className="inline-flex items-center">
+                            <input
+                              type="radio"
+                              className="form-radio h-4 w-4 text-blue-600"
+                              value="Plain"
+                              name="printColor"
+                              defaultChecked={true}
+                              onChange={(e) => {
+                                setPrintType(e.target.value);
+                                setIsBooklet(false);
+                              }}
+                            />
+                            <span
+                              className={`text-gray-700 ${roboto_slab.className} font-semibold px-2`}
+                            >
+                              Plain
+                            </span>
+                          </label>
+                        </div>
+                      </div>
+                      <div className="flex justify-between my-3 py-2 border-b-2">
+                        <label
+                          className={`text-gray-700 ${roboto_slab.className} font-semibold`}
+                        >
+                          Paper type
                         </label>
+                        <select
+                          disabled={false}
+                          onChange={(e: any) => setPaperType(e.target.value)}
+                          className="my-auto  bg-gray-50 border border-gray-300 px-2 rounded-md py-2"
+                        >
+                          <option value="Normal" selected>
+                            Normal
+                          </option>
+                          <option value="Hard">Hard</option>
+                          <option value="Glossy">Glossy</option>
+                        </select>
+                      </div>
+                      <div className="flex justify-between my-3 border-b-2 py-2 border-gray-300">
+                        <label
+                          className={`text-gray-700 ${roboto_slab.className} font-semibold`}
+                        >
+                          Pages per sheet
+                        </label>
+                        <select
+                          onChange={(e) =>
+                            // setPagesPerSheet(parseInt(e.target.value, 10))
+                            setPagesPerSheet(e.target.value)
+                          }
+                          disabled={isBooklet}
+                          className="my-auto bg-gray-50 border border-gray-300 px-2 rounded-md py-2"
+                        >
+                          <option value="1">1</option>
+                          <option value="2">2</option>
+                          <option value="3">3</option>
+                          <option value="4">4</option>
+                        </select>
+                      </div>
+
+                      <div className="flex justify-between my-3 border-b-2 py-2 border-gray-300">
+                        <label
+                          className={`text-gray-700 ${roboto_slab.className} font-semibold`}
+                        >
+                          Layout Direction
+                        </label>
+                        <select
+                          disabled
+                          className="my-auto bg-gray-50 border border-gray-300 px-2 rounded-md py-2"
+                        >
+                          <option value="A4">Potrait</option>
+                          {/* <option value="A3">A3</option>
+                        <option value="A5">A5</option> */}
+                        </select>
+                      </div>
+                      <div className="flex justify-between my-3 border-b-2 py-2 border-gray-300">
+                        <label
+                          className={`text-gray-700 ${roboto_slab.className} font-semibold`}
+                        >
+                          Margin
+                        </label>
+                        <select
+                          disabled
+                          className="my-auto bg-gray-50 border border-gray-300 px-2 rounded-md py-2"
+                        >
+                          <option value="5">5rem</option>
+                          {/*<option value="A3">A3</option>
+                        <option value="A5">A5</option> */}
+                        </select>
                       </div>
                     </div>
-                    <div className="flex justify-between my-3 py-2 border-b-2">
-                      <label
-                        className={`text-gray-700 ${roboto_slab.className} font-semibold`}
-                      >
-                        Paper type
-                      </label>
-                      <select
-                        disabled={false}
-                        onChange={(e: any) => setPaperType(e.target.value)}
-                        className="my-auto  bg-gray-50 border border-gray-300 px-2 rounded-md py-2"
-                      >
-                        <option value="Normal" selected>
-                          Normal
-                        </option>
-                        <option value="Hard">Hard</option>
-                        <option value="Glossy">Glossy</option>
-                      </select>
-                    </div>
-                    <div className="flex justify-between my-3 border-b-2 py-2 border-gray-300">
-                      <label
-                        className={`text-gray-700 ${roboto_slab.className} font-semibold`}
-                      >
-                        Pages per sheet
-                      </label>
-                      <select
-                        onChange={(e) =>
-                          // setPagesPerSheet(parseInt(e.target.value, 10))
-                          setPagesPerSheet(e.target.value)
-                        }
-                        disabled = {isBooklet}
-                        className="my-auto bg-gray-50 border border-gray-300 px-2 rounded-md py-2"
-                      >
-                        <option value="1">1</option>
-                        <option value="2">2</option>
-                        <option value="3">3</option>
-                        <option value="4">4</option>
-                      </select>
-                    </div>
-
-                    <div className="flex justify-between my-3 border-b-2 py-2 border-gray-300">
-                      <label
-                        className={`text-gray-700 ${roboto_slab.className} font-semibold`}
-                      >
-                        Layout Direction
-                      </label>
-                      <select disabled className="my-auto bg-gray-50 border border-gray-300 px-2 rounded-md py-2">
-                        <option value="A4">Potrait</option>
-                        {/* <option value="A3">A3</option>
-                        <option value="A5">A5</option> */}
-                      </select>
-                    </div>
-                    <div className="flex justify-between my-3 border-b-2 py-2 border-gray-300">
-                      <label
-                        className={`text-gray-700 ${roboto_slab.className} font-semibold`}
-                      >
-                        Margin
-                      </label>
-                      <select disabled className="my-auto bg-gray-50 border border-gray-300 px-2 rounded-md py-2">
-                        <option value="5">5rem</option>
-                        {/*<option value="A3">A3</option>
-                        <option value="A5">A5</option> */}
-                      </select>
-                    </div>
-                  </div>
+                  ) : (
+                    <></>
+                  )}
                   <div className="mb-4">
-                    <label className="mb-2 flex gap-3 text-sm font-bold text-gray-700">
-                      <IoIosArrowDown className="mt-1" />
+                    <label onClick={()=>setShowDescription(!showDescription)} className="mb-2 flex gap-3 text-sm font-bold text-gray-700">
+                      {showDescription ? (
+                        <IoIosArrowUp className="mt-1" />
+                      ) : (
+                        <IoIosArrowDown className="mt-1" />
+                      )}{" "}
                       Add Additional details
                     </label>
-                    <p></p>
-                    <textarea
-                      cols={30}
-                      rows={4}
-                      placeholder="Explain any other additional printing information here... (please be detailed as posible)"
-                      onChange={(e) => setExtraDetails(e.target.value)}
-                      className="focus:shadow-outline mb-3 w-full appearance-none rounded border px-3 py-2 text-sm leading-tight text-gray-700 shadow focus:outline-none"
-                    >
-                      {extraDetails}
-                    </textarea>
+                    <p></p>{" "}
+                    {showDescription ? (
+                      <textarea
+                        cols={30}
+                        rows={6}
+                        placeholder="Explain any other additional printing information here... (please be detailed as posible)"
+                        onChange={(e) => setExtraDetails(e.target.value)}
+                        className="focus:shadow-outline mb-3 w-full appearance-none rounded border px-3 py-2 text-sm leading-tight text-gray-700 shadow focus:outline-none"
+                      >
+                        {extraDetails}
+                      </textarea>
+                    ) : (
+                      <></>
+                    )}
                   </div>
                 </div>
                 <div className="mb-4 md:w-1/3 rounded-lg pt-6 pb-8">
@@ -940,15 +977,19 @@ export default function Create() {
 
                   <div className="w-full h-auto p-6 bg-white rounded-md flex-col justify-start items-start gap-4 inline-flex">
                     <div className="self-stretch pb-2 border-b border-neutral-200 justify-start items-center gap-2 inline-flex">
-                      <div className="grow shrink basis-0 h-6 justify-end items-start gap-2 flex">
-                        <div className="grow shrink basis-0 text-gray-700 text-xl font-medium leading-normal">
+                      <div onClick={()=>setShowSummary(!showSummary)} className="grow shrink basis-0 h-6 justify-end items-start gap-2 flex">
+                        <div  className="grow shrink basis-0 text-gray-700 text-xl font-medium leading-normal">
                           Summary
                         </div>
                       </div>
-                      <div className="w-5 h-5 relative" />
+                      {showSummary ? (
+                        <IoIosArrowUp className="mt-1" />
+                      ) : (
+                        <IoIosArrowDown className="mt-1" />
+                      )}{" "}
                     </div>
-                    <div className="self-stretch flex-col justify-start items-start gap-6 flex">
-                      <div className="self-stretch flex-col justify-start items-start gap-[18px] flex">
+                   <div className="self-stretch flex-col justify-start items-start gap-6 flex">
+                   {showSummary ?     <div className="self-stretch flex-col justify-start items-start gap-[18px] flex">
                         <div className="self-stretch justify-between items-center inline-flex md:block lg:inline-flex">
                           <div className="text-gray-700 text-base font-medium leading-normal">
                             Document name
@@ -981,7 +1022,7 @@ export default function Create() {
                             {`${addCommas(cost)}frs`}
                           </div>
                         </div>
-                      </div>
+                      </div>: <></>}
                       <div className="self-stretch justify-between items-start gap-6 inline-flex">
                         <button className="btn-tetiary">Move to Trash</button>
                         <button

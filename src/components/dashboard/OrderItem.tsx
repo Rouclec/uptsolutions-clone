@@ -52,11 +52,7 @@ export default function OrderItem({
           >
             {document?.documents[0]?.name}
           </p>
-          <p
-            className={`text-[var(--gray-400)] font-normal ${roboto.className}`}
-          >
-            {document?.documents[0]?.description}
-          </p>
+      
         </div>
       </td>
       <td className="px-4 text-[var(--gray-700)] font-light p-3 ">

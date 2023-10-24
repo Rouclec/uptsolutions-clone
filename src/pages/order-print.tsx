@@ -739,7 +739,6 @@ export default function Create() {
                       </select>
                     </div>
                   </div>
-{/* comment */}
                   <h3
                     className={`text-gray-700 ${roboto_slab.className} font-semibold my-3 gap-3 flex `}
                   >
@@ -820,7 +819,7 @@ export default function Create() {
                           // setPagesPerSheet(parseInt(e.target.value, 10))
                           setPagesPerSheet(e.target.value)
                         }
-                        disabled = {isBooklet}
+                        disabled={isBooklet}
                         className="my-auto bg-gray-50 border border-gray-300 px-2 rounded-md py-2"
                       >
                         <option value="1">1</option>
@@ -836,7 +835,10 @@ export default function Create() {
                       >
                         Layout Direction
                       </label>
-                      <select disabled className="my-auto bg-gray-50 border border-gray-300 px-2 rounded-md py-2">
+                      <select
+                        disabled
+                        className="my-auto bg-gray-50 border border-gray-300 px-2 rounded-md py-2"
+                      >
                         <option value="A4">Potrait</option>
                         {/* <option value="A3">A3</option>
                         <option value="A5">A5</option> */}
@@ -848,7 +850,10 @@ export default function Create() {
                       >
                         Margin
                       </label>
-                      <select disabled className="my-auto bg-gray-50 border border-gray-300 px-2 rounded-md py-2">
+                      <select
+                        disabled
+                        className="my-auto bg-gray-50 border border-gray-300 px-2 rounded-md py-2"
+                      >
                         <option value="5">5rem</option>
                         {/*<option value="A3">A3</option>
                         <option value="A5">A5</option> */}

@@ -739,7 +739,6 @@ export default function Create() {
                       </select>
                     </div>
                   </div>
-{/* comment */}
                   <h3
                     className={`text-gray-700 ${roboto_slab.className} font-semibold my-3 gap-3 flex `}
                   >

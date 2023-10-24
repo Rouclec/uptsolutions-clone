@@ -62,11 +62,9 @@ export default function Index() {
       const data = {
         external_ref: `Payment for print`,
         amount: Math.round(
-          (selected.reduce(function (prev: any, curr: any) {
+          selected.reduce(function (prev: any, curr: any) {
             return prev * 1 + curr.amount * 1;
-          }, 0) *
-            1) /
-            100
+          }, 0) * 1
         ),
         phoneNumber: phoneNumber.startsWith("+237")
           ? phoneNumber

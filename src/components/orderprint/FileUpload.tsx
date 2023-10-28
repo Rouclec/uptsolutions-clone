@@ -1,4 +1,7 @@
-import React, { useRef, useState } from "react";
+import { Viewer, Worker } from '@react-pdf-viewer/core';
+
+// Import the styles
+import "@react-pdf-viewer/core/lib/styles/index.css";
 
 export default function FileUpload({ url }: any) {
   return (
@@ -6,16 +9,9 @@ export default function FileUpload({ url }: any) {
       <div>
         {url ? (
           <div>
-            <object
-              data={url}
-              type="application/pdf"
-              width="100%"
-              height="500px"
-            >
-              <p>
-                Unable to display PDF file. <a href={url}>Download</a> instead.
-              </p>
-            </object>
+              <div className=''>
+                <Viewer fileUrl={url} />
+              </div>
           </div>
         ) : (
           <div>Preview Area Here</div>

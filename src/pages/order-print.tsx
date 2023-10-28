@@ -41,7 +41,7 @@ export default function Create() {
   const [paperColor, setPaperColor] = useState("");
   const [pagesToPrint, setPagesToPrint] = useState("All");
   const [showPagesInput, setShowPagesInput] = useState(false);
-  // Layout properties
+  // Layout propertiesa
   const [pagesPerSheet, setPagesPerSheet] = useState("1");
   const [printType, setPrintType] = useState("Plain");
   const [bidingType, setBidingType] = useState("No binding");
@@ -364,6 +364,12 @@ export default function Create() {
       }
       router.push("/checkout");
     }
+  };
+
+  const handleReplaceFile = () => {
+    setUrl("");
+    setCost(0);
+    setNumberOfPages(0);
   };
   return (
     <SideBar>
@@ -877,9 +883,9 @@ export default function Create() {
                     </textarea>
                   </div>
                 </div>
-                <div className="mb-4 md:w-1/3 rounded-lg pt-6 pb-8">
+                <div className="mb-4 md:w-1/3 rounded-lg pt-6 ">
                   <br />
-                  <div className="w-full h-[450px] rounded-md">
+                  <div className="w-full h-[450px] overflow-y-scroll bg-white rounded-md">
                     <div>
                       {url ? (
                         <div className="rounded-md">
@@ -890,7 +896,7 @@ export default function Create() {
                           <div className="flex items-center justify-center w-full">
                             <label
                               // for="dropzone-file"
-                              className=" w-full  border-2 h-40 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100"
+                              className=" w-full  border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100"
                             >
                               <div className="flex flex-col py-40 bg-white rounded-md items-center justify-center ">
                                 <svg
@@ -934,7 +940,7 @@ export default function Create() {
                   <div className="flex mt-20 justify-between px-3">
                     <button
                       className="my-3 hover:text-blue-500"
-                      onClick={handleUpload}
+                      onClick={handleReplaceFile}
                     >
                       Replace file
                     </button>

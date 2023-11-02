@@ -391,12 +391,10 @@ export default function Create() {
               } pending payment`}
             />
           )}
-          <div className="container w-full py-5 flex justify-end">
+          <div className="container w-full py-3 flex justify-end">
             <button
               onClick={handleUpload}
-              className={`btn-primary flex gap-2 text-lg ${
-                loading && "opacity-20"
-              }`}
+              className={`btn-primary flex text-lg ${loading && "opacity-20"}`}
               disabled={loading}
             >
               {loading ? (
@@ -429,8 +427,74 @@ export default function Create() {
         >
           <div className="flex">
             <div className="w-full">
-              <div className=" py-5 lg:rounded md:flex gap-4 ">
-                <div className="mb-4 md:w-2/3 rounded pt-6 pb-8">
+              <div className=" py-2 lg:rounded md:flex gap-4 ">
+                <div className="mb-4 md:w-2/3 rounded md:pt-6  pb-8">
+                  <div className="block md:hidden">
+                    <div className="w-full h-[450px] overflow-y-scroll bg-white rounded-md">
+                      <div>
+                        {url ? (
+                          <div className="rounded-md">
+                            <FileUpload url={url} />{" "}
+                          </div>
+                        ) : (
+                          <div className="h-full">
+                            <div className="flex items-center justify-center w-full">
+                              <label
+                                // for="dropzone-file"
+                                className=" w-full  border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100"
+                              >
+                                <div className="flex flex-col py-40 bg-white rounded-md items-center justify-center ">
+                                  <svg
+                                    className="w-8 h-8  mb-4 text-gray-500"
+                                    aria-hidden="true"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    fill="none"
+                                    viewBox="0 0 20 16"
+                                  >
+                                    <path
+                                      stroke="currentColor"
+                                      stroke-linecap="round"
+                                      stroke-linejoin="round"
+                                      stroke-width="2"
+                                      d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"
+                                    />
+                                  </svg>
+                                  <p className="mb-2 text-sm text-gray-500 dark:text-gray-400">
+                                    <span className="font-semibold">
+                                      Click to upload
+                                    </span>{" "}
+                                    or drag and drop
+                                  </p>
+                                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                                    PDF DOCUMENTS ONLY
+                                  </p>
+                                </div>
+                                <input
+                                  id="dropzone-file"
+                                  type="file"
+                                  className="hidden"
+                                  accept=".pdf"
+                                  onChange={handleFileChange}
+                                />
+                              </label>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex mt-5 justify-between px-3">
+                      <button
+                        className="my-3 hover:text-blue-500"
+                        onClick={handleReplaceFile}
+                      >
+                        Replace file
+                      </button>
+                      <button my-3>
+                        <BiTrash color="red" />
+                      </button>
+                    </div>
+                  </div>
+
                   <div className="mb-4 flex md:justify-between">
                     <div className="flex mb-4 md:mb-0 w-full gap-2">
                       <div className="w-full">
@@ -885,68 +949,70 @@ export default function Create() {
                 </div>
                 <div className="mb-4 md:w-1/3 rounded-lg pt-6 ">
                   <br />
-                  <div className="w-full h-[450px] overflow-y-scroll bg-white rounded-md">
-                    <div>
-                      {url ? (
-                        <div className="rounded-md">
-                          <FileUpload url={url} />{" "}
-                        </div>
-                      ) : (
-                        <div className="h-full">
-                          <div className="flex items-center justify-center w-full">
-                            <label
-                              // for="dropzone-file"
-                              className=" w-full  border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100"
-                            >
-                              <div className="flex flex-col py-40 bg-white rounded-md items-center justify-center ">
-                                <svg
-                                  className="w-8 h-8  mb-4 text-gray-500"
-                                  aria-hidden="true"
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  fill="none"
-                                  viewBox="0 0 20 16"
-                                >
-                                  <path
-                                    stroke="currentColor"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    stroke-width="2"
-                                    d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"
-                                  />
-                                </svg>
-                                <p className="mb-2 text-sm text-gray-500 dark:text-gray-400">
-                                  <span className="font-semibold">
-                                    Click to upload
-                                  </span>{" "}
-                                  or drag and drop
-                                </p>
-                                <p className="text-xs text-gray-500 dark:text-gray-400">
-                                  PDF DOCUMENTS ONLY
-                                </p>
-                              </div>
-                              <input
-                                id="dropzone-file"
-                                type="file"
-                                className="hidden"
-                                accept=".pdf"
-                                onChange={handleFileChange}
-                              />
-                            </label>
+                  <div className="hidden md:block ">
+                    <div className="w-full h-[450px] overflow-y-scroll bg-white rounded-md">
+                      <div>
+                        {url ? (
+                          <div className="rounded-md">
+                            <FileUpload url={url} />{" "}
                           </div>
-                        </div>
-                      )}
+                        ) : (
+                          <div className="h-full">
+                            <div className="flex items-center justify-center w-full">
+                              <label
+                                // for="dropzone-file"
+                                className=" w-full  border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100"
+                              >
+                                <div className="flex flex-col py-40 bg-white rounded-md items-center justify-center ">
+                                  <svg
+                                    className="w-8 h-8  mb-4 text-gray-500"
+                                    aria-hidden="true"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    fill="none"
+                                    viewBox="0 0 20 16"
+                                  >
+                                    <path
+                                      stroke="currentColor"
+                                      stroke-linecap="round"
+                                      stroke-linejoin="round"
+                                      stroke-width="2"
+                                      d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"
+                                    />
+                                  </svg>
+                                  <p className="mb-2 text-sm text-gray-500 dark:text-gray-400">
+                                    <span className="font-semibold">
+                                      Click to upload
+                                    </span>{" "}
+                                    or drag and drop
+                                  </p>
+                                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                                    PDF DOCUMENTS ONLY
+                                  </p>
+                                </div>
+                                <input
+                                  id="dropzone-file"
+                                  type="file"
+                                  className="hidden"
+                                  accept=".pdf"
+                                  onChange={handleFileChange}
+                                />
+                              </label>
+                            </div>
+                          </div>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                  <div className="flex mt-20 justify-between px-3">
-                    <button
-                      className="my-3 hover:text-blue-500"
-                      onClick={handleReplaceFile}
-                    >
-                      Replace file
-                    </button>
-                    <button my-3>
-                      <BiTrash color="red" />
-                    </button>
+                    <div className="flex mt-20 justify-between px-3">
+                      <button
+                        className="my-3 hover:text-blue-500"
+                        onClick={handleReplaceFile}
+                      >
+                        Replace file
+                      </button>
+                      <button my-3>
+                        <BiTrash color="red" />
+                      </button>
+                    </div>
                   </div>
 
                   <div className="w-full h-auto p-6 bg-white rounded-md flex-col justify-start items-start gap-4 inline-flex">

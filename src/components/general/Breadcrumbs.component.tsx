@@ -29,7 +29,7 @@ const BreadCrumbs: React.FC = () => {
     <div>
       <div
         arial-aria-label="breadcrumbs"
-        className="text-sm text-[var(--primary-50)] mt-5"
+        className="text-sm text-[var(--primary-50)] mt-2"
       >
         {crumbs.map((crumb: any, i: number) => {
           return (

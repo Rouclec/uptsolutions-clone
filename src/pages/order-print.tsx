@@ -30,7 +30,7 @@ import { BsArrow90DegDown, BsArrowDown } from "react-icons/bs";
 import { IoIosArrowDown } from "react-icons/io";
 
 export default function Create() {
-  const [docName, setDocName] = useState("");
+  const [docName, setDocName] = useState<any>('');
   const [numberOfCopies, setNumberOfCopies] = useState(1);
   const [coverPage, setCoverPage] = useState("Normal");
   const [paperType, setPaperType] = useState("Normal");
@@ -80,6 +80,10 @@ export default function Create() {
     e.preventDefault();
     setFile(e?.target?.files![0]);
     const files: any = e?.target?.files;
+
+    if(!docName){
+      setDocName(e?.target?.files![0].name.split(".", 1));
+    }
     files?.length > 0 && setUrl(URL.createObjectURL(files[0]));
 
     // Get Number of pages in uploaded file

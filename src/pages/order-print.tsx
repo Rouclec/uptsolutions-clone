@@ -30,7 +30,7 @@ import { BsArrow90DegDown, BsArrowDown } from "react-icons/bs";
 import { IoIosArrowDown, IoIosArrowUp } from "react-icons/io";
 
 export default function Create() {
-  const [docName, setDocName] = useState<any>('');
+  const [docName, setDocName] = useState<any>("");
   const [numberOfCopies, setNumberOfCopies] = useState(1);
   const [coverPage, setCoverPage] = useState("Normal");
   const [paperType, setPaperType] = useState("Normal");
@@ -84,7 +84,7 @@ export default function Create() {
     setFile(e?.target?.files![0]);
     const files: any = e?.target?.files;
 
-    if(!docName){
+    if (!docName) {
       setDocName(e?.target?.files![0].name.split(".", 1));
     }
     files?.length > 0 && setUrl(URL.createObjectURL(files[0]));
@@ -959,7 +959,10 @@ export default function Create() {
                     <></>
                   )}
                   <div className="mb-4">
-                    <label onClick={()=>setShowDescription(!showDescription)} className="mb-2 flex gap-3 text-sm font-bold text-gray-700">
+                    <label
+                      onClick={() => setShowDescription(!showDescription)}
+                      className="mb-2 flex gap-3 text-sm font-bold text-gray-700"
+                    >
                       {showDescription ? (
                         <IoIosArrowUp className="mt-1" />
                       ) : (
@@ -1053,8 +1056,11 @@ export default function Create() {
 
                   <div className="w-full h-auto p-6 bg-white rounded-md flex-col justify-start items-start gap-4 inline-flex">
                     <div className="self-stretch pb-2 border-b border-neutral-200 justify-start items-center gap-2 inline-flex">
-                      <div onClick={()=>setShowSummary(!showSummary)} className="grow shrink basis-0 h-6 justify-end items-start gap-2 flex">
-                        <div  className="grow shrink basis-0 text-gray-700 text-xl font-medium leading-normal">
+                      <div
+                        onClick={() => setShowSummary(!showSummary)}
+                        className="grow shrink basis-0 h-6 justify-end items-start gap-2 flex"
+                      >
+                        <div className="grow shrink basis-0 text-gray-700 text-xl font-medium leading-normal">
                           Summary
                         </div>
                       </div>
@@ -1064,41 +1070,45 @@ export default function Create() {
                         <IoIosArrowDown className="mt-1" />
                       )}{" "}
                     </div>
-                   <div className="self-stretch flex-col justify-start items-start gap-6 flex">
-                   {showSummary ?     <div className="self-stretch flex-col justify-start items-start gap-[18px] flex">
-                        <div className="self-stretch justify-between items-center inline-flex md:block lg:inline-flex">
-                          <div className="text-gray-700 text-base font-medium leading-normal">
-                            Document name
+                    <div className="self-stretch flex-col justify-start items-start gap-6 flex">
+                      {showSummary ? (
+                        <div className="self-stretch flex-col justify-start items-start gap-[18px] flex">
+                          <div className="self-stretch justify-between items-center inline-flex md:block lg:inline-flex">
+                            <div className="text-gray-700 text-base font-medium leading-normal">
+                              Document name
+                            </div>
+                            <div className="text-gray-700 text-base font-normal leading-normal">
+                              {docName || ""}
+                            </div>
                           </div>
-                          <div className="text-gray-700 text-base font-normal leading-normal">
-                            {docName || ""}
+                          <div className="self-stretch justify-between items-center  inline-flex md:block lg:inline-flex">
+                            <div className="text-gray-700 text-base font-medium leading-normal">
+                              Uploaded date
+                            </div>
+                            <div className="text-gray-700 text-base font-normal leading-normal">
+                              {moment().format("DD/MM/YYY")}
+                            </div>
                           </div>
-                        </div>
-                        <div className="self-stretch justify-between items-center  inline-flex md:block lg:inline-flex">
-                          <div className="text-gray-700 text-base font-medium leading-normal">
-                            Uploaded date
-                          </div>
-                          <div className="text-gray-700 text-base font-normal leading-normal">
-                            {moment().format("DD/MM/YYY")}
-                          </div>
-                        </div>
-                        <div className="self-stretch justify-between items-center  inline-flex md:block lg:inline-flex">
-                          <div className=" text-gray-700 text-base font-medium leading-normal">
-                            Total pages
-                          </div>
-                          <div className="text-gray-700 text-base font-normal leading-normal">
-                            {numberOfPages ? numberOfPages : "-"}
-                          </div>
-                        </div>
-                        <div className="self-stretch pb-2 border-b border-neutral-200 justify-between items-center  inline-flex">
-                          <div className="w-[84px] text-gray-700 text-base font-medium leading-normal">
-                            Total Cost
-                          </div>
-                          <div className="text-gray-700 text-base font-normal leading-normal">
-                            {`${addCommas(cost)}frs`}
+                          <div className="self-stretch justify-between items-center  inline-flex md:block lg:inline-flex">
+                            <div className=" text-gray-700 text-base font-medium leading-normal">
+                              Total pages
+                            </div>
+                            <div className="text-gray-700 text-base font-normal leading-normal">
+                              {numberOfPages ? numberOfPages : "-"}
+                            </div>
                           </div>
                         </div>
-                      </div>: <></>}
+                      ) : (
+                        <></>
+                      )}
+                      <div className="self-stretch pb-2 border-b border-neutral-200 justify-between items-center  inline-flex">
+                        <div className="w-[84px] text-gray-700 text-base font-medium leading-normal">
+                          Total Cost
+                        </div>
+                        <div className="text-gray-700 text-base font-normal leading-normal">
+                          {`${addCommas(cost)}frs`}
+                        </div>
+                      </div>
                       <div className="self-stretch justify-between items-start gap-6 inline-flex">
                         <button className="btn-tetiary">Move to Trash</button>
                         <button

@@ -63,6 +63,9 @@ export default function Create() {
   const [showAdvancedSetting, setShowAdvancedSetting] = useState(false);
   const [showDescription, setShowDescription] = useState(false);
   const [showSummary, setShowSummary] = useState(false);
+  const [bindingSummaryCost, setBindingSummaryCost] = useState(0)
+  let bindingCost = 0;
+
   const session = useSession();
 
   const queryClient = useQueryClient();
@@ -196,7 +199,6 @@ export default function Create() {
 
   const calculateAmount = useMemo(() => {
     let unitPrice = 0;
-    let bindingCost = 0;
     let numberOfSheets =
       printSides === "Recto"
         ? Math.ceil(numberOfPages / parseInt(pagesPerSheet))
@@ -268,7 +270,7 @@ export default function Create() {
       coverPage === "Normal" && bindingCost > 0
         ? bindingCost - 150
         : bindingCost;
-
+setBindingSummaryCost(bindingCost);
     const total = (numberOfSheets * unitPrice + bindingCost) * numberOfCopies;
 
     return Math.round(total * 1.03);
@@ -1073,7 +1075,7 @@ export default function Create() {
                     <div className="self-stretch flex-col justify-start items-start gap-6 flex">
                       {showSummary ? (
                         <div className="self-stretch flex-col justify-start items-start gap-[18px] flex">
-                          <div className="self-stretch justify-between items-center inline-flex md:block lg:inline-flex">
+                          <div className="self-stretch justify-between items-center inline-flex lg:inline-flex">
                             <div className="text-gray-700 text-base font-medium leading-normal">
                               Document name
                             </div>
@@ -1081,7 +1083,7 @@ export default function Create() {
                               {docName || ""}
                             </div>
                           </div>
-                          <div className="self-stretch justify-between items-center  inline-flex md:block lg:inline-flex">
+                          <div className="self-stretch justify-between items-cente  inline-flex inline-flex">
                             <div className="text-gray-700 text-base font-medium leading-normal">
                               Uploaded date
                             </div>
@@ -1089,12 +1091,27 @@ export default function Create() {
                               {moment().format("DD/MM/YYY")}
                             </div>
                           </div>
-                          <div className="self-stretch justify-between items-center  inline-flex md:block lg:inline-flex">
+                          <div className="self-stretch justify-between items-center  inline-flex flex">
                             <div className=" text-gray-700 text-base font-medium leading-normal">
                               Total pages
                             </div>
                             <div className="text-gray-700 text-base font-normal leading-normal">
                               {numberOfPages ? numberOfPages : "-"}
+                            </div>
+                          </div>
+                          <div className="self-stretch justify-between items-center  inline-flex flex">
+                            <div className=" text-gray-700 text-base font-medium leading-normal">
+                              Printing Cost
+                            </div>
+                            <div className="text-gray-700 text-base font-normal leading-normal">
+                              {numberOfPages ? cost-bindingSummaryCost : "-"}
+                            </div>
+                          </div>  <div className="self-stretch justify-between items-center  inline-flex flex">
+                            <div className=" text-gray-700 text-base font-medium leading-normal">
+                              Binding Cost
+                            </div>
+                            <div className="text-gray-700 text-base font-normal leading-normal">
+                              {bindingSummaryCost ? bindingSummaryCost : "-"}
                             </div>
                           </div>
                         </div>
@@ -1105,7 +1122,7 @@ export default function Create() {
                         <div className="w-[84px] text-gray-700 text-base font-medium leading-normal">
                           Total Cost
                         </div>
-                        <div className="text-gray-700 text-base font-normal leading-normal">
+                        <div className="text-gray-700 text-base font-bold leading-normal">
                           {`${addCommas(cost)}frs`}
                         </div>
                       </div>

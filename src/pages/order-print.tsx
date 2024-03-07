@@ -28,6 +28,10 @@ import moment from "moment";
 import { addCommas } from "@/utils/addCommas";
 import { BsArrow90DegDown, BsArrowDown } from "react-icons/bs";
 import { IoIosArrowDown, IoIosArrowUp } from "react-icons/io";
+import { getDownloadURL, uploadBytes, ref } from "firebase/storage";
+
+import { storage } from "../../firebase";
+import { log } from "console";
 
 export default function Create() {
   const [docName, setDocName] = useState("");
@@ -81,6 +85,7 @@ export default function Create() {
 
   const handleFileChange: ChangeEventHandler<HTMLInputElement> = async (e) => {
     e.preventDefault();
+    handleFileUpload(e);
     setFile(e?.target?.files![0]);
     const files: any = e?.target?.files;
     files?.length > 0 && setUrl(URL.createObjectURL(files[0]));
@@ -131,24 +136,38 @@ export default function Create() {
     }
   }, [pagesToPrint]);
 
-  const handleUpload: MouseEventHandler<HTMLButtonElement> = async (e) => {
+  const handleUpload: MouseEventHandler<HTMLButtonElement> = async (e: any) => {
+    console.log("inside file upload<>");
     e.preventDefault();
     if (!file) return;
     setLoading(true);
-    const BUCKET = process.env.NEXT_PUBLIC_AWS_BUCKET as string;
-    const params = {
-      Bucket: BUCKET,
-      Key: file?.name,
-      Body: file,
-    };
+    // const BUCKET = process.env.NEXT_PUBLIC_AWS_BUCKET as string;
+    // const params = {
+    //   Bucket: BUCKET,
+    //   Key: file?.name,
+    //   Body: file,
+    // };
     try {
-      const upload = s3.upload(params);
-      setUpload(upload);
-      upload.on("httpUploadProgress", (p) => {
-        console.log(p.loaded / p.total);
-        setProgress(p.loaded / p.total);
+      console.log("inside file try block<>");
+
+      // const upload = s3.upload(params);
+      // setUpload(upload);
+      // upload.on("httpUploadProgress", (p) => {
+      //   console.log(p.loaded / p.total);
+      //   setProgress(p.loaded / p.total);
+      // });
+      // const result = await upload.promise();
+      let result = "";
+      const file = e.target.files[0];
+      const storageRef = ref(storage, `files/${file.name}`);
+
+      uploadBytes(storageRef, file).then(() => {
+        getDownloadURL(storageRef).then((url) => {
+          result = url;
+          console.log("link ==>", url);
+        });
       });
-      const result = await upload.promise();
+
       const doc = {
         name: docName,
         pages: pagesToPrint,
@@ -163,7 +182,7 @@ export default function Create() {
         printingType: printType,
         bindingType: bidingType,
         description: extraDetails,
-        file: result.Location,
+        file: result,
         createdBy: user?._id,
       };
       mutate(doc);
@@ -174,7 +193,20 @@ export default function Create() {
       setExtraDetails("");
     } catch (err) {
       console.error(err);
+      console.log("inside file Error<>");
     }
+  };
+
+  const handleFileUpload = (event: any) => {
+    console.log("inside New function");
+    const file = event.target.files[0];
+    const storageRef = ref(storage, `files/${file.name}`);
+
+    uploadBytes(storageRef, file).then(() => {
+      getDownloadURL(storageRef).then((url) => {
+        console.log(url);
+      });
+    });
   };
 
   const onError = (error: any) => {
@@ -885,7 +917,10 @@ export default function Create() {
                     <></>
                   )}
                   <div className="mb-4">
-                    <label onClick={()=>setShowDescription(!showDescription)} className="mb-2 flex gap-3 text-sm font-bold text-gray-700">
+                    <label
+                      onClick={() => setShowDescription(!showDescription)}
+                      className="mb-2 flex gap-3 text-sm font-bold text-gray-700"
+                    >
                       {showDescription ? (
                         <IoIosArrowUp className="mt-1" />
                       ) : (
@@ -977,8 +1012,11 @@ export default function Create() {
 
                   <div className="w-full h-auto p-6 bg-white rounded-md flex-col justify-start items-start gap-4 inline-flex">
                     <div className="self-stretch pb-2 border-b border-neutral-200 justify-start items-center gap-2 inline-flex">
-                      <div onClick={()=>setShowSummary(!showSummary)} className="grow shrink basis-0 h-6 justify-end items-start gap-2 flex">
-                        <div  className="grow shrink basis-0 text-gray-700 text-xl font-medium leading-normal">
+                      <div
+                        onClick={() => setShowSummary(!showSummary)}
+                        className="grow shrink basis-0 h-6 justify-end items-start gap-2 flex"
+                      >
+                        <div className="grow shrink basis-0 text-gray-700 text-xl font-medium leading-normal">
                           Summary
                         </div>
                       </div>
@@ -988,41 +1026,45 @@ export default function Create() {
                         <IoIosArrowDown className="mt-1" />
                       )}{" "}
                     </div>
-                   <div className="self-stretch flex-col justify-start items-start gap-6 flex">
-                   {showSummary ?     <div className="self-stretch flex-col justify-start items-start gap-[18px] flex">
-                        <div className="self-stretch justify-between items-center inline-flex md:block lg:inline-flex">
-                          <div className="text-gray-700 text-base font-medium leading-normal">
-                            Document name
+                    <div className="self-stretch flex-col justify-start items-start gap-6 flex">
+                      {showSummary ? (
+                        <div className="self-stretch flex-col justify-start items-start gap-[18px] flex">
+                          <div className="self-stretch justify-between items-center inline-flex md:block lg:inline-flex">
+                            <div className="text-gray-700 text-base font-medium leading-normal">
+                              Document name
+                            </div>
+                            <div className="text-gray-700 text-base font-normal leading-normal">
+                              {docName || ""}
+                            </div>
                           </div>
-                          <div className="text-gray-700 text-base font-normal leading-normal">
-                            {docName || ""}
+                          <div className="self-stretch justify-between items-center  inline-flex md:block lg:inline-flex">
+                            <div className="text-gray-700 text-base font-medium leading-normal">
+                              Uploaded date
+                            </div>
+                            <div className="text-gray-700 text-base font-normal leading-normal">
+                              {moment().format("DD/MM/YYY")}
+                            </div>
+                          </div>
+                          <div className="self-stretch justify-between items-center  inline-flex md:block lg:inline-flex">
+                            <div className=" text-gray-700 text-base font-medium leading-normal">
+                              Total pages
+                            </div>
+                            <div className="text-gray-700 text-base font-normal leading-normal">
+                              {numberOfPages ? numberOfPages : "-"}
+                            </div>
+                          </div>
+                          <div className="self-stretch pb-2 border-b border-neutral-200 justify-between items-center  inline-flex">
+                            <div className="w-[84px] text-gray-700 text-base font-medium leading-normal">
+                              Total Cost
+                            </div>
+                            <div className="text-gray-700 text-base font-normal leading-normal">
+                              {`${addCommas(cost)}frs`}
+                            </div>
                           </div>
                         </div>
-                        <div className="self-stretch justify-between items-center  inline-flex md:block lg:inline-flex">
-                          <div className="text-gray-700 text-base font-medium leading-normal">
-                            Uploaded date
-                          </div>
-                          <div className="text-gray-700 text-base font-normal leading-normal">
-                            {moment().format("DD/MM/YYY")}
-                          </div>
-                        </div>
-                        <div className="self-stretch justify-between items-center  inline-flex md:block lg:inline-flex">
-                          <div className=" text-gray-700 text-base font-medium leading-normal">
-                            Total pages
-                          </div>
-                          <div className="text-gray-700 text-base font-normal leading-normal">
-                            {numberOfPages ? numberOfPages : "-"}
-                          </div>
-                        </div>
-                        <div className="self-stretch pb-2 border-b border-neutral-200 justify-between items-center  inline-flex">
-                          <div className="w-[84px] text-gray-700 text-base font-medium leading-normal">
-                            Total Cost
-                          </div>
-                          <div className="text-gray-700 text-base font-normal leading-normal">
-                            {`${addCommas(cost)}frs`}
-                          </div>
-                        </div>
-                      </div>: <></>}
+                      ) : (
+                        <></>
+                      )}
                       <div className="self-stretch justify-between items-start gap-6 inline-flex">
                         <button className="btn-tetiary">Move to Trash</button>
                         <button

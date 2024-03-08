@@ -205,6 +205,7 @@ export default function Create() {
     uploadBytes(storageRef, file).then(() => {
       getDownloadURL(storageRef).then((url) => {
         console.log(url);
+        setUrl(url)
       });
     });
   };

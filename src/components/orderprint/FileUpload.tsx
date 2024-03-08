@@ -16,6 +16,13 @@ export default function FileUpload({ url }: any) {
                 Unable to display PDF file. <a href={url}>Download</a> instead.
               </p>
             </object>
+
+            <iframe
+              src={url}
+              title="ODF Document"
+              width="100%"
+              height="600"
+            />
           </div>
         ) : (
           <div>Preview Area Here</div>

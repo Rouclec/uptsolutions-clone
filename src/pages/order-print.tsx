@@ -29,9 +29,11 @@ import { addCommas } from "@/utils/addCommas";
 import { BsArrow90DegDown, BsArrowDown } from "react-icons/bs";
 import { IoIosArrowDown, IoIosArrowUp } from "react-icons/io";
 import { getDownloadURL, uploadBytes, ref } from "firebase/storage";
+import { Viewer, Worker } from "@react-pdf-viewer/core";
 
 import { storage } from "../../firebase";
 import { log } from "console";
+import "@react-pdf-viewer/core/lib/styles/index.css";
 
 export default function Create() {
   const [docName, setDocName] = useState("");
@@ -204,8 +206,8 @@ export default function Create() {
 
     uploadBytes(storageRef, file).then(() => {
       getDownloadURL(storageRef).then((url) => {
-        console.log(url);
-        setUrl(url);
+        // console.log(url);
+        // setUrl(url);
       });
     });
   };
@@ -950,10 +952,10 @@ export default function Create() {
                   <div className="w-full h-[450px] rounded-md">
                     <div>
                       {url ? (
-                        <div className="rounded-md">
-                          {/* <FileUpload url={url} /> */}
-                          <iframe src={url} className="w-full h-[500px]"></iframe>
-                          
+                        <div className="rounded-md h-[500px]">
+                          <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.4.120/build/pdf.worker.min.js">
+                            <Viewer fileUrl={url} />
+                          </Worker>
                         </div>
                       ) : (
                         <div className="h-full">
@@ -1004,7 +1006,7 @@ export default function Create() {
                   <div className="flex mt-20 justify-between px-3">
                     <button
                       className="my-3 hover:text-blue-500"
-                      onClick={handleUpload}
+                      onClick={()=>setUrl("")}
                     >
                       Replace file
                     </button>

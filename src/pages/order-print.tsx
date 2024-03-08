@@ -205,7 +205,7 @@ export default function Create() {
     uploadBytes(storageRef, file).then(() => {
       getDownloadURL(storageRef).then((url) => {
         console.log(url);
-        setUrl(url)
+        setUrl(url);
       });
     });
   };
@@ -951,7 +951,9 @@ export default function Create() {
                     <div>
                       {url ? (
                         <div className="rounded-md">
-                          <FileUpload url={url} />{" "}
+                          {/* <FileUpload url={url} /> */}
+                          <iframe src={url} className="w-full h-[500px]"></iframe>
+                          
                         </div>
                       ) : (
                         <div className="h-full">

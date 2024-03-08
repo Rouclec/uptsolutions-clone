@@ -72,7 +72,7 @@ export default function Signup() {
       <div className="grid grid-rows-5 md:grid-cols-2 w-screen h-screen md:flex">
         <div className="row-span-2 w-full h-full">
           <Image
-            src={"/assets/printer.png"}
+            src={"/assets/printer.jpg"}
             alt="success"
             width={0}
             height={0}

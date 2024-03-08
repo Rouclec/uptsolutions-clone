@@ -74,20 +74,20 @@ const SideBar: FC<Props> = ({ children }) => {
             onClick={() => setShowSideBar(!showSideBar)}
             id={"menu"}
           />
-          <Image src={"/assets/logo.png"} alt="logo" width={28} height={28} />
+          <Image src={"/assets/logo.png"} alt="logo" width={30} height={30} />
           <p className="font-[dm-sans] text-[var(--primary-600)] font-semibold text-xl hidden md:block">
             Universal PrinTech
           </p>
         </div>
         <div className="flex w-[100vw] md:w-[calc(100vw-16rem)] justify-between items-center">
           <div className="flex gap-2 items-center md:w-[80%] ">
-            <HiMagnifyingGlass
+            {/* <HiMagnifyingGlass
               className="text-[var(--gray-700)] hover:cursor-pointer"
               size={18}
             />
             <p className={`text-[var(--gray-500)] ${roboto.className}`}>
               Search
-            </p>
+            </p> */}
           </div>
           <div className="md:w-[20%] flex items-center gap-2 justify-evenly">
             <HiOutlineRefresh className="text-[var(--gray-700)] font-extralight hover:cursor-pointer text-lg md:text-3xl" />
@@ -196,7 +196,7 @@ export default SideBar;
 const NotificationDropdown = () => {
   return (
     <div
-      className="absolute right-0 z-10 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
+      className="absolute right-0 z-[10] mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
       role="menu"
       aria-orientation="vertical"
       aria-labelledby="menu-button"

@@ -1,7 +1,7 @@
-// import { Viewer, Worker } from "@react-pdf-viewer/core";
+import { Viewer, Worker } from "@react-pdf-viewer/core";
 
-// // Import the styles
-// import "@react-pdf-viewer/core/lib/styles/index.css";
+// Import the styles
+import "@react-pdf-viewer/core/lib/styles/index.css";
 
 export default function FileUpload({ url }: any) {
   return (
@@ -10,7 +10,9 @@ export default function FileUpload({ url }: any) {
         {url ? (
           <div>
             <div className="">
-                {/* <Viewer fileUrl={url} /> */}
+              <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.4.120/build/pdf.worker.min.js">
+                <Viewer fileUrl={url} />
+              </Worker>
             </div>
           </div>
         ) : (

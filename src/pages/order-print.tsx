@@ -36,7 +36,7 @@ import { log } from "console";
 import "@react-pdf-viewer/core/lib/styles/index.css";
 
 export default function Create() {
-  const [docName, setDocName] = useState("");
+  const [docName, setDocName] = useState<any>("");
   const [numberOfCopies, setNumberOfCopies] = useState(1);
   const [coverPage, setCoverPage] = useState("Normal");
   const [paperType, setPaperType] = useState("Normal");
@@ -47,7 +47,7 @@ export default function Create() {
   const [paperColor, setPaperColor] = useState("");
   const [pagesToPrint, setPagesToPrint] = useState("All");
   const [showPagesInput, setShowPagesInput] = useState(false);
-  // Layout properties
+  // Layout propertiesa
   const [pagesPerSheet, setPagesPerSheet] = useState("1");
   const [printType, setPrintType] = useState("Plain");
   const [bidingType, setBidingType] = useState("No binding");
@@ -69,6 +69,10 @@ export default function Create() {
   const [showAdvancedSetting, setShowAdvancedSetting] = useState(false);
   const [showDescription, setShowDescription] = useState(false);
   const [showSummary, setShowSummary] = useState(false);
+  const [bindingSummaryCost, setBindingSummaryCost] = useState(0)
+  const [filePath, setFilePath] = useState('');
+  let bindingCost = 0;
+
   const session = useSession();
 
   const queryClient = useQueryClient();
@@ -90,6 +94,10 @@ export default function Create() {
     handleFileUpload(e);
     setFile(e?.target?.files![0]);
     const files: any = e?.target?.files;
+
+    if (!docName) {
+      setDocName(e?.target?.files![0].name.split(".", 1));
+    }
     files?.length > 0 && setUrl(URL.createObjectURL(files[0]));
 
     // Get Number of pages in uploaded file
@@ -195,7 +203,6 @@ export default function Create() {
       setExtraDetails("");
     } catch (err) {
       console.error(err);
-      console.log("inside file Error<>");
     }
   };
 
@@ -206,10 +213,34 @@ export default function Create() {
 
     uploadBytes(storageRef, file).then(() => {
       getDownloadURL(storageRef).then((url) => {
-        // console.log(url);
-        // setUrl(url);
+          setFilePath(url)
       });
     });
+
+    const doc = {
+      name: docName,
+      pages: pagesToPrint,
+      coverPage,
+      paperType,
+      paperSize,
+      orientation,
+      printSides,
+      color: printColor,
+      pagesPerSheet,
+      amount: cost,
+      printingType: printType,
+      bindingType: bidingType,
+      description: extraDetails,
+      file: filePath,
+      createdBy: user?._id,
+    };
+
+    mutate(doc);
+
+    setDocName("");
+    setUrl("");
+    setNumberOfCopies(1);
+    setExtraDetails("");
   };
 
   const onError = (error: any) => {
@@ -227,7 +258,6 @@ export default function Create() {
 
   const calculateAmount = useMemo(() => {
     let unitPrice = 0;
-    let bindingCost = 0;
     let numberOfSheets =
       printSides === "Recto"
         ? Math.ceil(numberOfPages / parseInt(pagesPerSheet))
@@ -299,7 +329,7 @@ export default function Create() {
       coverPage === "Normal" && bindingCost > 0
         ? bindingCost - 150
         : bindingCost;
-
+setBindingSummaryCost(bindingCost);
     const total = (numberOfSheets * unitPrice + bindingCost) * numberOfCopies;
 
     return Math.round(total * 1.03);
@@ -403,6 +433,12 @@ export default function Create() {
       router.push("/checkout");
     }
   };
+
+  const handleReplaceFile = () => {
+    setUrl("");
+    setCost(0);
+    setNumberOfPages(0);
+  };
   return (
     <SideBar>
       <div>
@@ -423,12 +459,10 @@ export default function Create() {
               } pending payment`}
             />
           )}
-          <div className="container w-full py-5 flex justify-end">
+          <div className="container w-full py-3 flex justify-end">
             <button
               onClick={handleUpload}
-              className={`btn-primary flex gap-2 text-lg ${
-                loading && "opacity-20"
-              }`}
+              className={`btn-primary flex text-lg ${loading && "opacity-20"}`}
               disabled={loading}
             >
               {loading ? (
@@ -461,8 +495,74 @@ export default function Create() {
         >
           <div className="flex">
             <div className="w-full">
-              <div className=" py-5 lg:rounded md:flex gap-4 ">
-                <div className="mb-4 md:w-2/3 rounded pt-6 pb-8">
+              <div className=" py-2 lg:rounded md:flex gap-4 ">
+                <div className="mb-4 md:w-2/3 rounded md:pt-6  pb-8">
+                  <div className="block md:hidden">
+                    <div className="w-full h-[450px] overflow-y-scroll bg-white rounded-md">
+                      <div>
+                        {url ? (
+                          <div className="rounded-md">
+                            <FileUpload url={url} />{" "}
+                          </div>
+                        ) : (
+                          <div className="h-full">
+                            <div className="flex items-center justify-center w-full">
+                              <label
+                                // for="dropzone-file"
+                                className=" w-full  border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100"
+                              >
+                                <div className="flex flex-col py-40 bg-white rounded-md items-center justify-center ">
+                                  <svg
+                                    className="w-8 h-8  mb-4 text-gray-500"
+                                    aria-hidden="true"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    fill="none"
+                                    viewBox="0 0 20 16"
+                                  >
+                                    <path
+                                      stroke="currentColor"
+                                      stroke-linecap="round"
+                                      stroke-linejoin="round"
+                                      stroke-width="2"
+                                      d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"
+                                    />
+                                  </svg>
+                                  <p className="mb-2 text-sm text-gray-500 dark:text-gray-400">
+                                    <span className="font-semibold">
+                                      Click to upload
+                                    </span>{" "}
+                                    or drag and drop
+                                  </p>
+                                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                                    PDF DOCUMENTS ONLY
+                                  </p>
+                                </div>
+                                <input
+                                  id="dropzone-file"
+                                  type="file"
+                                  className="hidden"
+                                  accept=".pdf"
+                                  onChange={handleFileChange}
+                                />
+                              </label>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex mt-5 justify-between px-3">
+                      <button
+                        className="my-3 hover:text-blue-500"
+                        onClick={handleReplaceFile}
+                      >
+                        Replace file
+                      </button>
+                      <button my-3>
+                        <BiTrash color="red" />
+                      </button>
+                    </div>
+                  </div>
+
                   <div className="mb-4 flex md:justify-between">
                     <div className="flex mb-4 md:mb-0 w-full gap-2">
                       <div className="w-full">
@@ -947,72 +1047,72 @@ export default function Create() {
                     )}
                   </div>
                 </div>
-                <div className="mb-4 md:w-1/3 rounded-lg pt-6 pb-8">
+                <div className="mb-4 md:w-1/3 rounded-lg pt-6 ">
                   <br />
-                  <div className="w-full h-[450px] rounded-md">
-                    <div>
-                      {url ? (
-                        <div className="rounded-md h-[500px]">
-                          <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.4.120/build/pdf.worker.min.js">
-                            <Viewer fileUrl={url} />
-                          </Worker>
-                        </div>
-                      ) : (
-                        <div className="h-full">
-                          <div className="flex items-center justify-center w-full">
-                            <label
-                              // for="dropzone-file"
-                              className=" w-full  border-2 h-40 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100"
-                            >
-                              <div className="flex flex-col py-40 bg-white rounded-md items-center justify-center ">
-                                <svg
-                                  className="w-8 h-8  mb-4 text-gray-500"
-                                  aria-hidden="true"
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  fill="none"
-                                  viewBox="0 0 20 16"
-                                >
-                                  <path
-                                    stroke="currentColor"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    stroke-width="2"
-                                    d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"
-                                  />
-                                </svg>
-                                <p className="mb-2 text-sm text-gray-500 dark:text-gray-400">
-                                  <span className="font-semibold">
-                                    Click to upload
-                                  </span>{" "}
-                                  or drag and drop
-                                </p>
-                                <p className="text-xs text-gray-500 dark:text-gray-400">
-                                  PDF DOCUMENTS ONLY
-                                </p>
-                              </div>
-                              <input
-                                id="dropzone-file"
-                                type="file"
-                                className="hidden"
-                                accept=".pdf"
-                                onChange={handleFileChange}
-                              />
-                            </label>
+                  <div className="hidden md:block ">
+                    <div className="w-full h-[450px] overflow-y-scroll bg-white rounded-md">
+                      <div>
+                        {url ? (
+                          <div className="rounded-md">
+                            <FileUpload url={url} />{" "}
                           </div>
-                        </div>
-                      )}
+                        ) : (
+                          <div className="h-full">
+                            <div className="flex items-center justify-center w-full">
+                              <label
+                                // for="dropzone-file"
+                                className=" w-full  border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100"
+                              >
+                                <div className="flex flex-col py-40 bg-white rounded-md items-center justify-center ">
+                                  <svg
+                                    className="w-8 h-8  mb-4 text-gray-500"
+                                    aria-hidden="true"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    fill="none"
+                                    viewBox="0 0 20 16"
+                                  >
+                                    <path
+                                      stroke="currentColor"
+                                      stroke-linecap="round"
+                                      stroke-linejoin="round"
+                                      stroke-width="2"
+                                      d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"
+                                    />
+                                  </svg>
+                                  <p className="mb-2 text-sm text-gray-500 dark:text-gray-400">
+                                    <span className="font-semibold">
+                                      Click to upload
+                                    </span>{" "}
+                                    or drag and drop
+                                  </p>
+                                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                                    PDF DOCUMENTS ONLY
+                                  </p>
+                                </div>
+                                <input
+                                  id="dropzone-file"
+                                  type="file"
+                                  className="hidden"
+                                  accept=".pdf"
+                                  onChange={handleFileChange}
+                                />
+                              </label>
+                            </div>
+                          </div>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                  <div className="flex mt-20 justify-between px-3">
-                    <button
-                      className="my-3 hover:text-blue-500"
-                      onClick={()=>setUrl("")}
-                    >
-                      Replace file
-                    </button>
-                    <button my-3>
-                      <BiTrash color="red" />
-                    </button>
+                    <div className="flex mt-20 justify-between px-3">
+                      <button
+                        className="my-3 hover:text-blue-500"
+                        onClick={handleReplaceFile}
+                      >
+                        Replace file
+                      </button>
+                      <button my-3>
+                        <BiTrash color="red" />
+                      </button>
+                    </div>
                   </div>
 
                   <div className="w-full h-auto p-6 bg-white rounded-md flex-col justify-start items-start gap-4 inline-flex">
@@ -1034,7 +1134,7 @@ export default function Create() {
                     <div className="self-stretch flex-col justify-start items-start gap-6 flex">
                       {showSummary ? (
                         <div className="self-stretch flex-col justify-start items-start gap-[18px] flex">
-                          <div className="self-stretch justify-between items-center inline-flex md:block lg:inline-flex">
+                          <div className="self-stretch justify-between items-center inline-flex lg:inline-flex">
                             <div className="text-gray-700 text-base font-medium leading-normal">
                               Document name
                             </div>
@@ -1042,7 +1142,7 @@ export default function Create() {
                               {docName || ""}
                             </div>
                           </div>
-                          <div className="self-stretch justify-between items-center  inline-flex md:block lg:inline-flex">
+                          <div className="self-stretch justify-between items-cente  inline-flex inline-flex">
                             <div className="text-gray-700 text-base font-medium leading-normal">
                               Uploaded date
                             </div>
@@ -1050,7 +1150,7 @@ export default function Create() {
                               {moment().format("DD/MM/YYY")}
                             </div>
                           </div>
-                          <div className="self-stretch justify-between items-center  inline-flex md:block lg:inline-flex">
+                          <div className="self-stretch justify-between items-center  inline-flex flex">
                             <div className=" text-gray-700 text-base font-medium leading-normal">
                               Total pages
                             </div>
@@ -1058,18 +1158,33 @@ export default function Create() {
                               {numberOfPages ? numberOfPages : "-"}
                             </div>
                           </div>
-                          <div className="self-stretch pb-2 border-b border-neutral-200 justify-between items-center  inline-flex">
-                            <div className="w-[84px] text-gray-700 text-base font-medium leading-normal">
-                              Total Cost
+                          <div className="self-stretch justify-between items-center  inline-flex flex">
+                            <div className=" text-gray-700 text-base font-medium leading-normal">
+                              Printing Cost
                             </div>
                             <div className="text-gray-700 text-base font-normal leading-normal">
-                              {`${addCommas(cost)}frs`}
+                              {numberOfPages ? cost-bindingSummaryCost : "-"}
+                            </div>
+                          </div>  <div className="self-stretch justify-between items-center  inline-flex flex">
+                            <div className=" text-gray-700 text-base font-medium leading-normal">
+                              Binding Cost
+                            </div>
+                            <div className="text-gray-700 text-base font-normal leading-normal">
+                              {bindingSummaryCost ? bindingSummaryCost : "-"}
                             </div>
                           </div>
                         </div>
                       ) : (
                         <></>
                       )}
+                      <div className="self-stretch pb-2 border-b border-neutral-200 justify-between items-center  inline-flex">
+                        <div className="w-[84px] text-gray-700 text-base font-medium leading-normal">
+                          Total Cost
+                        </div>
+                        <div className="text-gray-700 text-base font-bold leading-normal">
+                          {`${addCommas(cost)}frs`}
+                        </div>
+                      </div>
                       <div className="self-stretch justify-between items-start gap-6 inline-flex">
                         <button className="btn-tetiary">Move to Trash</button>
                         <button

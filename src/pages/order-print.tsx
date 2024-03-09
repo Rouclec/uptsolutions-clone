@@ -28,9 +28,14 @@ import moment from "moment";
 import { addCommas } from "@/utils/addCommas";
 import { BsArrow90DegDown, BsArrowDown } from "react-icons/bs";
 import { IoIosArrowDown, IoIosArrowUp } from "react-icons/io";
+import { getDownloadURL, uploadBytes, ref } from "firebase/storage";
+
+import { storage } from "../../firebase";
+import { log } from "console";
+import "@react-pdf-viewer/core/lib/styles/index.css";
 
 export default function Create() {
-  const [docName, setDocName] = useState<any>("");
+  const [docName, setDocName] = useState("");
   const [numberOfCopies, setNumberOfCopies] = useState(1);
   const [coverPage, setCoverPage] = useState("Normal");
   const [paperType, setPaperType] = useState("Normal");
@@ -64,6 +69,7 @@ export default function Create() {
   const [showDescription, setShowDescription] = useState(false);
   const [showSummary, setShowSummary] = useState(false);
   const [bindingSummaryCost, setBindingSummaryCost] = useState(0)
+  const [filePath, setFilePath] = useState('');
   let bindingCost = 0;
 
   const session = useSession();
@@ -84,11 +90,12 @@ export default function Create() {
 
   const handleFileChange: ChangeEventHandler<HTMLInputElement> = async (e) => {
     e.preventDefault();
+    // handleUpload(e);
     setFile(e?.target?.files![0]);
     const files: any = e?.target?.files;
 
     if (!docName) {
-      setDocName(e?.target?.files![0].name.split(".", 1));
+      setDocName(e?.target?.files![0].name.split(".", 1)[0]);
     }
     files?.length > 0 && setUrl(URL.createObjectURL(files[0]));
 
@@ -138,50 +145,46 @@ export default function Create() {
     }
   }, [pagesToPrint]);
 
-  const handleUpload: MouseEventHandler<HTMLButtonElement> = async (e) => {
-    e.preventDefault();
-    if (!file) return;
-    setLoading(true);
-    const BUCKET = process.env.NEXT_PUBLIC_AWS_BUCKET as string;
-    const params = {
-      Bucket: BUCKET,
-      Key: file?.name,
-      Body: file,
-    };
-    try {
-      const upload = s3.upload(params);
-      setUpload(upload);
-      upload.on("httpUploadProgress", (p) => {
-        console.log(p.loaded / p.total);
-        setProgress(p.loaded / p.total);
-      });
-      const result = await upload.promise();
-      const doc = {
-        name: docName,
-        pages: pagesToPrint,
-        coverPage,
-        paperType,
-        paperSize,
-        orientation,
-        printSides,
-        color: printColor,
-        pagesPerSheet,
-        amount: cost,
-        printingType: printType,
-        bindingType: bidingType,
-        description: extraDetails,
-        file: result.Location,
-        createdBy: user?._id,
-      };
-      mutate(doc);
+  const handleUpload: MouseEventHandler<HTMLButtonElement> = async (e: any) => {
 
-      setDocName("");
-      setUrl("");
-      setNumberOfCopies(1);
-      setExtraDetails("");
-    } catch (err) {
-      console.error(err);
-    }
+    e.preventDefault();
+    // const file = e?.target?.files[0];
+    if (!file) return;
+    const storageRef = ref(storage, `files/${file.name}`);
+
+     uploadBytes(storageRef, file).then(() => {
+      getDownloadURL(storageRef).then((url) => {
+          setFilePath(url)
+          const doc = {
+            name: docName,
+            pages: pagesToPrint,
+            coverPage,
+            paperType,
+            paperSize,
+            orientation,
+            printSides,
+            color: printColor,
+            pagesPerSheet,
+            amount: cost,
+            printingType: printType,
+            bindingType: bidingType,
+            description: extraDetails,
+            file: filePath,
+            createdBy: user?._id,
+          };
+          mutate(doc);
+    
+          console.log("Document==>", doc)
+          setDocName("");
+          setUrl("");
+          setNumberOfCopies(1);
+          setExtraDetails("");
+      });
+    });
+
+
+    
+   
   };
 
   const onError = (error: any) => {
@@ -337,40 +340,8 @@ setBindingSummaryCost(bindingCost);
     if (docName && file) {
       if (!file) return;
       setLoading(true);
-      const BUCKET = process.env.NEXT_PUBLIC_AWS_BUCKET as string;
-      const params = {
-        Bucket: BUCKET,
-        Key: file?.name,
-        Body: file,
-      };
-      try {
-        const upload = s3.upload(params);
-        setUpload(upload);
-        upload.on("httpUploadProgress", (p) => {
-          console.log(p.loaded / p.total);
-          setProgress(p.loaded / p.total);
-        });
-        const result = await upload.promise();
-        const doc = {
-          name: docName,
-          pages: pagesToPrint,
-          coverPage,
-          paperSize,
-          orientation,
-          printSides,
-          color: printColor,
-          pagesPerSheet,
-          amount: cost,
-          printingType: printType,
-          bindingType: bidingType,
-          description: extraDetails,
-          file: result.Location,
-          createdBy: user?._id,
-        };
-        mutate(doc);
-      } catch (err) {
-        console.error(err);
-      }
+
+     handleUpload(e)
       router.push("/checkout");
     }
   };

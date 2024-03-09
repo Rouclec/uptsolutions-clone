@@ -35,7 +35,7 @@ import { log } from "console";
 import "@react-pdf-viewer/core/lib/styles/index.css";
 
 export default function Create() {
-  const [docName, setDocName] = useState<any>("");
+  const [docName, setDocName] = useState("");
   const [numberOfCopies, setNumberOfCopies] = useState(1);
   const [coverPage, setCoverPage] = useState("Normal");
   const [paperType, setPaperType] = useState("Normal");
@@ -95,7 +95,7 @@ export default function Create() {
     const files: any = e?.target?.files;
 
     if (!docName) {
-      setDocName(e?.target?.files![0].name.split(".", 1));
+      setDocName(e?.target?.files![0].name.split(".", 1)[0]);
     }
     files?.length > 0 && setUrl(URL.createObjectURL(files[0]));
 

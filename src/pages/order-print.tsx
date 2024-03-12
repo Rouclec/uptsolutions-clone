@@ -9,10 +9,7 @@ import React, {
   useState,
 } from "react";
 import { BiTrash } from "react-icons/bi";
-import { useSelector } from "react-redux";
-import { RootState } from "@/store";
 import { useSession } from "next-auth/react";
-import { S3 } from "aws-sdk";
 import { Header, OrderAlert, SideBar, toaster } from "@/components";
 import { HiOutlinePlus } from "react-icons/hi2";
 import { roboto, roboto_slab } from "./_app";
@@ -23,16 +20,14 @@ import {
 } from "@/hooks/document/useDocument";
 import { useQueryClient } from "@tanstack/react-query";
 import { Squares } from "react-activity";
-import Link from "next/link";
 import moment from "moment";
 import { addCommas } from "@/utils/addCommas";
-import { BsArrow90DegDown, BsArrowDown } from "react-icons/bs";
 import { IoIosArrowDown, IoIosArrowUp } from "react-icons/io";
 import { getDownloadURL, uploadBytes, ref } from "firebase/storage";
 
 import { storage } from "../../firebase";
-import { log } from "console";
 import "@react-pdf-viewer/core/lib/styles/index.css";
+import { doc } from "prettier";
 
 export default function Create() {
   const [docName, setDocName] = useState("");
@@ -46,15 +41,16 @@ export default function Create() {
   const [paperColor, setPaperColor] = useState("");
   const [pagesToPrint, setPagesToPrint] = useState("All");
   const [showPagesInput, setShowPagesInput] = useState(false);
-  // Layout propertiesa
+  const [file, setFile] = useState<File | null>();
+
+  // Layout properties
   const [pagesPerSheet, setPagesPerSheet] = useState("1");
   const [printType, setPrintType] = useState("Plain");
   const [bidingType, setBidingType] = useState("No binding");
   const [extraDetails, setExtraDetails] = useState("");
   const [cost, setCost] = useState<number>(0);
-  const [file, setFile] = useState<File | null>(null);
   const [numberOfPages, setNumberOfPages] = useState<number>(0);
-  const [upload, setUpload] = useState<S3.ManagedUpload | null>(null);
+  const [upload, setUpload] = useState<null>(null);
   const [showAlert, setShowAlert] = useState(true);
   const [progress, setProgress] = useState(0);
   const [pageExceeded, setPageExceeded] = useState(false);
@@ -68,8 +64,8 @@ export default function Create() {
   const [showAdvancedSetting, setShowAdvancedSetting] = useState(false);
   const [showDescription, setShowDescription] = useState(false);
   const [showSummary, setShowSummary] = useState(false);
-  const [bindingSummaryCost, setBindingSummaryCost] = useState(0)
-  const [filePath, setFilePath] = useState('');
+  const [bindingSummaryCost, setBindingSummaryCost] = useState(0);
+  const [filePath, setFilePath] = useState("");
   let bindingCost = 0;
 
   const session = useSession();
@@ -78,25 +74,15 @@ export default function Create() {
 
   const user = session.data?.user as User;
 
-  const s3 = new S3({
-    accessKeyId: process.env.NEXT_PUBLIC_AWS_ACCESS_TOKEN,
-    secretAccessKey: process.env.NEXT_PUBLIC_AWS_SECRET_ACCESS_KEY,
-  });
-
-  useEffect(() => {
-    setProgress(0);
-    setUpload(null);
-  }, [file]);
-
   const handleFileChange: ChangeEventHandler<HTMLInputElement> = async (e) => {
     e.preventDefault();
-    // handleUpload(e);
-    setFile(e?.target?.files![0]);
     const files: any = e?.target?.files;
+    setFile(e?.target?.files![0]);
 
     if (!docName) {
       setDocName(e?.target?.files![0].name.split(".", 1)[0]);
     }
+
     files?.length > 0 && setUrl(URL.createObjectURL(files[0]));
 
     // Get Number of pages in uploaded file
@@ -118,73 +104,91 @@ export default function Create() {
     }
   };
 
-  function calculateIndividualPages() {
-    const pageRanges = pagesToPrint.split(",");
-    // setPageExceeded(false);
-
-    let individualPages = [];
-    for (let i = 0; i < pageRanges.length; i++) {
-      const range = pageRanges[i].split("-");
-      const start = parseInt(range[0]);
-      const end = range[1] ? parseInt(range[1]) : start;
-      for (let j = start; j <= end; j++) {
-        individualPages.push(j);
-        if (j > maxPage) {
-          setPageExceeded(true);
-        } else {
-          setNumberOfPages(individualPages.length);
-          setPageExceeded(false);
-        }
-      }
-    }
-  }
+  useEffect(() => {
+    console.log({ file }, " from use effect");
+  }, [file]);
 
   useEffect(() => {
+    const calculateIndividualPages = () => {
+      const pageRanges = pagesToPrint.split(",");
+      let individualPages = [];
+      let pageExceeded = false;
+
+      for (let i = 0; i < pageRanges.length; i++) {
+        const range = pageRanges[i].split("-");
+        const start = parseInt(range[0]);
+        const end = range[1] ? parseInt(range[1]) : start;
+
+        for (let j = start; j <= end; j++) {
+          individualPages.push(j);
+          if (j > maxPage) {
+            pageExceeded = true;
+          }
+        }
+      }
+
+      setNumberOfPages(individualPages.length);
+      setPageExceeded(pageExceeded);
+
+      // Return the individualPages array to be memoized
+      return individualPages;
+    };
+
     if (pagesToPrint !== "All") {
       calculateIndividualPages();
+      // Use the individualPages array as needed
     }
-  }, [pagesToPrint]);
+  }, [maxPage, pagesToPrint]);
 
-  const handleUpload: MouseEventHandler<HTMLButtonElement> = async (e: any) => {
-
-    e.preventDefault();
-    // const file = e?.target?.files[0];
+  const handleUpload = async () => {
+    console.log({ file }, "from handle upload");
     if (!file) return;
+    console.log("Upload started........................................");
     const storageRef = ref(storage, `files/${file.name}`);
 
-     uploadBytes(storageRef, file).then(() => {
+    uploadBytes(storageRef, file).then(() => {
       getDownloadURL(storageRef).then((url) => {
-          setFilePath(url)
-          const doc = {
-            name: docName,
-            pages: pagesToPrint,
-            coverPage,
-            paperType,
-            paperSize,
-            orientation,
-            printSides,
-            color: printColor,
-            pagesPerSheet,
-            amount: cost,
-            printingType: printType,
-            bindingType: bidingType,
-            description: extraDetails,
-            file: filePath,
-            createdBy: user?._id,
-          };
-          mutate(doc);
-    
-          console.log("Document==>", doc)
-          setDocName("");
-          setUrl("");
-          setNumberOfCopies(1);
-          setExtraDetails("");
+        setFilePath(url);
+        console.log(
+          "Upload finished.........................................."
+        );
       });
     });
+  };
 
+  const handleCreate = () => {
+    if (!(docName && filePath)) return;
+    const doc = {
+      name: docName,
+      pages: pagesToPrint,
+      coverPage,
+      paperType,
+      paperSize,
+      orientation,
+      printSides,
+      color: printColor,
+      pagesPerSheet,
+      amount: cost,
+      printingType: printType,
+      bindingType: bidingType,
+      description: extraDetails,
+      file: filePath,
+      createdBy: user?._id,
+    };
+    setLoading(true);
+    mutate(doc);
+    setLoading(false);
+  };
 
-    
-   
+  const handleAddDocument = async () => {
+    setLoading(true);
+    handleUpload();
+    handleCreate()
+    setFile(null);
+    setUrl("");
+    setFilePath("");
+    setDocName("");
+    setLoading(false);
   };
 
   const onError = (error: any) => {
@@ -194,8 +198,8 @@ export default function Create() {
       error?.response
         ? error.response.data.message
         : error?.message
-        ? error.message
-        : "An unknown error occured",
+          ? error.message
+          : "An unknown error occured",
       "error"
     );
   };
@@ -213,67 +217,67 @@ export default function Create() {
         bidingType === "Spiral"
           ? 500
           : bidingType === "Slide binding"
-          ? 450
-          : bidingType === "Normal gum"
-          ? 2000
-          : bidingType === "Hard gum"
-          ? 5000
-          : 0;
+            ? 450
+            : bidingType === "Normal gum"
+              ? 2000
+              : bidingType === "Hard gum"
+                ? 5000
+                : 0;
     } else if (totalSheets < 25) {
       unitPrice = printColor === "true" ? 100 : 25;
       bindingCost =
         bidingType === "Spiral"
           ? 500
           : bidingType === "Slide binding"
-          ? 500
-          : bidingType === "Normal gum"
-          ? 2000
-          : bidingType === "Hard gum"
-          ? 5000
-          : 0;
+            ? 500
+            : bidingType === "Normal gum"
+              ? 2000
+              : bidingType === "Hard gum"
+                ? 5000
+                : 0;
     } else if (totalSheets < 70) {
       unitPrice = printColor === "true" ? 100 : 20;
       bindingCost =
         bidingType === "Spiral"
           ? 600
           : bidingType === "Slide binding"
-          ? 550
-          : bidingType === "Normal gum"
-          ? 2000
-          : bidingType === "Hard gum"
-          ? 5000
-          : 0;
+            ? 550
+            : bidingType === "Normal gum"
+              ? 2000
+              : bidingType === "Hard gum"
+                ? 5000
+                : 0;
     } else if (totalSheets < 100) {
       unitPrice = printColor === "true" ? 100 : 20;
       bindingCost =
         bidingType === "Spiral"
           ? 700
           : bidingType === "Slide binding"
-          ? 650
-          : bidingType === "Normal gum"
-          ? 2000
-          : bidingType === "Hard gum"
-          ? 5000
-          : 0;
+            ? 650
+            : bidingType === "Normal gum"
+              ? 2000
+              : bidingType === "Hard gum"
+                ? 5000
+                : 0;
     } else {
       unitPrice = printColor === "true" ? 100 : 20;
       bindingCost =
         bidingType === "Spiral"
           ? 750
           : bidingType === "Slide binding"
-          ? 650
-          : bidingType === "Normal gum"
-          ? 2000
-          : bidingType === "Hard gum"
-          ? 5000
-          : 0;
+            ? 650
+            : bidingType === "Normal gum"
+              ? 2000
+              : bidingType === "Hard gum"
+                ? 5000
+                : 0;
     }
 
     bindingCost =
       coverPage === "Normal" && bindingCost > 0
         ? bindingCost - 150
         : bindingCost;
-setBindingSummaryCost(bindingCost);
+    setBindingSummaryCost(bindingCost);
     const total = (numberOfSheets * unitPrice + bindingCost) * numberOfCopies;
 
     return Math.round(total * 1.03);
@@ -326,31 +330,30 @@ setBindingSummaryCost(bindingCost);
   const { isLoading: isGetLoading, data: pendingDocuments } =
     useGetUserPendingDocuments(user?._id as string, () => {}, onError);
 
-  const handleCancel: MouseEventHandler<HTMLButtonElement> = (e) => {
-    e.preventDefault();
-    if (!upload) return;
-    () => {};
-    upload.abort();
-    setProgress(0);
-    setUpload(null);
-  };
+  // const handleCancel: MouseEventHandler<HTMLButtonElement> = (e) => {
+  //   e.preventDefault();
+  //   if (!upload) return;
+  //   () => {};
+  //   // upload.abort();
+  //   setProgress(0);
+  //   setUpload(null);
+  // };
+
   const router = useRouter();
+
   const handleProceed: MouseEventHandler<HTMLButtonElement> = async (e) => {
     e.preventDefault();
-    if (docName && file) {
-      if (!file) return;
-      setLoading(true);
-
-     handleUpload(e)
-      router.push("/checkout");
-    }
+    handleUpload();
+    handleCreate();
+    router.push("/checkout");
   };
 
   const handleReplaceFile = () => {
-    setUrl("");
+    setFilePath("");
     setCost(0);
     setNumberOfPages(0);
   };
+
   return (
     <SideBar>
       <div>
@@ -373,7 +376,7 @@ setBindingSummaryCost(bindingCost);
           )}
           <div className="container w-full py-3 flex justify-end">
             <button
-              onClick={handleUpload}
+              onClick={handleAddDocument}
               className={`btn-primary flex text-lg ${loading && "opacity-20"}`}
               disabled={loading}
             >
@@ -1075,9 +1078,10 @@ setBindingSummaryCost(bindingCost);
                               Printing Cost
                             </div>
                             <div className="text-gray-700 text-base font-normal leading-normal">
-                              {numberOfPages ? cost-bindingSummaryCost : "-"}
+                              {numberOfPages ? cost - bindingSummaryCost : "-"}
                             </div>
-                          </div>  <div className="self-stretch justify-between items-center  inline-flex flex">
+                          </div>{" "}
+                          <div className="self-stretch justify-between items-center  inline-flex flex">
                             <div className=" text-gray-700 text-base font-medium leading-normal">
                               Binding Cost
                             </div>

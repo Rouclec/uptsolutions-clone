@@ -1,6 +1,3 @@
-import { User } from "@/types";
-import { PDFDocument } from "pdf-lib";
-import { useRouter } from "next/router";
 import React, {
   ChangeEventHandler,
   MouseEventHandler,
@@ -8,6 +5,10 @@ import React, {
   useMemo,
   useState,
 } from "react";
+
+import { User } from "@/types";
+import { PDFDocument } from "pdf-lib";
+import { useRouter } from "next/router";
 import { BiTrash } from "react-icons/bi";
 import { useSession } from "next-auth/react";
 import { Header, OrderAlert, SideBar, toaster } from "@/components";
@@ -30,6 +31,8 @@ import "@react-pdf-viewer/core/lib/styles/index.css";
 import { doc } from "prettier";
 
 export default function Create() {
+  const [loading, setLoading] = useState(false);
+
   const [docName, setDocName] = useState("");
   const [numberOfCopies, setNumberOfCopies] = useState(1);
   const [coverPage, setCoverPage] = useState("Normal");
@@ -55,7 +58,7 @@ export default function Create() {
   const [progress, setProgress] = useState(0);
   const [pageExceeded, setPageExceeded] = useState(false);
   const [maxPage, setMaxPage] = useState<number>(0);
-  const [loading, setLoading] = useState(false);
+
   const [binding, setBinding] = useState(false);
   const [isBooklet, setIsBooklet] = useState(false);
   const [url, setUrl] = React.useState("");
@@ -143,8 +146,12 @@ export default function Create() {
   const handleUpload = async () => {
     console.log({ file }, "from handle upload");
     if (!file) return;
+    setLoading(true);
     console.log("Upload started........................................");
-    const storageRef = ref(storage, `files/${file.name}`);
+    const storageRef = ref(
+      storage,
+      `files/${file.name}-${moment().format("YYYY-MM-DD-HH:MM:SS")}`
+    );
 
     uploadBytes(storageRef, file).then(() => {
       getDownloadURL(storageRef).then((url) => {
@@ -154,6 +161,7 @@ export default function Create() {
         );
       });
     });
+    setLoading(false);
   };
 
   const handleCreate = () => {
@@ -182,8 +190,8 @@ export default function Create() {
 
   const handleAddDocument = async () => {
     setLoading(true);
-    handleUpload();
-    handleCreate()
+    await handleUpload(); // Wait for handleUpload to complete
+    handleCreate();
     setFile(null);
     setUrl("");
     setFilePath("");
@@ -343,8 +351,10 @@ export default function Create() {
 
   const handleProceed: MouseEventHandler<HTMLButtonElement> = async (e) => {
     e.preventDefault();
-    handleUpload();
+    setLoading(true)
+    await handleUpload();
     handleCreate();
+    setLoading(false)
     router.push("/checkout");
   };
 
@@ -353,6 +363,12 @@ export default function Create() {
     setCost(0);
     setNumberOfPages(0);
   };
+
+  useEffect(() => {
+    console.log({ loading }, "from use effect");
+  }, [loading]);
+
+  console.log({ loading });
 
   return (
     <SideBar>

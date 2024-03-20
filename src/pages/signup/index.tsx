@@ -37,23 +37,27 @@ export default function Signup() {
       error?.response
         ? error.response.data.message
         : error?.message
-        ? error.message
-        : "An unknown error occured",
+          ? error.message
+          : "An unknown error occured",
       "error"
     );
   };
 
   const onSuccess = async (data: any) => {
-    setIsLogingIn(true);
-    const status = await signIn("credentials", {
-      redirect: false,
-      email: data?.data?.data?.user?.email,
-      password: password,
-      callbackUrl: "/",
-    });
+    try {
+      setIsLogingIn(true);
+      const status = await signIn("credentials", {
+        redirect: false,
+        email: data?.data?.data?.user?.email,
+        password: password,
+        callbackUrl: "/",
+      });
 
-    if (status?.ok) router.push(status?.url as any);
-    setIsLogingIn(false);
+      if (status?.ok) router.push(status?.url as any);
+      setIsLogingIn(false);
+    } catch (error) {
+      console.error("Error on login: ", error);
+    }
   };
 
   const handleSignUp = () => {

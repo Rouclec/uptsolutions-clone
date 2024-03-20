@@ -11,9 +11,11 @@ const createOrder = catchAsync(async (req, res) => {
         user: req?.body?.user,
         method: req?.body?.method
     }
+    
     req?.body?.documents.forEach(async document => {
         await Document.findByIdAndUpdate(document, { status: 'paid' })
     })
+
     const order = await Order.create(body)
     return res.status(200).json({
         status: "OK",

@@ -81,8 +81,8 @@ export default function Index() {
       error?.response
         ? error.response.data.message
         : error?.message
-        ? error.message
-        : "An unknown error occured",
+          ? error.message
+          : "An unknown error occured",
       "error"
     );
   };
@@ -116,8 +116,7 @@ export default function Index() {
   const { isLoading } = useGetUserPendingDocuments(
     user?._id as string,
     onSuccess,
-    onError,
-    !!pendingDocuments
+    onError
   );
 
   const { isLoading: isCreateOrderLoading, mutate: createOrder } =

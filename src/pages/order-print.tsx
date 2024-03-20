@@ -28,7 +28,6 @@ import { getDownloadURL, uploadBytes, ref } from "firebase/storage";
 
 import { storage } from "../../firebase";
 import "@react-pdf-viewer/core/lib/styles/index.css";
-import { doc } from "prettier";
 
 export default function Create() {
   const [loading, setLoading] = useState(false);
@@ -68,7 +67,6 @@ export default function Create() {
   const [showDescription, setShowDescription] = useState(false);
   const [showSummary, setShowSummary] = useState(false);
   const [bindingSummaryCost, setBindingSummaryCost] = useState(0);
-  const [filePath, setFilePath] = useState("");
   let bindingCost = 0;
 
   const session = useSession();
@@ -76,141 +74,6 @@ export default function Create() {
   const queryClient = useQueryClient();
 
   const user = session.data?.user as User;
-
-  const handleFileChange: ChangeEventHandler<HTMLInputElement> = async (e) => {
-    e.preventDefault();
-    const files: any = e?.target?.files;
-    setFile(e?.target?.files![0]);
-
-    if (!docName) {
-      setDocName(e?.target?.files![0].name.split(".", 1)[0]);
-    }
-
-    files?.length > 0 && setUrl(URL.createObjectURL(files[0]));
-
-    // Get Number of pages in uploaded file
-    const arrayBuffer = await e.target.files![0].arrayBuffer();
-    const pdfDoc = await PDFDocument.load(arrayBuffer);
-    const totalPages = pdfDoc.getPages().length;
-    setMaxPage(totalPages);
-    if (pagesToPrint == "All") {
-      setNumberOfPages(totalPages);
-    }
-  };
-
-  const handlePages = (e: any) => {
-    if (e.target.value == "Some Pages") {
-      setShowPagesInput(true);
-    } else {
-      setPagesToPrint(e.target.value);
-      setShowPagesInput(false);
-    }
-  };
-
-  useEffect(() => {
-    console.log({ file }, " from use effect");
-  }, [file]);
-
-  useEffect(() => {
-    const calculateIndividualPages = () => {
-      const pageRanges = pagesToPrint.split(",");
-      let individualPages = [];
-      let pageExceeded = false;
-
-      for (let i = 0; i < pageRanges.length; i++) {
-        const range = pageRanges[i].split("-");
-        const start = parseInt(range[0]);
-        const end = range[1] ? parseInt(range[1]) : start;
-
-        for (let j = start; j <= end; j++) {
-          individualPages.push(j);
-          if (j > maxPage) {
-            pageExceeded = true;
-          }
-        }
-      }
-
-      setNumberOfPages(individualPages.length);
-      setPageExceeded(pageExceeded);
-
-      // Return the individualPages array to be memoized
-      return individualPages;
-    };
-
-    if (pagesToPrint !== "All") {
-      calculateIndividualPages();
-      // Use the individualPages array as needed
-    }
-  }, [maxPage, pagesToPrint]);
-
-  const handleUpload = async () => {
-    console.log({ file }, "from handle upload");
-    if (!file) return;
-    setLoading(true);
-    console.log("Upload started........................................");
-    const storageRef = ref(
-      storage,
-      `files/${file.name}-${moment().format("YYYY-MM-DD-HH:MM:SS")}`
-    );
-
-    uploadBytes(storageRef, file).then(() => {
-      getDownloadURL(storageRef).then((url) => {
-        setFilePath(url);
-        console.log(
-          "Upload finished.........................................."
-        );
-      });
-    });
-    setLoading(false);
-  };
-
-  const handleCreate = () => {
-    if (!(docName && filePath)) return;
-    const doc = {
-      name: docName,
-      pages: pagesToPrint,
-      coverPage,
-      paperType,
-      paperSize,
-      orientation,
-      printSides,
-      color: printColor,
-      pagesPerSheet,
-      amount: cost,
-      printingType: printType,
-      bindingType: bidingType,
-      description: extraDetails,
-      file: filePath,
-      createdBy: user?._id,
-    };
-    setLoading(true);
-    mutate(doc);
-    setLoading(false);
-  };
-
-  const handleAddDocument = async () => {
-    setLoading(true);
-    await handleUpload(); // Wait for handleUpload to complete
-    handleCreate();
-    setFile(null);
-    setUrl("");
-    setFilePath("");
-    setDocName("");
-    setLoading(false);
-  };
-
-  const onError = (error: any) => {
-    setLoading(false);
-    console.log("error creating: ", error);
-    toaster(
-      error?.response
-        ? error.response.data.message
-        : error?.message
-          ? error.message
-          : "An unknown error occured",
-      "error"
-    );
-  };
 
   const calculateAmount = useMemo(() => {
     let unitPrice = 0;
@@ -304,8 +167,108 @@ export default function Create() {
     setCost(amount);
   }, [calculateAmount]);
 
+  const handlePages = (e: any) => {
+    if (e.target.value == "Some Pages") {
+      setShowPagesInput(true);
+    } else {
+      setPagesToPrint(e.target.value);
+      setShowPagesInput(false);
+    }
+  };
+
+  useEffect(() => {
+    const calculateIndividualPages = () => {
+      const pageRanges = pagesToPrint.split(",");
+      let individualPages = [];
+      let pageExceeded = false;
+
+      for (let i = 0; i < pageRanges.length; i++) {
+        const range = pageRanges[i].split("-");
+        const start = parseInt(range[0]);
+        const end = range[1] ? parseInt(range[1]) : start;
+
+        for (let j = start; j <= end; j++) {
+          individualPages.push(j);
+          if (j > maxPage) {
+            pageExceeded = true;
+          }
+        }
+      }
+
+      setNumberOfPages(individualPages.length);
+      setPageExceeded(pageExceeded);
+
+      // Return the individualPages array to be memoized
+      return individualPages;
+    };
+
+    if (pagesToPrint !== "All") {
+      calculateIndividualPages();
+      // Use the individualPages array as needed
+    }
+  }, [maxPage, pagesToPrint]);
+
+  const handleFileChange: ChangeEventHandler<HTMLInputElement> = async (e) => {
+    e.preventDefault();
+    const files: any = e?.target?.files;
+    setFile(e?.target?.files![0]);
+
+    if (!docName) {
+      setDocName(e?.target?.files![0].name.split(".", 1)[0]);
+    }
+
+    files?.length > 0 && setUrl(URL.createObjectURL(files[0]));
+
+    // Get Number of pages in uploaded file
+    const arrayBuffer = await e.target.files![0].arrayBuffer();
+    const pdfDoc = await PDFDocument.load(arrayBuffer);
+    const totalPages = pdfDoc.getPages().length;
+    setMaxPage(totalPages);
+    if (pagesToPrint == "All") {
+      setNumberOfPages(totalPages);
+    }
+  };
+
+  const reset = () => {
+    setFile(null);
+    setUrl("");
+    setDocName("");
+    setNumberOfCopies(1);
+    setCoverPage("Normal");
+    setPaperType("Normal");
+    setPaperSize("A4");
+    setOrientation("Potrait");
+    setprintSides("Recto");
+    setPrintColor("false");
+    setPaperColor("");
+    setPagesToPrint("All");
+    setShowPagesInput(false);
+
+    // Layout properties
+    setPagesPerSheet("1");
+    setPrintType("Plain");
+    setBidingType("No binding");
+    setExtraDetails("");
+    setCost(0);
+    setNumberOfPages(0);
+    setUpload(null);
+    setShowAlert(true);
+    setProgress(0);
+    setPageExceeded(false);
+    setMaxPage(0);
+    setBinding(false);
+
+    setIsBooklet(false);
+    setUrl("");
+    setShowBinding(false);
+
+    setShowAdvancedSetting(false);
+    setShowDescription(false);
+    setShowSummary(false);
+    setBindingSummaryCost(0);
+  };
+
   const onSuccess = (data: any) => {
-    setLoading(false);
     console.log("data uploaded: ", data);
 
     const oldQueryData = queryClient.getQueryData([
@@ -331,12 +294,73 @@ export default function Create() {
           ["documents", user?._id, "pending"],
           () => data
         );
-    //TODO: clear input fields
+    reset();
+  };
+
+  const onError = (error: any) => {
+    setLoading(false);
+    console.error("error creating: ", error);
+    toaster(
+      error?.response
+        ? error.response.data.message
+        : error?.message
+          ? error.message
+          : "An unknown error occured",
+      "error"
+    );
   };
 
   const { mutate } = useUploadDocument(onSuccess, onError);
+
   const { isLoading: isGetLoading, data: pendingDocuments } =
     useGetUserPendingDocuments(user?._id as string, () => {}, onError);
+
+  const handleCreate = async () => {
+    let filePath = null;
+    if (!file) return;
+    setLoading(true);
+    console.log("Upload started........................................");
+    const storageRef = ref(
+      storage,
+      `files/${file.name}-${moment().format("YYYY-MM-DD-HH:MM:SS")}`
+    );
+
+    try {
+      await uploadBytes(storageRef, file);
+      const downloadURL = await getDownloadURL(storageRef);
+      filePath = downloadURL;
+      console.log("Upload finished..........................................");
+    } catch (error) {
+      console.error("Error uploading file:", error);
+      onError(error);
+    }
+
+    console.log({ docName });
+    console.log({ filePath });
+    if (!(docName && filePath)) {
+      setLoading(false);
+      return;
+    }
+    const doc = {
+      name: docName,
+      pages: pagesToPrint,
+      coverPage,
+      paperType,
+      paperSize,
+      orientation,
+      printSides,
+      color: printColor,
+      pagesPerSheet,
+      amount: cost,
+      printingType: printType,
+      bindingType: bidingType,
+      description: extraDetails,
+      file: filePath,
+      createdBy: user?._id,
+    };
+    mutate(doc);
+    setLoading(false);
+  };
 
   // const handleCancel: MouseEventHandler<HTMLButtonElement> = (e) => {
   //   e.preventDefault();
@@ -351,24 +375,11 @@ export default function Create() {
 
   const handleProceed: MouseEventHandler<HTMLButtonElement> = async (e) => {
     e.preventDefault();
-    setLoading(true)
-    await handleUpload();
-    handleCreate();
-    setLoading(false)
+    setLoading(true);
+    await handleCreate();
+    setLoading(false);
     router.push("/checkout");
   };
-
-  const handleReplaceFile = () => {
-    setFilePath("");
-    setCost(0);
-    setNumberOfPages(0);
-  };
-
-  useEffect(() => {
-    console.log({ loading }, "from use effect");
-  }, [loading]);
-
-  console.log({ loading });
 
   return (
     <SideBar>
@@ -392,7 +403,7 @@ export default function Create() {
           )}
           <div className="container w-full py-3 flex justify-end">
             <button
-              onClick={handleAddDocument}
+              onClick={handleCreate}
               className={`btn-primary flex text-lg ${loading && "opacity-20"}`}
               disabled={loading}
             >
@@ -484,7 +495,7 @@ export default function Create() {
                     <div className="flex mt-5 justify-between px-3">
                       <button
                         className="my-3 hover:text-blue-500"
-                        onClick={handleReplaceFile}
+                        onClick={() => reset()}
                       >
                         Replace file
                       </button>
@@ -1036,7 +1047,7 @@ export default function Create() {
                     <div className="flex mt-20 justify-between px-3">
                       <button
                         className="my-3 hover:text-blue-500"
-                        onClick={handleReplaceFile}
+                        onClick={() => reset()}
                       >
                         Replace file
                       </button>

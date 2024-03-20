@@ -70,6 +70,8 @@ export default function Index() {
           ? phoneNumber
           : `+237${phoneNumber}`,
       };
+
+      console.log({ data });
       mutate(data);
       setShowModal("init");
     }
@@ -93,6 +95,7 @@ export default function Index() {
 
   const onProcessPaymentSucess = (data: any) => {
     const { status } = data?.data?.data;
+    console.log("payment data", { data });
     if (status === "FAILED") {
       setShowModal("canceled");
       setPaid(true);

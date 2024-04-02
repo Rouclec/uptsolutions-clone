@@ -49,7 +49,7 @@ export default function OrderDetails({
               </div>
               <div className="w-[81px] justify-start items-start inline-flex">
                 <Link href={document?.file as string} >
-                <div className="grow shrink basis-0 text-violet-700 text-sm font-normal leading-none">
+                <div className="grow shrink basis-0 pr-10 text-violet-700 text-sm font-normal leading-none">
                     View
                   </div>
                 </Link>

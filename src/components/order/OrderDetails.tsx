@@ -1,4 +1,5 @@
 import { Command } from "@/types";
+import Link from "next/link";
 import React, { SetStateAction, useEffect, useState } from "react";
 import { FaFilePdf } from "react-icons/fa";
 interface Props {
@@ -19,21 +20,6 @@ export default function OrderDetails({
     setUrl(document.file);
   }, []);
 
-  const handlePrint = () => {
-    var pdfUrl = document?.file;
-    var xhr: any = new XMLHttpRequest();
-    xhr.open("GET", pdfUrl, true);
-    xhr.responseType = "blob";
-    xhr.onload = function (e: any) {
-      if (this.status == 200) {
-        var blob = new Blob([this.response], { type: "application/pdf" });
-        var url = URL.createObjectURL(blob);
-        var win = window?.open(url, "_blank");
-        win?.print();
-      }
-    };
-    xhr.send();
-  };
 
   return (
     <div>
@@ -62,14 +48,11 @@ export default function OrderDetails({
                 {document.name}{" "}
               </div>
               <div className="w-[81px] justify-start items-start inline-flex">
-                <button
-                  onClick={handlePrint}
-                  className="grow shrink basis-0 h-4 justify-start items-start gap-2 flex"
-                >
-                  <div className="grow shrink basis-0 text-violet-700 text-sm font-normal leading-none">
+                <Link href={document?.file as string} >
+                <div className="grow shrink basis-0 text-violet-700 text-sm font-normal leading-none">
                     View
                   </div>
-                </button>
+                </Link>
                 <div className="grow shrink basis-0 text-violet-700 text-sm font-normal leading-none">
                   Save
                 </div>
